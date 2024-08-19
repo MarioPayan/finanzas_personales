@@ -1,12 +1,12 @@
 import { TabType } from "../components/Tabs";
-import steps, { StepType } from "../steps";
+import steps, { Step } from "../steps";
 
-export const stepToTab = (step: StepType, index: number): TabType => ({ ...step, index })
+export const stepToTab = (step: Step, index: number): TabType => ({ ...step, index })
 
 export const defaultTab = stepToTab(steps[0], -1)
 
 export const loadTabsFromSteps = (
-  steps: StepType[],
+  steps: Step[],
   setTabs: (tabs: TabType[]) => void,
   setCurrentTabKey: (key: TabType['key']) => void
 ) => {

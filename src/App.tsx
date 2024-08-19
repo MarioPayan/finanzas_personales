@@ -1,42 +1,45 @@
-import { useEffect, useState } from 'react';
-import steps, { defaultStep } from './steps';
-import AppContainer from './components/AppContainer';
-import Tabs, { TabType } from './components/Tabs';
-import Slide, { SlideDirection } from './components/Slide';
-import Score from './components/Score';
-import ContentContainer, { externalDivProps } from './components/ContentContainer';
-import TabContent from './components/TabContent';
-import { defaultTab, getTabFromKey, getTabIndexFromKey, loadTabsFromSteps } from './utils/tabs';
+import {useEffect, useState} from 'react'
+import steps, {defaultStep} from './steps'
+import AppContainer from './components/AppContainer'
+import Tabs, {TabType} from './components/Tabs'
+import Slide, {SlideDirection} from './components/Slide'
+import Score from './components/Score'
+import ContentContainer, {externalDivProps} from './components/ContentContainer'
+import TabContent from './components/TabContent'
+import {defaultTab, getTabFromKey, getTabIndexFromKey, loadTabsFromSteps} from './utils/tabs'
 
 export default function App() {
-  const [tabs, setTabs] = useState<TabType[]>([]);
-  const [score, setScore] = useState<number>(0);
-  const [currentTab, setCurrentTab] = useState<TabType>(defaultTab);
-  const [currentTabKey, setCurrentTabKey] = useState<TabType['key']>(defaultStep.key);
-  const [slideDirection, setSlideDirection] = useState<SlideDirection>('down');
-  const [nextTabKey, setNextTabKey] = useState<any>(undefined);
-  const [animationIn, setAnimationIn] = useState(true);
+  const [tabs, setTabs] = useState<TabType[]>([])
+  const [score, setScore] = useState<number>(0)
+  const [currentTab, setCurrentTab] = useState<TabType>(defaultTab)
+  const [currentTabKey, setCurrentTabKey] = useState<TabType['key']>(defaultStep.key)
+  const [slideDirection, setSlideDirection] = useState<SlideDirection>('down')
+  const [nextTabKey, setNextTabKey] = useState<string | undefined>(undefined)
+  const [animationIn, setAnimationIn] = useState(true)
 
   useEffect(() => {
-    loadTabsFromSteps(steps, setTabs, setCurrentTabKey);
-  }, []);
+    loadTabsFromSteps(steps, setTabs, setCurrentTabKey)
+  }, [])
 
   useEffect(() => {
-    setCurrentTab(getTabFromKey(currentTabKey, tabs));
-  }, [currentTabKey]);
+    setCurrentTab(getTabFromKey(currentTabKey, tabs))
+  }, [currentTabKey])
 
   useEffect(() => {
     if (nextTabKey) {
-      const newDirection = getTabIndexFromKey(nextTabKey, tabs) > getTabIndexFromKey(currentTabKey, tabs) ? 'up' : 'down'
-      setSlideDirection(newDirection);
-      setAnimationIn(false);
+      const newDirection =
+        getTabIndexFromKey(nextTabKey, tabs) > getTabIndexFromKey(currentTabKey, tabs)
+          ? 'up'
+          : 'down'
+      setSlideDirection(newDirection)
+      setAnimationIn(false)
       setTimeout(() => {
-        setCurrentTabKey(nextTabKey);
-        setAnimationIn(true);
-        setNextTabKey(undefined);
-      }, 500);
+        setCurrentTabKey(nextTabKey)
+        setAnimationIn(true)
+        setNextTabKey(undefined)
+      }, 500)
     }
-  }, [nextTabKey]);
+  }, [nextTabKey])
 
   return (
     <AppContainer score={score}>
@@ -51,9 +54,15 @@ export default function App() {
       <Slide animationIn={animationIn} slideDirection={slideDirection}>
         <div style={externalDivProps}>
           <ContentContainer>
-            <TabContent tab={currentTab} setNextTabKey={setNextTabKey} score={score} setScore={setScore} />
-          </ContentContainer></div>
+            <TabContent
+              tab={currentTab}
+              setNextTabKey={setNextTabKey}
+              score={score}
+              setScore={setScore}
+            />
+          </ContentContainer>
+        </div>
       </Slide>
     </AppContainer>
-  );
+  )
 }

@@ -3,9 +3,9 @@ import Tab from '@mui/material/Tab';
 import { Typography } from '@mui/material';
 import useMobile from '../hooks/useMobile';
 import { backgroundColorGradiant } from '../utils/colors';
-import { StepType } from '../steps';
+import { Step } from '../steps';
 
-export type TabType = StepType & { index: number };
+export type TabType = Step & { index: number };
 
 type TabsProps = {
   tabs: TabType[],

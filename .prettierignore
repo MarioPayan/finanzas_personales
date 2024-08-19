@@ -1,0 +1,6 @@
+# shared
+.history
+
+# build
+.next
+package-lock.json

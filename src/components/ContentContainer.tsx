@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 
 type ContentContainerProps = {
-  children: JSX.Element[] | any,
+  children: JSX.Element[],
 }
 
 const ContentContainer = ({children}: ContentContainerProps): JSX.Element => {

@@ -1,0 +1,941 @@
+{
+  "arrow": [
+    {
+      "id": "arrow_1",
+      "value": "Sí",
+      "type": "arrow",
+      "target": "action_1",
+      "source": "question_1"
+    },
+    {
+      "id": "arrow_2",
+      "value": "",
+      "type": "arrow",
+      "target": "question_3",
+      "source": "action_1"
+    },
+    {
+      "id": "arrow_3",
+      "value": "Sí",
+      "type": "arrow",
+      "target": "action_3",
+      "source": "question_3"
+    },
+    {
+      "id": "arrow_4",
+      "value": "",
+      "type": "arrow",
+      "target": "definition_2",
+      "source": "question_3"
+    },
+    {
+      "id": "arrow_5",
+      "value": "No",
+      "type": "arrow",
+      "target": "action_15",
+      "source": "question_3"
+    },
+    {
+      "id": "arrow_6",
+      "value": "",
+      "type": "arrow",
+      "target": "question_4",
+      "source": "action_3"
+    },
+    {
+      "id": "arrow_7",
+      "value": "Pequeña",
+      "type": "arrow",
+      "target": "action_5",
+      "source": "question_4"
+    },
+    {
+      "id": "arrow_8",
+      "value": "Mediana",
+      "type": "arrow",
+      "target": "action_4",
+      "source": "question_4"
+    },
+    {
+      "id": "arrow_9",
+      "value": "Grande",
+      "type": "arrow",
+      "target": "action_6",
+      "source": "question_4"
+    },
+    {
+      "id": "arrow_10",
+      "value": "",
+      "type": "arrow",
+      "target": "question_5",
+      "source": "action_4"
+    },
+    {
+      "id": "arrow_11",
+      "value": "",
+      "type": "arrow",
+      "target": "question_5",
+      "source": "action_5"
+    },
+    {
+      "id": "arrow_12",
+      "value": "",
+      "type": "arrow",
+      "target": "question_5",
+      "source": "action_6"
+    },
+    {
+      "id": "arrow_13",
+      "value": "",
+      "type": "arrow",
+      "target": "action_7",
+      "source": "question_5"
+    },
+    {
+      "id": "arrow_14",
+      "value": "",
+      "type": "arrow",
+      "target": "action_8",
+      "source": "question_5"
+    },
+    {
+      "id": "arrow_15",
+      "value": "",
+      "type": "arrow",
+      "target": "question_6",
+      "source": "action_7"
+    },
+    {
+      "id": "arrow_16",
+      "value": "",
+      "type": "arrow",
+      "target": "question_6",
+      "source": "action_8"
+    },
+    {
+      "id": "arrow_17",
+      "value": "Sí",
+      "type": "arrow",
+      "target": "action_9",
+      "source": "question_6"
+    },
+    {
+      "id": "arrow_18",
+      "value": "",
+      "type": "arrow",
+      "target": "definition_3",
+      "source": "question_6"
+    },
+    {
+      "id": "arrow_19",
+      "value": "Pequeña",
+      "type": "arrow",
+      "target": "action_11",
+      "source": "question_7"
+    },
+    {
+      "id": "arrow_20",
+      "value": "Mediana",
+      "type": "arrow",
+      "target": "action_10",
+      "source": "question_7"
+    },
+    {
+      "id": "arrow_21",
+      "value": "Grande",
+      "type": "arrow",
+      "target": "action_12",
+      "source": "question_7"
+    },
+    {
+      "id": "arrow_22",
+      "value": "",
+      "type": "arrow",
+      "target": "question_7",
+      "source": "action_9"
+    },
+    {
+      "id": "arrow_23",
+      "value": "",
+      "type": "arrow",
+      "target": "question_8",
+      "source": "action_10"
+    },
+    {
+      "id": "arrow_24",
+      "value": "",
+      "type": "arrow",
+      "target": "question_8",
+      "source": "action_11"
+    },
+    {
+      "id": "arrow_25",
+      "value": "",
+      "type": "arrow",
+      "target": "question_8",
+      "source": "action_12"
+    },
+    {
+      "id": "arrow_26",
+      "value": "",
+      "type": "arrow",
+      "target": "action_13",
+      "source": "question_8"
+    },
+    {
+      "id": "arrow_27",
+      "value": "",
+      "type": "arrow",
+      "target": "action_14",
+      "source": "question_8"
+    },
+    {
+      "id": "arrow_28",
+      "value": "",
+      "type": "arrow",
+      "target": "question_9",
+      "source": "action_13"
+    },
+    {
+      "id": "arrow_29",
+      "value": "",
+      "type": "arrow",
+      "target": "question_9",
+      "source": "action_14"
+    },
+    {
+      "id": "arrow_30",
+      "value": "",
+      "type": "arrow",
+      "target": "question_6",
+      "source": "action_15"
+    },
+    {
+      "id": "arrow_31",
+      "value": "Sí",
+      "type": "arrow",
+      "target": "action_16",
+      "source": "question_9"
+    },
+    {
+      "id": "arrow_32",
+      "value": "",
+      "type": "arrow",
+      "target": "definition_4",
+      "source": "question_9"
+    },
+    {
+      "id": "arrow_33",
+      "value": "",
+      "type": "arrow",
+      "target": "action_29",
+      "source": "question_9"
+    },
+    {
+      "id": "arrow_34",
+      "value": "Pequeña",
+      "type": "arrow",
+      "target": "action_18",
+      "source": "question_10"
+    },
+    {
+      "id": "arrow_35",
+      "value": "Mediana",
+      "type": "arrow",
+      "target": "action_17",
+      "source": "question_10"
+    },
+    {
+      "id": "arrow_36",
+      "value": "Grande",
+      "type": "arrow",
+      "target": "action_19",
+      "source": "question_10"
+    },
+    {
+      "id": "arrow_37",
+      "value": "",
+      "type": "arrow",
+      "target": "question_10",
+      "source": "action_16"
+    },
+    {
+      "id": "arrow_38",
+      "value": "",
+      "type": "arrow",
+      "target": "question_11",
+      "source": "action_17"
+    },
+    {
+      "id": "arrow_39",
+      "value": "",
+      "type": "arrow",
+      "target": "question_11",
+      "source": "action_18"
+    },
+    {
+      "id": "arrow_40",
+      "value": "",
+      "type": "arrow",
+      "target": "question_11",
+      "source": "action_19"
+    },
+    {
+      "id": "arrow_41",
+      "value": "",
+      "type": "arrow",
+      "target": "action_20",
+      "source": "question_11"
+    },
+    {
+      "id": "arrow_42",
+      "value": "",
+      "type": "arrow",
+      "target": "action_21",
+      "source": "question_11"
+    },
+    {
+      "id": "arrow_43",
+      "value": "",
+      "type": "arrow",
+      "target": "question_12",
+      "source": "action_20"
+    },
+    {
+      "id": "arrow_44",
+      "value": "",
+      "type": "arrow",
+      "target": "question_12",
+      "source": "action_21"
+    },
+    {
+      "id": "arrow_45",
+      "value": "",
+      "type": "arrow",
+      "target": "question_9",
+      "source": "action_22"
+    },
+    {
+      "id": "arrow_46",
+      "value": "Sí",
+      "type": "arrow",
+      "target": "action_23",
+      "source": "question_12"
+    },
+    {
+      "id": "arrow_47",
+      "value": "",
+      "type": "arrow",
+      "target": "definition_5",
+      "source": "question_12"
+    },
+    {
+      "id": "arrow_48",
+      "value": "",
+      "type": "arrow",
+      "target": "action_30",
+      "source": "question_12"
+    },
+    {
+      "id": "arrow_49",
+      "value": "Pequeña",
+      "type": "arrow",
+      "target": "action_25",
+      "source": "question_13"
+    },
+    {
+      "id": "arrow_50",
+      "value": "Mediana",
+      "type": "arrow",
+      "target": "action_24",
+      "source": "question_13"
+    },
+    {
+      "id": "arrow_51",
+      "value": "Grande",
+      "type": "arrow",
+      "target": "action_26",
+      "source": "question_13"
+    },
+    {
+      "id": "arrow_52",
+      "value": "",
+      "type": "arrow",
+      "target": "question_13",
+      "source": "action_23"
+    },
+    {
+      "id": "arrow_53",
+      "value": "",
+      "type": "arrow",
+      "target": "question_14",
+      "source": "action_24"
+    },
+    {
+      "id": "arrow_54",
+      "value": "",
+      "type": "arrow",
+      "target": "question_14",
+      "source": "action_25"
+    },
+    {
+      "id": "arrow_55",
+      "value": "",
+      "type": "arrow",
+      "target": "question_14",
+      "source": "action_26"
+    },
+    {
+      "id": "arrow_56",
+      "value": "",
+      "type": "arrow",
+      "target": "action_27",
+      "source": "question_14"
+    },
+    {
+      "id": "arrow_57",
+      "value": "",
+      "type": "arrow",
+      "target": "action_28",
+      "source": "question_14"
+    },
+    {
+      "id": "arrow_58",
+      "value": "",
+      "type": "arrow",
+      "target": "endpoint_4",
+      "source": "action_27"
+    },
+    {
+      "id": "arrow_59",
+      "value": "",
+      "type": "arrow",
+      "target": "endpoint_4",
+      "source": "action_28"
+    },
+    {
+      "id": "arrow_60",
+      "value": "",
+      "type": "arrow",
+      "target": "question_12",
+      "source": "action_29"
+    },
+    {
+      "id": "arrow_61",
+      "value": "",
+      "type": "arrow",
+      "target": "endpoint_4",
+      "source": "action_30"
+    },
+    {
+      "id": "arrow_62",
+      "value": "",
+      "type": "arrow",
+      "target": "action_22",
+      "source": "question_6"
+    },
+    {
+      "id": "arrow_63",
+      "value": "",
+      "type": "arrow",
+      "target": "definition_6",
+      "source": "question_15"
+    },
+    {
+      "id": "arrow_64",
+      "value": "",
+      "type": "arrow",
+      "target": "action_31",
+      "source": "question_15"
+    },
+    {
+      "id": "arrow_65",
+      "value": "",
+      "type": "arrow",
+      "target": "question_16",
+      "source": "action_31"
+    },
+    {
+      "id": "arrow_66",
+      "value": "",
+      "type": "arrow",
+      "target": "action_32",
+      "source": "question_16"
+    },
+    {
+      "id": "arrow_67",
+      "value": "",
+      "type": "arrow",
+      "target": "question_17",
+      "source": "action_32"
+    },
+    {
+      "id": "arrow_68",
+      "value": "",
+      "type": "arrow",
+      "target": "action_33",
+      "source": "question_17"
+    },
+    {
+      "id": "arrow_69",
+      "value": "",
+      "type": "arrow",
+      "target": "action_34",
+      "source": "question_18"
+    },
+    {
+      "id": "arrow_70",
+      "value": "",
+      "type": "arrow",
+      "target": "action_35",
+      "source": "question_19"
+    },
+    {
+      "id": "arrow_71",
+      "value": "",
+      "type": "arrow",
+      "target": "question_18",
+      "source": "action_33"
+    },
+    {
+      "id": "arrow_72",
+      "value": "",
+      "type": "arrow",
+      "target": "question_19",
+      "source": "action_34"
+    },
+    {
+      "id": "arrow_73",
+      "value": "",
+      "type": "arrow",
+      "target": "action_36",
+      "source": "action_35"
+    },
+    {
+      "id": "arrow_74",
+      "value": "Sí",
+      "type": "arrow",
+      "target": "action_37",
+      "source": "action_36"
+    },
+    {
+      "id": "arrow_75",
+      "value": "No",
+      "type": "arrow",
+      "target": "action_38",
+      "source": "action_36"
+    },
+    {
+      "id": "arrow_76",
+      "value": "",
+      "type": "arrow",
+      "target": "endpoint_5",
+      "source": "action_37"
+    },
+    {
+      "id": "arrow_77",
+      "value": "",
+      "type": "arrow",
+      "target": "endpoint_5",
+      "source": "action_38"
+    },
+    {
+      "id": "arrow_78",
+      "value": "",
+      "type": "arrow",
+      "target": "question_15",
+      "source": "endpoint_1"
+    },
+    {
+      "id": "arrow_79",
+      "value": "",
+      "type": "arrow",
+      "target": "question_1",
+      "source": "endpoint_3"
+    },
+    {
+      "id": "arrow_80",
+      "value": "",
+      "type": "arrow",
+      "target": "endpoint_3",
+      "source": "title_2"
+    },
+    {
+      "id": "arrow_81",
+      "value": "",
+      "type": "arrow",
+      "target": "endpoint_1",
+      "source": "title_3"
+    }
+  ],
+  "question": [
+    {
+      "id": "question_1",
+      "value": "¿Tienes deudas?",
+      "type": "question"
+    },
+    {
+      "id": "question_2",
+      "value": "Pregunta",
+      "type": "question"
+    },
+    {
+      "id": "question_3",
+      "value": "¿Tienes deuda buena?",
+      "type": "question"
+    },
+    {
+      "id": "question_4",
+      "value": "¿Qué tan grande es tu deuda buena?",
+      "type": "question"
+    },
+    {
+      "id": "question_5",
+      "value": "¿Cuál es la tasa de interés de tu deuda?",
+      "type": "question"
+    },
+    {
+      "id": "question_6",
+      "value": "¿Tienes deuda de ahorro?",
+      "type": "question"
+    },
+    {
+      "id": "question_7",
+      "value": "¿Qué tan grande es tu deuda mala?",
+      "type": "question"
+    },
+    {
+      "id": "question_8",
+      "value": "¿Cuál es la tasa de interés de tu deuda?",
+      "type": "question"
+    },
+    {
+      "id": "question_9",
+      "value": "¿Tienes deuda de subsistencia?",
+      "type": "question"
+    },
+    {
+      "id": "question_10",
+      "value": "¿Qué tan grande es tu deuda mala?",
+      "type": "question"
+    },
+    {
+      "id": "question_11",
+      "value": "¿Cuál es la tasa de interés de tu deuda?",
+      "type": "question"
+    },
+    {
+      "id": "question_12",
+      "value": "¿Tienes deuda mala?",
+      "type": "question"
+    },
+    {
+      "id": "question_13",
+      "value": "¿Qué tan grande es tu deuda mala?",
+      "type": "question"
+    },
+    {
+      "id": "question_14",
+      "value": "¿Cuál es la tasa de interés de tu deuda?",
+      "type": "question"
+    },
+    {
+      "id": "question_15",
+      "value": "¿Cuánto ganas en promedio mensualmente?",
+      "type": "question"
+    },
+    {
+      "id": "question_16",
+      "value": "¿Cuánto estimas que gastas mensualmente?",
+      "type": "question"
+    },
+    {
+      "id": "question_17",
+      "value": "¿Cuánto estimas que gastas en gastos obligatorios?",
+      "type": "question"
+    },
+    {
+      "id": "question_18",
+      "value": "¿Cuánto estimas que gastas en ocio?",
+      "type": "question"
+    },
+    {
+      "id": "question_19",
+      "value": "¿Cuánto estimas te sobra al final de mes?",
+      "type": "question"
+    }
+  ],
+  "action": [
+    {
+      "id": "action_1",
+      "value": "",
+      "type": "action"
+    },
+    {
+      "id": "action_2",
+      "value": "Acciones",
+      "type": "action"
+    },
+    {
+      "id": "action_3",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_4",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_5",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_6",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_7",
+      "value": "SumarAlmacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_8",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_9",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_10",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_11",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_12",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_13",
+      "value": "SumarAlmacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_14",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_15",
+      "value": "",
+      "type": "action"
+    },
+    {
+      "id": "action_16",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_17",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_18",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_19",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_20",
+      "value": "SumarAlmacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_21",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_22",
+      "value": "",
+      "type": "action"
+    },
+    {
+      "id": "action_23",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_24",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_25",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_26",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_27",
+      "value": "SumarAlmacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_28",
+      "value": "Restar",
+      "type": "action"
+    },
+    {
+      "id": "action_29",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_30",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_31",
+      "value": "Almacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_32",
+      "value": "Almacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_33",
+      "value": "Almacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_34",
+      "value": "Almacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_35",
+      "value": "Almacenar",
+      "type": "action"
+    },
+    {
+      "id": "action_36",
+      "value": "Calcular si las cuentas cuadran",
+      "type": "action"
+    },
+    {
+      "id": "action_37",
+      "value": "Sumar",
+      "type": "action"
+    },
+    {
+      "id": "action_38",
+      "value": "Restar",
+      "type": "action"
+    }
+  ],
+  "definition": [
+    {
+      "id": "definition_1",
+      "value": "Definición",
+      "type": "definition"
+    },
+    {
+      "id": "definition_2",
+      "value": "Las deudas buenas son todas aquellas que se adquirieron con el objetivo de generar valor a futuro, EG: un negocio propio, inversiones en la bolsa, crédito estudiantil",
+      "type": "definition"
+    },
+    {
+      "id": "definition_3",
+      "value": "Una deuda de ahorro es una deuda que se adquirió con el objetivo de dejar de hacer un gasto. EG: Una casa para dejar de pagar arriendo, un carro para dejar de pagar transporte, pesas para dejar de ir al gimnasio",
+      "type": "definition"
+    },
+    {
+      "id": "definition_4",
+      "value": "Las deudas de subsistencia son deuda adquirida para productos o servicios indispensables para subsistir. EG: Comida, servicios públicos, internet, objetos de aseo personal",
+      "type": "definition"
+    },
+    {
+      "id": "definition_5",
+      "value": "Las deudas malas son todas aquellas que no están dirigidasa cubrir ninguna necesidad básica ni son inversión, EG: Un televisor, un celular, comida rápida",
+      "type": "definition"
+    },
+    {
+      "id": "definition_6",
+      "value": "Esta aplicación no almacena ningún tipo de información, usamos los datos temporalmente para ofrecerte números concretos durante las preguntas y en los resultados",
+      "type": "definition"
+    },
+    {
+      "id": "definition_7",
+      "value": "Pequeña: Del 0% a 50% del dinero disponible mensualMediana: Del 50% al 200% del dnero disponible mensualGrande: Del 200% en adelante del dinero disponible mensual",
+      "type": "definition"
+    }
+  ],
+  "endpoint": [
+    {
+      "id": "endpoint_1",
+      "value": "Inicio",
+      "type": "endpoint"
+    },
+    {
+      "id": "endpoint_2",
+      "value": "Inicio / Fin",
+      "type": "endpoint"
+    },
+    {
+      "id": "endpoint_3",
+      "value": "Inicio",
+      "type": "endpoint"
+    },
+    {
+      "id": "endpoint_4",
+      "value": "Fin",
+      "type": "endpoint"
+    },
+    {
+      "id": "endpoint_5",
+      "value": "Fin",
+      "type": "endpoint"
+    }
+  ],
+  "title": [
+    {
+      "id": "title_1",
+      "value": "Título",
+      "type": "title"
+    },
+    {
+      "id": "title_2",
+      "value": "Deuda",
+      "type": "title"
+    },
+    {
+      "id": "title_3",
+      "value": "Ingresos",
+      "type": "title"
+    }
+  ]
+}

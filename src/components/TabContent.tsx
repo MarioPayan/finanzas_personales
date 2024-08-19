@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { Options } from '../steps';
+import { StepOption } from '../steps';
 import { Button, Typography } from '@mui/material';
 import { TabType } from '../components/Tabs';
 import { getScoreWithLimits } from './Score';
@@ -18,7 +18,7 @@ const TabContent = ({
 	setScore
 }: TabContentProps) => {
 
-	const doButtonAction = (action: Omit<Options, 'label'>) => {
+	const doButtonAction = (action: Omit<StepOption, 'label'>) => {
 		if (action.points) {
 			setScore(getScoreWithLimits(score + action.points, -100, 100));
 		}
@@ -41,7 +41,7 @@ const TabContent = ({
 				<Box
 					display="flex"
 					flexDirection="row">
-					{tab.content.options?.map((option, index) => (
+					{tab.content.options?.map((option: StepOption, index: number) => (
 						<Box key={index} padding={1}>
 							<Button
 								variant='contained'
