@@ -1,0 +1,236 @@
+{
+  "main": {
+    "id": "6eaeaa0e98b15737",
+    "type": "split",
+    "children": [
+      {
+        "id": "4a4bfecec0574f1a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ec009f41682ec534",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Plan de Accion - Desarrollo v1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Plan de Accion - Desarrollo v1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "3a69007a89e601e3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "02dea6054b49a58b",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          },
+          {
+            "id": "734f2ea0fef11cd4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Propuesta - Modelo Ludico v1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Propuesta - Modelo Ludico v1"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "4f206e10ea9d5d07",
+    "type": "split",
+    "children": [
+      {
+        "id": "c40fed71213f3703",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "13770982c3571389",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "7fb749f00209bd16",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "f4ccacb5f7b69f38",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6746b122a80d2ad0",
+    "type": "split",
+    "children": [
+      {
+        "id": "c7ceea8fee88e27d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2b58d145c2a1dbe2",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Welcome.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Welcome"
+            }
+          },
+          {
+            "id": "20623033711978d2",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Welcome.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Welcome"
+            }
+          },
+          {
+            "id": "a8442f170e312854",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "28645f0bb5c43641",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "ff0f4333c315ad55",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Welcome.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Welcome"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "ec009f41682ec534",
+  "lastOpenFiles": [
+    "Archivo/Indice.md",
+    "Archivo/Indice.md.tmp.44093.1777246056811",
+    "Archivo/utils/tabs.ts",
+    "Archivo/utils/colors.ts",
+    "Archivo/utils",
+    "Archivo/hooks/useMobile.ts",
+    "Archivo/hooks/smoothScore.ts",
+    "Archivo/hooks",
+    "Archivo/components/Tabs.tsx",
+    "Archivo/components/TabContent.tsx",
+    "Archivo/components/Slide.tsx",
+    "Archivo/README original.md",
+    "Propuesta - Modelo Ludico v1.md",
+    "Raw plan.md",
+    "Plan de Accion - Desarrollo v1.md",
+    "Welcome.md"
+  ]
+}
