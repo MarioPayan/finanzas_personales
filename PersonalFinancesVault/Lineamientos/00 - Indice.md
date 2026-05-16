@@ -23,6 +23,9 @@ afecta uno de estos documentos, actualizalo en la misma pasada.
    y de los ejemplos (dónde viven y dónde no).
 6. [[06 - Como extender]] — Receta para agregar preguntas, tipos, widgets,
    reglas de derivación, países, términos del glosario.
+7. [[07 - Perfiles de personaje]] — Capa narrativa sobre el scoring:
+   cada banda de score se mapea a un perfil con nombre y descripción.
+   Es lo que la UI muestra en las pantallas intersticiales y la final.
 
 ## Ver también
 
