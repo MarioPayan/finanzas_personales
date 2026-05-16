@@ -7,6 +7,7 @@ import Sidebar from './Sidebar'
 import {buildDiagnosisSteps} from './buildDiagnosisSteps'
 import {DiagnosisProgress} from './DiagnosisProgress'
 import {DiagnosisTreeDrawer} from './DiagnosisTreeDrawer'
+import {DiagnosisInfoDrawer} from './DiagnosisInfoDrawer'
 import {useStepperActions} from '../../components/Stepper'
 
 /**
@@ -58,10 +59,19 @@ export default function Diagnosis() {
             ? state.currentStep.id
             : null
         return (
-          <DiagnosisTreeDrawer
-            answers={state.answers}
-            currentStorageKey={currentKey}
-          />
+          <>
+            <DiagnosisInfoDrawer>
+              <DiagnosisSidebar
+                state={state}
+                minimumWage={minimumWage}
+                countryCode={countryCode}
+              />
+            </DiagnosisInfoDrawer>
+            <DiagnosisTreeDrawer
+              answers={state.answers}
+              currentStorageKey={currentKey}
+            />
+          </>
         )
       }}
     />

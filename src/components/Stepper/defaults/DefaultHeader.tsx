@@ -30,13 +30,19 @@ export function DefaultHeader({state}: {state: StepperState<unknown>}) {
         component='h1'
         sx={{
           fontWeight: 700,
-          lineHeight: 1.2,
-          fontSize: {xs: '1.6rem', md: '2rem'},
+          lineHeight: 1.25,
+          fontSize: {xs: '1.35rem', sm: '1.6rem', md: '2rem'},
         }}>
         {step.header.prompt}
       </Typography>
       {step.header.hint && (
-        <Typography variant='body2' color='text.secondary' sx={{lineHeight: 1.6}}>
+        <Typography
+          variant='body2'
+          color='text.secondary'
+          sx={{
+            lineHeight: 1.6,
+            fontSize: {xs: '0.875rem', md: '0.9375rem'},
+          }}>
           {step.header.hint}
         </Typography>
       )}

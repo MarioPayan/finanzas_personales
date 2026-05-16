@@ -77,30 +77,34 @@ export function DiagnosisProgress({state}: {state: StepperState<AnswerValue>}) {
   )
 
   return (
-    <Stack spacing={1} sx={{width: '100%', maxWidth: 720, mx: 'auto'}}>
-      <Stack direction='row' spacing={1} sx={{px: 0.5}}>
+    <Stack spacing={{xs: 0.75, md: 1}} sx={{width: '100%', maxWidth: 720, mx: 'auto'}}>
+      <Stack direction='row' spacing={{xs: 0.5, md: 1}} sx={{px: 0.25}}>
         {sections.map(s => (
-          <Box key={s.id} sx={{flex: 1, textAlign: 'center'}}>
+          <Box key={s.id} sx={{flex: 1, textAlign: 'center', minWidth: 0}}>
             <Typography
-              variant='caption'
               sx={{
                 fontWeight: s.isActive ? 700 : 500,
                 color: s.isActive ? theme.palette[s.color].main : 'text.secondary',
-                letterSpacing: '0.04em',
+                letterSpacing: {xs: '0.02em', md: '0.04em'},
                 textTransform: 'uppercase',
+                fontSize: {xs: '0.625rem', md: '0.75rem'},
+                lineHeight: 1.4,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}>
               {s.label}
             </Typography>
           </Box>
         ))}
       </Stack>
-      <Stack direction='row' spacing={1}>
+      <Stack direction='row' spacing={{xs: 0.5, md: 1}}>
         {sections.map(s => (
           <Box
             key={s.id}
             sx={{
               flex: 1,
-              height: 8,
+              height: {xs: 6, md: 8},
               borderRadius: 4,
               bgcolor: 'divider',
               overflow: 'hidden',

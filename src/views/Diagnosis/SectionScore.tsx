@@ -61,14 +61,14 @@ export default function SectionScore({
 
   return (
     <Stack
-      spacing={5}
+      spacing={{xs: 3, md: 5}}
       sx={{
         alignItems: 'center',
         textAlign: 'center',
         maxWidth: 560,
         mx: 'auto',
         width: '100%',
-        py: 4,
+        py: {xs: 2, md: 4},
       }}>
       <motion.div
         initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 12}}
@@ -94,24 +94,23 @@ export default function SectionScore({
         transition={{duration: 0.45, ease: 'easeOut', delay: 0.1}}>
         <Box
           sx={{
-            width: 200,
-            height: 200,
+            width: {xs: 160, sm: 180, md: 200},
+            height: {xs: 160, sm: 180, md: 200},
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: `8px solid ${accent}`,
-            bgcolor: `${accent}14`, // 8% opacity tint
+            border: {xs: `6px solid ${accent}`, md: `8px solid ${accent}`},
+            bgcolor: `${accent}14`,
             position: 'relative',
           }}>
           <Stack sx={{alignItems: 'center'}}>
             <Typography
-              variant='h1'
               sx={{
                 fontWeight: 800,
                 color: accent,
                 lineHeight: 1,
-                fontSize: '4rem',
+                fontSize: {xs: '3rem', sm: '3.5rem', md: '4rem'},
                 fontVariantNumeric: 'tabular-nums',
               }}>
               {displayScore}
@@ -196,7 +195,12 @@ export default function SectionScore({
         variant='contained'
         size='large'
         onClick={onContinue}
-        sx={{minWidth: 180, mt: 2}}>
+        sx={{
+          minWidth: {xs: '100%', sm: 200},
+          minHeight: 48,
+          mt: 2,
+          fontWeight: 700,
+        }}>
         {isFinal ? 'Ver mi diagnóstico →' : 'Continuar →'}
       </Button>
     </Stack>

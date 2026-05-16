@@ -102,8 +102,14 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
   const overall = useMemo(() => getOverallProfile(sectionScores), [sectionScores])
 
   return (
-    <Box sx={{minHeight: '100vh', width: '100%', py: 5, px: {xs: 2, md: 3}}}>
-      <Stack spacing={4} sx={{maxWidth: 760, mx: 'auto'}}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        width: '100%',
+        py: {xs: 8, md: 5},
+        px: {xs: 2, md: 3},
+      }}>
+      <Stack spacing={{xs: 2.5, md: 4}} sx={{maxWidth: 760, mx: 'auto'}}>
         {/* Hero: perfil global */}
         <motion.div
           initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 16}}
@@ -116,8 +122,8 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
               borderColor: 'divider',
               background: `linear-gradient(135deg, ${theme.palette.primary.main}11, ${theme.palette.secondary.main}11)`,
             }}>
-            <CardContent sx={{p: {xs: 3, md: 5}, textAlign: 'center'}}>
-              <Stack spacing={1.5} sx={{alignItems: 'center'}}>
+            <CardContent sx={{p: {xs: 2.5, md: 5}, textAlign: 'center'}}>
+              <Stack spacing={{xs: 1, md: 1.5}} sx={{alignItems: 'center'}}>
                 <Chip
                   size='small'
                   label='Tu diagnóstico'
@@ -125,10 +131,23 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
                   variant='outlined'
                   sx={{letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 700}}
                 />
-                <Typography variant='h3' sx={{fontWeight: 800, mt: 1}}>
+                <Typography
+                  sx={{
+                    fontWeight: 800,
+                    mt: 1,
+                    fontSize: {xs: '1.75rem', sm: '2.25rem', md: '3rem'},
+                    lineHeight: 1.15,
+                  }}>
                   {overall.profile.label}
                 </Typography>
-                <Typography variant='body1' color='text.secondary' sx={{maxWidth: 520}}>
+                <Typography
+                  variant='body2'
+                  color='text.secondary'
+                  sx={{
+                    maxWidth: 520,
+                    fontSize: {xs: '0.875rem', md: '1rem'},
+                    lineHeight: 1.55,
+                  }}>
                   {overall.profile.description}
                 </Typography>
               </Stack>
@@ -136,11 +155,13 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
           </Card>
         </motion.div>
 
-        {/* Mini grid de scores por sección */}
-        <Stack
-          direction={{xs: 'column', sm: 'row'}}
-          spacing={2}
-          sx={{justifyContent: 'space-between'}}>
+        {/* Grid de scores por sección — 2x2 en mobile, 1x4 en sm+ */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {xs: '1fr 1fr', sm: 'repeat(4, 1fr)'},
+            gap: {xs: 1.5, sm: 2},
+          }}>
           {CATEGORY_ORDER.map((catId, i) => {
             const score = sectionScores[catId]
             const cat = CATEGORIES[catId]
@@ -151,13 +172,12 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
                 key={catId}
                 initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 8}}
                 animate={{opacity: 1, y: 0}}
-                transition={{duration: 0.3, delay: reducedMotion ? 0 : 0.1 + i * 0.06}}
-                style={{flex: 1}}>
+                transition={{duration: 0.3, delay: reducedMotion ? 0 : 0.1 + i * 0.06}}>
                 <Card
                   elevation={0}
                   sx={{border: 1, borderColor: 'divider', height: '100%'}}>
-                  <CardContent>
-                    <Stack spacing={1}>
+                  <CardContent sx={{p: {xs: 2, md: 2.5}}}>
+                    <Stack spacing={0.75}>
                       <Chip
                         size='small'
                         label={cat.shortLabel}
@@ -168,18 +188,24 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
                           fontWeight: 700,
                           letterSpacing: '0.04em',
                           textTransform: 'uppercase',
+                          fontSize: {xs: '0.625rem', md: '0.6875rem'},
+                          height: 22,
                         }}
                       />
                       <Typography
-                        variant='h4'
                         sx={{
                           fontWeight: 800,
                           color: accent,
                           fontVariantNumeric: 'tabular-nums',
+                          fontSize: {xs: '1.75rem', md: '2.125rem'},
+                          lineHeight: 1.1,
                         }}>
                         {score}
                       </Typography>
-                      <Typography variant='caption' color='text.secondary'>
+                      <Typography
+                        variant='caption'
+                        color='text.secondary'
+                        sx={{lineHeight: 1.3}}>
                         {profile?.label ?? '—'}
                       </Typography>
                     </Stack>
@@ -188,14 +214,18 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
               </motion.div>
             )
           })}
-        </Stack>
+        </Box>
 
         {/* Insights agrupados con stagger */}
         {insights.length > 0 && (
           <Card elevation={0} sx={{border: 1, borderColor: 'divider'}}>
-            <CardContent sx={{p: {xs: 2.5, md: 4}}}>
-              <Stack spacing={3.5}>
-                <Typography variant='h5' sx={{fontWeight: 700}}>
+            <CardContent sx={{p: {xs: 2, md: 4}}}>
+              <Stack spacing={{xs: 2.5, md: 3.5}}>
+                <Typography
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: {xs: '1.15rem', md: '1.5rem'},
+                  }}>
                   Tus puntos de acción
                 </Typography>
                 {CATEGORY_ORDER.map(catId => {
@@ -227,7 +257,7 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
 
         {/* Tus respuestas — colapsable visualmente vía detalle más sobrio */}
         <Card elevation={0} sx={{border: 1, borderColor: 'divider'}}>
-          <CardContent sx={{p: {xs: 2.5, md: 4}}}>
+          <CardContent sx={{p: {xs: 2, md: 4}}}>
             <Stack spacing={2}>
               <Typography variant='subtitle1' sx={{fontWeight: 700}}>
                 Tus respuestas

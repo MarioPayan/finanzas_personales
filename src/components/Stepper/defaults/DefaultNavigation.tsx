@@ -1,10 +1,17 @@
-import {Button, Stack} from '@mui/material'
+import {Box, Button, Stack, useMediaQuery, useTheme} from '@mui/material'
 import type {StepperActions, StepperState} from '../types'
 
 /**
- * Footer default: Atrás (ghost) / Siguiente (filled). Para pasos
- * intersticiales (sin `isComplete` que dependa de respuesta), el CTA
- * típicamente vive en el render del paso, así que ocultamos esta nav.
+ * Footer default: Atrás (ghost) / Siguiente (filled).
+ *
+ * En desktop (md+) sigue el flujo natural debajo de la card del paso.
+ * En mobile (< md) se vuelve **sticky bottom**: una barra fija en la
+ * parte baja de la viewport con bg paper y sombra superior, para que
+ * el usuario no tenga que scrollear para encontrar Siguiente. El Stepper
+ * agrega padding-bottom en mobile para evitar que esta barra tape el
+ * final del body.
+ *
+ * Para pasos intersticiales (CTA propio del render), se oculta.
  */
 export function DefaultNavigation({
   state,
@@ -15,11 +22,59 @@ export function DefaultNavigation({
   actions: StepperActions<unknown>
   hideOnInterstitial?: boolean
 }) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const {currentStep, isFirst, isLast, done} = state
   if (done) return null
   if (hideOnInterstitial && currentStep?.kind === 'interstitial') return null
 
   const canAdvance = currentStep ? currentStep.isComplete(state.answers) : false
+
+  if (isMobile) {
+    return (
+      <Box
+        sx={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: theme.zIndex.appBar,
+          bgcolor: 'background.paper',
+          borderTop: 1,
+          borderColor: 'divider',
+          boxShadow: '0 -6px 20px rgba(15, 23, 42, 0.06)',
+          px: 2,
+          py: 1.25,
+          pb: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+        }}>
+        <Stack
+          direction='row'
+          spacing={1.5}
+          sx={{justifyContent: 'space-between', alignItems: 'center'}}>
+          <Button
+            variant='text'
+            size='large'
+            onClick={actions.goBack}
+            disabled={isFirst}
+            sx={{
+              visibility: isFirst ? 'hidden' : 'visible',
+              minWidth: 80,
+              minHeight: 44,
+            }}>
+            ← Atrás
+          </Button>
+          <Button
+            variant='contained'
+            size='large'
+            onClick={actions.goNext}
+            disabled={!canAdvance}
+            sx={{flex: 1, maxWidth: 220, minHeight: 48, fontWeight: 700}}>
+            {isLast ? 'Ver resultado' : 'Siguiente →'}
+          </Button>
+        </Stack>
+      </Box>
+    )
+  }
 
   return (
     <Stack

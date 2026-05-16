@@ -111,8 +111,16 @@ function StepperLayout<TAnswer>({
         </Box>
       )}
       {renderOverlay?.(state, actions)}
-      <Box sx={{flex: 1, py: {xs: 3, md: 6}, px: {xs: 2, md: 4}}}>
-        <Stack spacing={4} sx={{maxWidth: 760, mx: 'auto'}}>
+      <Box
+        sx={{
+          flex: 1,
+          // top: dejar espacio para los FABs en mobile (alto del FAB + padding)
+          pt: {xs: 8, md: 6},
+          // bottom: dejar espacio para la sticky bottom nav en mobile
+          pb: {xs: state.done || state.currentStep?.kind === 'interstitial' ? 4 : 14, md: 6},
+          px: {xs: 2, md: 4},
+        }}>
+        <Stack spacing={{xs: 3, md: 4}} sx={{maxWidth: 760, mx: 'auto'}}>
           {progress}
           {state.done ? (
             renderDone ? renderDone(state, actions) : <DefaultDone />
@@ -188,8 +196,8 @@ function StepShell<TAnswer>({
                   background: accent,
                 }}
               />
-              <CardContent sx={{p: {xs: 3, md: 5}}}>
-                <Stack spacing={4}>
+              <CardContent sx={{p: {xs: 2.5, md: 5}, '&:last-child': {pb: {xs: 2.5, md: 5}}}}>
+                <Stack spacing={{xs: 3, md: 4}}>
                   {header}
                   <Box>{renderStepBody(step, state, actions)}</Box>
                 </Stack>
