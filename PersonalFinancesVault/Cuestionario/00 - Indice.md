@@ -23,52 +23,60 @@ referenciado, widgets del panel lateral.
 | 2 | `age` | base | number | — | 0 | 0 | — | — |
 | 3 | `incomeStability` | base | chips | — | 100 | 0 | — | — |
 | 4 | `obligatoryPct` | base | slider | — | 100 | 3 | gastosObligatorios | — |
-| 5 | `discretionaryPct` | base | slider | — | 100 | 1 | — | — |
-| 6 | `knowsCreditScore` | base | toggle | — | 100 | 0 | — | — |
-| 7 | `creditScoreBand` | base | chips | `knowsCreditScore = true` | 100 | 1 | — | creditScoreScale |
-| 8 | `hasDebt` | debt | toggle | — | 100 | 1 | — | — |
-| 9 | `debtMonthlyPct` | debt | slider | `hasDebt = true` | 100 | 1 | — | — |
-| 10 | `debtCount` | debt | number | `hasDebt = true` | 90 | 1 | — | — |
-| 11 | `debtAmounts` | debt | grid | `hasDebt = true ∧ debtCount > 0` | 100 × filas | 2 | — | — |
-| 12 | `debtRates` | debt | grid | `hasDebt = true ∧ debtCount > 0` | 100 × filas | 1 | ea | — |
-| 13 | `debtKinds` | debt | grid | `hasDebt = true ∧ debtCount > 0` | 90 × filas | 2 | debtKindInvestment, debtKindSavings, debtKindBad | — |
-| 14 | `emergencyMonths` | stability | chips | — | 100 | 2 | fondoEmergencia | — |
-| 15 | `emergencyAccessSpeed` | stability | chips | `emergencyMonths ∈ {1to3, 3to6, 6to12, gt12}` | 100 | 1 | — | — |
-| 16 | `hasHealthInsurance` | stability | toggle | — | 100 | 2 | — | — |
-| 17 | `jobHorizon` | stability | chips | — | 100 | 0 | — | — |
-| 18 | `secondIncomeStream` | stability | chips | `jobHorizon ∈ {0to1, 1to3, 3to5}` | 100 | 1 | — | — |
-| 19 | `professionalEducationInvestment` | investment | chips | — | 100 | 1 | — | — |
-| 20 | `financialEducationInvestment` | investment | chips | — | 100 | 1 | — | — |
-| 21 | `invests` | investment | toggle | — | 100 | 2 | — | — |
-| 22 | `riskProfile` | investment | chips | `invests = true` | 90 | 2 | — | — |
-| 23 | `riskProfileGuess` | investment | chips | `invests = true ∧ riskProfile = unknown` | 30 | 1 | — | — |
-| 24 | `investmentVehicles` | investment | multiChips | `invests = true` | 85 | 2 | cdt, diversificacion | — |
-| 25 | `investmentAmounts` | investment | grid | `invests = true ∧ investmentVehicles ≠ ∅` | 100 × filas | 1 | — | — |
-| 26 | `investmentYields` | investment | grid | `invests = true ∧ investmentVehicles ≠ ∅` | 100 × filas | 1 | ea | — |
+| 5 | `discretionaryPct` | base | slider | — | 100 | 2 | — | — |
+| 6 | `hasBudgetSystem` | base | chips | — | 100 | 2 | sistemaCubetas | — |
+| 7 | `knowsCreditScore` | base | toggle | — | 100 | 0 | — | — |
+| 8 | `creditScoreBand` | base | chips | `knowsCreditScore = true` | 100 | 1 | — | creditScoreScale |
+| 9 | `hasDebt` | debt | toggle | — | 100 | 1 | — | — |
+| 10 | `debtMonthlyPct` | debt | slider | `hasDebt = true` | 100 | 1 | — | — |
+| 11 | `debtCount` | debt | number | `hasDebt = true` | 90 | 1 | — | — |
+| 12 | `debtAmounts` | debt | grid | `hasDebt = true ∧ debtCount > 0` | 100 × filas | 2 | — | — |
+| 13 | `debtRates` | debt | grid | `hasDebt = true ∧ debtCount > 0` | 100 × filas | 1 | ea | — |
+| 14 | `debtKinds` | debt | grid | `hasDebt = true ∧ debtCount > 0` | 90 × filas | 3 | debtKindInvestment, debtKindSavings, debtKindBad, apalancamientoActivos | — |
+| 15 | `emergencyMonths` | stability | chips | — | 100 | 2 | fondoEmergencia | — |
+| 16 | `emergencyAccessSpeed` | stability | chips | `emergencyMonths ∈ {1to3, 3to6, 6to12, gt12}` | 100 | 1 | — | — |
+| 17 | `hasHealthInsurance` | stability | toggle | — | 100 | 2 | — | — |
+| 18 | `jobHorizon` | stability | chips | — | 100 | 0 | — | — |
+| 19 | `secondIncomeStream` | stability | chips | `jobHorizon ∈ {0to1, 1to3, 3to5}` | 100 | 1 | — | — |
+| 20 | `financialStressLevel` | stability | chips | — | 100 | 1 | — | — |
+| 21 | `inRelationship` | stability | toggle | — | 0 | 0 | — | — |
+| 22 | `householdFinancialAlignment` | stability | chips | `inRelationship = true` | 100 | 1 | — | — |
+| 23 | `yearsInvesting` | investment | chips | — | 100 | 1 | interesCompuesto | — |
+| 24 | `professionalEducationInvestment` | investment | chips | — | 100 | 1 | — | — |
+| 25 | `financialEducationInvestment` | investment | chips | — | 100 | 1 | — | — |
+| 26 | `invests` | investment | toggle | — | 100 | 2 | — | — |
+| 27 | `tradingFrequency` | investment | chips | `invests = true` | 100 | 1 | — | — |
+| 28 | `usesIndexFunds` | investment | toggle | `invests = true` | 100 | 1 | fondoIndexado | — |
+| 29 | `riskProfile` | investment | chips | `invests = true` | 90 | 2 | — | — |
+| 30 | `riskProfileGuess` | investment | chips | `invests = true ∧ riskProfile = unknown` | 30 | 1 | — | — |
+| 31 | `investmentVehicles` | investment | multiChips | `invests = true` | 85 | 2 | cdt, diversificacion | — |
+| 32 | `investmentAmounts` | investment | grid | `invests = true ∧ investmentVehicles ≠ ∅` | 100 × filas | 1 | — | — |
+| 33 | `investmentYields` | investment | grid | `invests = true ∧ investmentVehicles ≠ ∅` | 100 × filas | 2 | ea | — |
 
 Notas:
 - **`max`** = puntaje máximo que la pregunta puede aportar al promedio
   de la sección si el usuario responde la mejor opción. Para `grid`,
   el máximo por fila × cantidad de filas (que viene de `rowSource`).
 - **`max = 0`** significa "pregunta informativa, no entra al promedio".
-  El único nodo con `max = 0` es `age`. Los demás nodos con cero insights
-  (`incomeStability`, `knowsCreditScore`, `jobHorizon`) sí entran al
-  promedio de su sección.
+  Los nodos con `max = 0` son `age` e `inRelationship` (este último gatea
+  a `householdFinancialAlignment` pero no aporta puntaje). Los demás nodos
+  con cero insights (`incomeStability`, `knowsCreditScore`, `jobHorizon`)
+  sí entran al promedio de su sección.
 - Para detalle por opción (etiquetas, sublabels, bracket, score), abrir
   el archivo de categoría correspondiente:
-  - `01 - Base (salario y gastos).md` — nodos 1-7
-  - `02 - Deudas.md` — nodos 8-13
-  - `03 - Estabilidad.md` — nodos 14-18
-  - `04 - Inversiones.md` — nodos 19-26
+  - `01 - Base (salario y gastos).md` — nodos 1-8
+  - `02 - Deudas.md` — nodos 9-14
+  - `03 - Estabilidad.md` — nodos 15-22
+  - `04 - Inversiones.md` — nodos 23-33
 
 ---
 
 ## Tabla maestra de insights
 
-35 insights distribuidos en 22 nodos. Cuatro nodos no declaran ninguno
-(`age`, `incomeStability`, `knowsCreditScore`, `jobHorizon`).
-Ordenados por nodo y luego por severidad (`critical → warning → info →
-positive`).
+45 insights distribuidos en 28 nodos. Cinco nodos no declaran ninguno
+(`age`, `incomeStability`, `knowsCreditScore`, `jobHorizon`, `inRelationship`).
+Ordenados por nodo (orden del flujo) y luego por severidad
+(`critical → warning → info → positive`).
 
 | insightId | nodo dueño | severidad | condición |
 |---|---|---|---|
@@ -81,6 +89,9 @@ positive`).
 | `lowObligatorySpending` | `obligatoryPct` | positive | `obligatoryPct < 30` **y** `gasto absoluto > 0.4 × SMM` |
 | `obligatoryBelowSubsistence` | `obligatoryPct` | info | `gasto absoluto < 0.4 × SMM` (% no comparable) |
 | `highDiscretionarySpending` | `discretionaryPct` | warning | `discretionaryPct > 45` |
+| `discretionaryHoursOfLife` | `discretionaryPct` | info | `discretionaryPct > 45` |
+| `noBudgetSystem` | `hasBudgetSystem` | warning | `hasBudgetSystem = no` |
+| `automatedBudget` | `hasBudgetSystem` | positive | `hasBudgetSystem = automated` |
 | `badCreditScore` | `creditScoreBand` | warning | `creditScoreBand ∈ {bad, regular}` |
 | `noDebt` | `hasDebt` | positive | `hasDebt = false` |
 | `debtPaymentPressure` | `debtMonthlyPct` | warning | `debtMonthlyPct > 30` |
@@ -90,16 +101,22 @@ positive`).
 | `toxicRates` | `debtRates` | critical | alguna fila ∈ `{high, veryHigh}` |
 | `allBadDebt` | `debtKinds` | warning | todas las filas = `bad` |
 | `hasGoodDebt` | `debtKinds` | positive | alguna fila ∈ `{investment, savings}` |
+| `leverageAgainstAssets` | `debtKinds` | info | alguna fila = `investment` |
 | `noEmergencyFund` | `emergencyMonths` | warning | `emergencyMonths ∈ {none, lt1}` |
 | `strongEmergencyFund` | `emergencyMonths` | positive | `emergencyMonths ∈ {6to12, gt12}` |
 | `illiquidEmergencyFund` | `emergencyAccessSpeed` | warning | `emergencyAccessSpeed ∈ {weeks, months}` |
 | `noInsuranceHighRisk` | `hasHealthInsurance` | critical | `hasHealthInsurance = false` **y** `age > 40` |
 | `noInsuranceModerateRisk` | `hasHealthInsurance` | warning | `hasHealthInsurance = false` **y** `age ≤ 40` |
 | `noSecondIncomeShortHorizon` | `secondIncomeStream` | warning | `secondIncomeStream ∈ {no, no-interest}` |
+| `chronicFinancialStress` | `financialStressLevel` | critical | `financialStressLevel ∈ {frequent, constant}` |
+| `householdFinancialMisalignment` | `householdFinancialAlignment` | warning | `householdFinancialAlignment ∈ {never-talk, disagree}` |
+| `compoundTimeWasted` | `yearsInvesting` | warning | `yearsInvesting ∈ {never, lt1}` **y** `age < 30` |
 | `noProfessionalEducation` | `professionalEducationInvestment` | info | `professionalEducationInvestment = no` |
 | `noFinancialEducation` | `financialEducationInvestment` | info | `financialEducationInvestment = no` |
 | `investingActively` | `invests` | positive | `invests = true` |
 | `notInvestingButReady` | `invests` | info | `invests = false` **y** `emergencyMonths ∈ {1to3, 3to6, 6to12, gt12}` **y** (`¬hasDebt` ∨ ninguna fila de `debtAmounts` ∈ `{10to50, 50to200, gt200}`) |
+| `frequentTrading` | `tradingFrequency` | warning | `tradingFrequency ∈ {weekly, daily}` |
+| `noIndexFunds` | `usesIndexFunds` | info | `usesIndexFunds = false` |
 | `riskProfileMatchesAge` | `riskProfile` | positive | (`age<30 ∧ aggressive`) ∨ (`30≤age<50 ∧ moderate`) ∨ (`age≥50 ∧ conservative`) |
 | `riskProfileUnknown` | `riskProfile` | info | `riskProfile = unknown` |
 | `guessMatchesAgeRecommendation` | `riskProfileGuess` | info | mismas bandas etarias que `riskProfileMatchesAge`, evaluadas sobre `riskProfileGuess` |
@@ -107,6 +124,7 @@ positive`).
 | `lowDiversification` | `investmentVehicles` | warning | ≤1 vehículo seleccionado |
 | `smallPositions` | `investmentAmounts` | info | todas las filas = `lt1` |
 | `belowInflationYield` | `investmentYields` | warning | alguna fila ∈ `{negative, lt3}` |
+| `unsustainableHighYield` | `investmentYields` | warning | alguna fila = `gt15` **o** algún valor exacto > 30% |
 
 **Reglas de evaluación** (resumen — implementación en `src/utils/insights.ts`):
 
@@ -132,6 +150,7 @@ Base
 ├── incomeStability                         chips     — siempre
 ├── obligatoryPct                           slider    — siempre
 ├── discretionaryPct                        slider    — siempre
+├── hasBudgetSystem                         chips     — siempre
 ├── knowsCreditScore                        toggle    — siempre
 └── creditScoreBand                         chips     — si knowsCreditScore = Sí
 
@@ -150,13 +169,19 @@ Estabilidad
 ├── emergencyAccessSpeed                    chips     — si emergencyMonths ∈ {1to3, 3to6, 6to12, gt12}
 ├── hasHealthInsurance                      toggle    — siempre
 ├── jobHorizon                              chips     — siempre
-└── secondIncomeStream                      chips     — si jobHorizon ∈ {0to1, 1to3, 3to5}
+├── secondIncomeStream                      chips     — si jobHorizon ∈ {0to1, 1to3, 3to5}
+├── financialStressLevel                    chips     — siempre
+└── inRelationship                          toggle    — siempre
+    └── householdFinancialAlignment         chips     — si inRelationship = Sí
 
 Inversiones
+├── yearsInvesting                          chips     — siempre
 ├── professionalEducationInvestment         chips     — siempre
 ├── financialEducationInvestment            chips     — siempre
 └── invests                                 toggle    — siempre
     └── (si invests = Sí)
+        ├── tradingFrequency                chips
+        ├── usesIndexFunds                  toggle
         ├── riskProfile                     chips
         ├── riskProfileGuess                chips     — si además riskProfile = unknown
         ├── investmentVehicles              multiChips
@@ -271,7 +296,8 @@ moneda del benchmark no coincide con la del SMM (caso Venezuela).
 Términos del glosario referenciados por algún nodo (columna `glossary`
 de la tabla maestra): `smm`, `gastosObligatorios`, `ea`,
 `fondoEmergencia`, `cdt`, `diversificacion`, `debtKindInvestment`,
-`debtKindSavings`, `debtKindBad`. Detalle en
+`debtKindSavings`, `debtKindBad`, `apalancamientoActivos`,
+`fondoIndexado`, `interesCompuesto`, `sistemaCubetas`. Detalle en
 `99 - Glosario referenciado.md`.
 
 Widgets del panel lateral usados: `minimumWage` (SMM del país detectado),

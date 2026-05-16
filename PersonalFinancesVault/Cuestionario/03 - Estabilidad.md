@@ -85,9 +85,11 @@ puntaje es directamente el de esta opción.
 - **`noEmergencyFund`** (a revisar). *Se muestra si:* la respuesta es
   "Ninguno" o "Menos de 1 mes".
   - Diagnóstico: "Tu fondo de emergencia es inexistente o muy chico."
-  - Tip: "Antes de invertir o de pagar deuda extra, apuntá a reservar al
-    menos 3 meses de gastos obligatorios en una cuenta líquida. Sin ese
-    colchón, cualquier imprevisto te empuja a tomar deuda cara."
+  - Tip: "Empezá por una meta chica que sí puedas cumplir: 1 mes de
+    gastos obligatorios en cuenta líquida. Las metas grandes que no
+    se cumplen producen abandono; las chicas que se cumplen producen
+    hábito. Cuando llegues a 1 mes, redefiní el siguiente objetivo a
+    3 meses."
 - **`strongEmergencyFund`** (a favor). *Se muestra si:* la respuesta
   es "6 a 12 meses" o "12 meses o más".
   - Diagnóstico: "Tu fondo de emergencia cubre 6 meses o más."
@@ -258,3 +260,132 @@ actual.
   - Tip: "No es urgente, pero conviene empezar a pensarlo. Una
     segunda fuente toma años en madurar; si esperás a necesitarla ya
     es tarde."
+
+---
+
+## Nivel de estrés financiero · `financialStressLevel`
+
+**Mide:** Cuán seguido el usuario percibe ansiedad o malestar por la
+situación financiera. Es una variable subjetiva que no aparece en
+ninguna otra pregunta y que el video de Galloway identifica como
+factor de daño a la salud. Va al final de Estabilidad porque acumula
+el efecto de todo lo anterior.
+
+**Cuándo se muestra:** Siempre.
+
+**Tipo de entrada:** chips, selección única.
+
+**Pregunta visible:**
+
+> ¿Con qué frecuencia sentís estrés financiero?
+
+**Indicación auxiliar:** Ansiedad cuando se acerca fin de mes, evitar
+abrir cuentas, dormir mal por dinero — esas señales.
+
+**Opciones / configuración:**
+
+| Valor | Etiqueta | Sublabel | Puntos |
+| ----- | -------- | -------- | -----: |
+| `none` | Casi nunca | La plata no me quita el sueño | 100 |
+| `sometimes` | A veces | En meses puntuales o ante imprevistos | 70 |
+| `frequent` | Seguido | Varias veces al mes | 30 |
+| `constant` | Constante | Lo cargo casi todos los días | 10 |
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno.
+
+**Tips contextuales:** ninguno.
+
+**Máximo posible:** 100.
+
+**Diagnósticos y tips:**
+
+- **`chronicFinancialStress`** (crítico). *Se muestra si:*
+  `financialStressLevel ∈ [frequent, constant]`.
+  - Diagnóstico: "Estás cargando estrés financiero sostenido."
+  - Tip: "La presión financiera prolongada sube presión arterial,
+    deteriora el sueño y empeora decisiones. Arreglar el cash-flow no
+    es solo financiero, también es salud — empezá por el rubro más
+    doloroso (deuda cara, gasto fijo grande) y atacalo aunque sea con
+    un primer paso chico."
+
+---
+
+## Convivencia económica · `inRelationship`
+
+**Mide:** Si el usuario comparte decisiones económicas con una pareja.
+Es el gate que decide si se pregunta por la alineación financiera del
+hogar. No puntúa por sí solo — es informativo.
+
+**Cuándo se muestra:** Siempre.
+
+**Tipo de entrada:** toggle (Sí / No).
+
+**Pregunta visible:**
+
+> ¿Compartís decisiones económicas con una pareja?
+
+**Indicación auxiliar:** Conviviendo o no, casados o no — lo que
+importa es si las decisiones de plata grandes las negociás con alguien
+más.
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno.
+
+**Tips contextuales:** ninguno.
+
+**Puntaje:** ninguno (pregunta informativa, no contribuye al puntaje).
+
+**Diagnósticos y tips:** ninguno declarado en este nodo. Sirve como
+gate de `householdFinancialAlignment`.
+
+---
+
+## Alineación financiera con la pareja · `householdFinancialAlignment`
+
+**Mide:** Si la pareja conversa de dinero y qué tan alineados están en
+gastos y ahorro. El backlog del video lo cita como predictor #1 de
+divorcio. Pregunta sensible — el copy es deliberadamente neutro para
+no juzgar.
+
+**Cuándo se muestra:** Solo si `inRelationship = Sí`.
+
+**Tipo de entrada:** chips, selección única.
+
+**Pregunta visible:**
+
+> ¿Cómo manejan el tema dinero entre los dos?
+
+**Indicación auxiliar:** Sin juicio: lo importante es identificar si
+hay un canal de conversación, no si son perfectos.
+
+**Opciones / configuración:**
+
+| Valor | Etiqueta | Sublabel | Puntos |
+| ----- | -------- | -------- | -----: |
+| `never-talk` | No hablamos del tema | Cada uno con su plata, sin coordinación | 10 |
+| `disagree` | Hablamos pero discutimos | No estamos de acuerdo en cómo gastar o ahorrar | 30 |
+| `aligned-no-plan` | Estamos alineados pero sin plan | En la misma página, sin metas escritas | 70 |
+| `aligned-plan` | Alineados con plan | Metas concretas, revisión periódica | 100 |
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno.
+
+**Tips contextuales:** ninguno.
+
+**Máximo posible:** 100.
+
+**Diagnósticos y tips:**
+
+- **`householdFinancialMisalignment`** (a revisar). *Se muestra si:*
+  `householdFinancialAlignment ∈ [never-talk, disagree]`.
+  - Diagnóstico: "No hay un canal aceitado para hablar de plata con
+    tu pareja."
+  - Tip: "La falta de conversación financiera es el predictor más
+    fuerte de conflicto serio en una pareja, antes que el monto
+    ahorrado. Probá la conversación más simple: una vez al mes, 20
+    minutos, repasar lo que entró, lo que salió y un objetivo a 90
+    días."

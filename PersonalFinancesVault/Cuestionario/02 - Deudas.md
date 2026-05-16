@@ -363,3 +363,12 @@ positivo que una de consumo.
   - Tip: "No es la deuda en sí lo que daña — es la que solo financia
     consumo. Revisá si las tasas son razonables comparadas con el
     rendimiento que te dan."
+- **`leverageAgainstAssets`** (info). *Se muestra si:* alguna deuda
+  es "Una inversión".
+  - Diagnóstico: "Tu deuda productiva opera como apalancamiento
+    contra activos."
+  - Tip: "Es la misma mecánica que usan los patrimonios grandes:
+    pedir prestado contra activos en vez de venderlos. Conservan el
+    activo, evitan el impuesto a la ganancia, y pagan la tasa.
+    Mientras el activo rinda más que la tasa de la deuda, la
+    estructura suma."

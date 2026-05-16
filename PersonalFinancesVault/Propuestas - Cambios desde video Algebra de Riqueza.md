@@ -1,5 +1,10 @@
 # Propuestas — video "El álgebra de la riqueza" (Scott Galloway)
 
+> **Estado: absorbido (mayo 2026).** Todas las propuestas de este doc están
+> implementadas en `src/content/diagnosis.ts` y reflejadas en el vault.
+> Ver mapeo al final del archivo (§6). Este doc se conserva como contexto
+> histórico — para el roadmap activo ver [[Plan de Accion - Roadmap v2]].
+
 Backlog de cambios candidatos al cuestionario y al glosario derivados de la
 lectura de `video.md` (resumen del libro de Scott Galloway). No es un plan
 implementado, es un menú para decidir qué adoptar.
@@ -81,3 +86,28 @@ Cada cambio implica actualizar en la misma pasada:
 - archivo de categoría correspondiente en `Cuestionario/`
 - glosario en `Cuestionario/99 - Glosario referenciado.md` si suma término
 - lineamiento en `Lineamientos/` si introduce un patrón nuevo
+
+---
+
+## 6. Mapeo de absorción (mayo 2026)
+
+| Propuesta | Materializado como | Archivo |
+| --- | --- | --- |
+| Pregunta `tradingFrequency` (regla 6) | Nodo `tradingFrequency` + insight `frequentTrading` | `04 - Inversiones` |
+| Pregunta `usesIndexFunds` (regla 14) | Nodo `usesIndexFunds` + insight `noIndexFunds` | `04 - Inversiones` |
+| Pregunta `hasBudgetSystem` (regla 15) | Nodo `hasBudgetSystem` + insights `noBudgetSystem`, `automatedBudget` | `01 - Base` |
+| Pregunta `financialStressLevel` (regla 17) | Nodo `financialStressLevel` + insight `chronicFinancialStress` | `03 - Estabilidad` |
+| Pregunta `householdFinancialAlignment` (regla 18) | Nodos `inRelationship` + `householdFinancialAlignment` + insight `householdFinancialMisalignment` | `03 - Estabilidad` |
+| Pregunta `yearsInvesting` (reglas 2 + 9) | Nodo `yearsInvesting` + insight `compoundTimeWasted` | `04 - Inversiones` |
+| Tip regla 1 (apalancamiento) | Insight `leverageAgainstAssets` en `debtKinds` | `02 - Deudas` |
+| Tip regla 2 (compound time) | Cubierto por `compoundTimeWasted` en `yearsInvesting` | `04 - Inversiones` |
+| Tip regla 5 (diversifica) | Ya cubierto por `lowDiversification` preexistente | — |
+| Tip regla 6 (no day trading) | Insight `unsustainableHighYield` en `investmentYields` + `frequentTrading` en `tradingFrequency` | `04 - Inversiones` |
+| Tip regla 13 (metas alcanzables) | Refinado tip de `noEmergencyFund` para sugerir escalera (1 mes → 3 meses) | `03 - Estabilidad` |
+| Tip regla 14 (inversión simple) | Cubierto por `noIndexFunds` | `04 - Inversiones` |
+| Tip regla 17 (salud + finanzas) | Cubierto por `chronicFinancialStress` | `03 - Estabilidad` |
+| Tip regla 24 (gasto en tiempo) | Insight `discretionaryHoursOfLife` en `discretionaryPct` | `01 - Base` |
+| Glosario "Apalancamiento contra activos" | `apalancamientoActivos` | `99 - Glosario` |
+| Glosario "Fondo indexado" | `fondoIndexado` | `99 - Glosario` |
+| Glosario "Interés compuesto" | `interesCompuesto` | `99 - Glosario` |
+| Glosario "Sistema de cubetas" | `sistemaCubetas` | `99 - Glosario` |

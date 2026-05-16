@@ -335,6 +335,68 @@ que en `obligatoryPct`.
     mes lo que gastás en lo no esencial; suele sorprender. Ese margen
     es el que después permite invertir o construir fondo de
     emergencia."
+- **`discretionaryHoursOfLife`** (info). *Se muestra si:*
+  `discretionaryPct > 45%`.
+  - Diagnóstico: "Probá medir tus gastos discrecionales en horas de
+    tu vida."
+  - Tip: "Dividí tu ingreso mensual por tus horas trabajadas: ese es
+    tu ingreso por hora. Cuando dudes con un gasto grande, dividilo
+    por esa cifra — te dice cuántas horas de tu vida cuesta. Es un
+    filtro más honesto que pensar en dinero."
+
+---
+
+## Sistema de cubetas · `hasBudgetSystem`
+
+**Mide:** Cómo el usuario distribuye su ingreso entrante: en cabeza, en
+cuentas separadas, o automatizado por el banco. El "sistema de cubetas"
+predice mejor el cumplimiento del ahorro que el monto ahorrado.
+
+**Cuándo se muestra:** Siempre.
+
+**Tipo de entrada:** chips, selección única.
+
+**Pregunta visible:**
+
+> ¿Tenés un sistema para repartir tu ingreso cuando entra?
+
+**Indicación auxiliar:** Hablamos de cómo decidís cuánto va a
+obligatorios, ahorro, inversión y gusto — no del monto, sino del
+método.
+
+**Opciones / configuración:**
+
+| Valor | Etiqueta | Sublabel | Puntos |
+| ----- | -------- | -------- | -----: |
+| `no` | No tengo método | Gasto y veo qué queda al final del mes | 10 |
+| `mental` | Mental | Tengo una idea de cuánto va a cada cosa, pero todo en una sola cuenta | 40 |
+| `accounts` | Cuentas separadas | Una cuenta para gastos, otra para ahorro, otra para inversión | 80 |
+| `automated` | Automatizado | El banco o una app reparte automáticamente cuando llega el ingreso | 100 |
+
+**Términos del glosario referenciados:** Sistema de cubetas.
+
+**Widgets del panel lateral:** ninguno.
+
+**Tips contextuales:** ninguno.
+
+**Máximo posible:** 100.
+
+**Diagnósticos y tips:**
+
+- **`noBudgetSystem`** (a revisar). *Se muestra si:*
+  `hasBudgetSystem = no`.
+  - Diagnóstico: "No tenés un sistema para repartir tu ingreso."
+  - Tip: "Lo que sobra al final del mes nunca alcanza. Probá la regla
+    más simple: cuando entra el ingreso, mové primero un porcentaje
+    fijo a ahorro/inversión, y vivir con lo que queda. Mental, en
+    cuentas separadas o automatizado — cualquier sistema le gana a no
+    tener."
+- **`automatedBudget`** (a favor). *Se muestra si:*
+  `hasBudgetSystem = automated`.
+  - Diagnóstico: "Tu reparto está automatizado."
+  - Tip: "Es la versión más sólida del sistema: el ahorro no depende
+    de tu disciplina mensual. Verificá una vez al año que los
+    porcentajes sigan haciendo sentido para tu ingreso y tus metas."
 
 ---
 

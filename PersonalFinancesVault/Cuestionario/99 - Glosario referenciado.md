@@ -73,3 +73,37 @@ Deuda tomada para gastos que no producen ingreso ni evitan otro gasto.
 Suele ser la más urgente de pagar.
 
 Aparece en: [[02 - Deudas#Naturaleza de cada deuda · `debtKinds`]].
+
+### Apalancamiento contra activos
+
+Tomar deuda usando activos como garantía en vez de venderlos: conservás
+el activo, evitás el impuesto a la ganancia, y el costo es la tasa que
+pagás. Es la mecánica que usan los patrimonios grandes para financiar
+consumo sin liquidar inversiones.
+
+Aparece en: [[02 - Deudas#Naturaleza de cada deuda · `debtKinds`]].
+
+### Fondo indexado
+
+Vehículo que replica un índice de mercado (S&P 500, MSCI World, etc.)
+a bajo costo, en vez de elegir activos uno por uno. En plazos largos
+le gana a la mayoría de fondos gestionados activamente.
+
+Aparece en: [[04 - Inversiones#Uso de fondos indexados · `usesIndexFunds`]].
+
+### Interés compuesto
+
+Rendimiento que se reinvierte y genera nuevo rendimiento sobre el
+rendimiento previo. Es la variable que más amplifica empezar temprano:
+cada año adicional invertido vale más que el anterior.
+
+Aparece en: [[04 - Inversiones#Años invirtiendo · `yearsInvesting`]].
+
+### Sistema de cubetas
+
+Dividir el ingreso entrante en compartimentos con un destino predefinido
+(gastos obligatorios, fondo de emergencia, inversión, gusto). Puede ser
+mental, en cuentas separadas, o automatizado por el banco. Predice mejor
+el cumplimiento de ahorro que el monto guardado.
+
+Aparece en: [[01 - Base (salario y gastos)#Sistema de cubetas · `hasBudgetSystem`]].

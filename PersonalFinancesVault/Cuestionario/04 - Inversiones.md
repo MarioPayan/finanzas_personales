@@ -9,6 +9,57 @@ vehículos, montos y rendimientos se omiten si responde "No".
 
 ---
 
+## Años invirtiendo · `yearsInvesting`
+
+**Mide:** Cuánto tiempo lleva el usuario invirtiendo, contado desde la
+primera inversión real. No depende de `invests`: capta el caso "joven
+que no invierte" para activar el insight de interés compuesto. La
+opción "Nunca" puntúa bajo aunque el usuario no se considere
+inversor.
+
+**Cuándo se muestra:** Siempre (no depende de `invests`).
+
+**Tipo de entrada:** chips, selección única.
+
+**Pregunta visible:**
+
+> ¿Hace cuánto invertís plata?
+
+**Indicación auxiliar:** Desde la primera inversión real que sigue
+activa o de la que aprendiste algo. Cuentas de ahorro genéricas no
+cuentan.
+
+**Opciones / configuración:**
+
+| Valor | Etiqueta | Sublabel | Puntos |
+| ----- | -------- | -------- | -----: |
+| `never` | Nunca invertí | — | 10 |
+| `lt1` | Menos de 1 año | Estoy arrancando | 40 |
+| `1to3` | 1 a 3 años | Empezando a ver resultados | 70 |
+| `3to10` | 3 a 10 años | Ya pasé al menos un ciclo de mercado | 90 |
+| `gt10` | Más de 10 años | Inversor experimentado | 100 |
+
+**Términos del glosario referenciados:** Interés compuesto.
+
+**Widgets del panel lateral:** ninguno.
+
+**Tips contextuales:** ninguno.
+
+**Máximo posible:** 100.
+
+**Diagnósticos y tips:**
+
+- **`compoundTimeWasted`** (a revisar). *Se muestra si:*
+  `yearsInvesting ∈ [never, lt1]` **Y** `age < 30`.
+  - Diagnóstico: "Sos joven y todavía no estás capturando interés
+    compuesto."
+  - Tip: "Cada año invertido a los 20 vale más que diez años
+    invertidos a los 40, gracias al interés compuesto. Empezar tarde
+    con más plata pierde contra empezar temprano con poca. No hace
+    falta saber mucho: un fondo indexado básico ya activa el reloj."
+
+---
+
 ## Inversión en formación profesional · `professionalEducationInvestment`
 
 **Mide:** Si el usuario invirtió tiempo o dinero en formación de su
@@ -148,6 +199,94 @@ no se completa con un castigo total). **Máximo posible:** 100.
   - Tip: "Asegurate de que las tasas de tus deudas no superen el
     rendimiento de tus inversiones — si lo superan, pagar deuda es
     matemáticamente la mejor inversión."
+
+---
+
+## Frecuencia de trading · `tradingFrequency`
+
+**Mide:** Cuán seguido el usuario compra o vende sus inversiones. El
+backlog del video lo identifica como predictor robusto: tradear
+frecuentemente correlaciona con peor rendimiento que comprar y
+mantener. Capta day-trading aunque el usuario no lo declare como tal.
+
+**Cuándo se muestra:** Solo si `invests = Sí`.
+
+**Tipo de entrada:** chips, selección única.
+
+**Pregunta visible:**
+
+> ¿Con qué frecuencia comprás o vendés tus inversiones?
+
+**Indicación auxiliar:** No cuenta el aporte mensual a un fondo;
+cuenta cuándo decidís entrar o salir de una posición.
+
+**Opciones / configuración:**
+
+| Valor | Etiqueta | Sublabel | Puntos |
+| ----- | -------- | -------- | -----: |
+| `never` | Casi nunca | Compré y dejé; ajusto rara vez | 100 |
+| `few-year` | Pocas veces al año | — | 90 |
+| `monthly` | Mensual | — | 60 |
+| `weekly` | Semanal | — | 25 |
+| `daily` | Diario | Sigo el mercado todos los días | 5 |
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno.
+
+**Tips contextuales:** ninguno.
+
+**Máximo posible:** 100.
+
+**Diagnósticos y tips:**
+
+- **`frequentTrading`** (a revisar). *Se muestra si:*
+  `tradingFrequency ∈ [weekly, daily]`.
+  - Diagnóstico: "Estás tradeando con mucha frecuencia."
+  - Tip: "La evidencia es consistente: en promedio, quien tradea
+    seguido rinde menos que quien compra y mantiene, después de
+    comisiones e impuestos. Si tu rentabilidad neta no le está
+    ganando a un fondo indexado, conviene reducir la frecuencia y
+    dejar que el tiempo trabaje."
+
+---
+
+## Uso de fondos indexados · `usesIndexFunds`
+
+**Mide:** Si el usuario usa fondos indexados o ETFs en su portafolio.
+El backlog del video lo cita como atajo de bajo costo que
+históricamente le gana a la mayoría de gestores activos en el largo
+plazo.
+
+**Cuándo se muestra:** Solo si `invests = Sí`.
+
+**Tipo de entrada:** toggle (Sí / No).
+
+**Pregunta visible:**
+
+> ¿Usás fondos indexados o ETFs en tu portafolio?
+
+**Indicación auxiliar:** Replican un índice (S&P 500, MSCI World,
+etc.) a bajo costo, en vez de elegir activos uno por uno.
+
+**Términos del glosario referenciados:** Fondo indexado.
+
+**Widgets del panel lateral:** ninguno.
+
+**Tips contextuales:** ninguno.
+
+**Puntaje:** `whenTrue: 100`, `whenFalse: 30`. **Máximo posible:**
+100.
+
+**Diagnósticos y tips:**
+
+- **`noIndexFunds`** (info). *Se muestra si:* `usesIndexFunds = No`.
+  - Diagnóstico: "Tu portafolio no incluye fondos indexados."
+  - Tip: "En plazos de 20 años, alrededor del 94% de los gestores
+    activos profesionales no le gana a un índice básico tipo S&P
+    500. Para la mayoría de inversores particulares, un fondo
+    indexado de base — y construir alrededor — es la apuesta con
+    mejor relación esfuerzo/resultado."
 
 ---
 
@@ -441,3 +580,13 @@ seleccionados.
   - Tip: "Si la inflación local supera ese rendimiento, ese vehículo
     te está haciendo perder poder adquisitivo. Revisá si conviene
     rotarlo a algo más productivo."
+- **`unsustainableHighYield`** (a revisar). *Se muestra si:* algún
+  vehículo está en banda `gt15` **O** el rendimiento exacto declarado
+  supera 30%.
+  - Diagnóstico: "Tenés al menos un vehículo con rendimientos muy
+    altos."
+  - Tip: "Rendimientos consistentemente altos casi siempre esconden
+    riesgo no contabilizado o sesgo de supervivencia (ves al ganador,
+    no a los que perdieron). Antes de duplicar la apuesta, verificá
+    el track record en años malos — si nunca lo viste perder,
+    todavía no lo conocés."

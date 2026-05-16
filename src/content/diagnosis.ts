@@ -532,6 +532,66 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         diagnostic: 'Estás gastando una parte muy alta de tu ingreso en lo discrecional.',
         tip: 'No se trata de cohibirte, sino de saber adónde va. Anotá un mes lo que gastás en lo no esencial; suele sorprender. Ese margen es el que después permite invertir o construir fondo de emergencia.',
       },
+      {
+        id: 'discretionaryHoursOfLife',
+        when: {kind: 'numberAbove', key: 'discretionaryPct', threshold: 45},
+        severity: 'info',
+        diagnostic: 'Probá medir tus gastos discrecionales en horas de tu vida.',
+        tip: 'Dividí tu ingreso mensual por tus horas trabajadas: ese es tu ingreso por hora. Cuando dudes con un gasto grande, dividilo por esa cifra — te dice cuántas horas de tu vida cuesta. Es un filtro más honesto que pensar en dinero.',
+      },
+    ],
+  },
+  {
+    storageKey: 'hasBudgetSystem',
+    title: 'Sistema de cubetas',
+    description:
+      'Cómo el usuario distribuye su ingreso entrante: en cabeza, en cuentas separadas, o automatizado por el banco. El "sistema de cubetas" predice mejor el cumplimiento del ahorro que el monto ahorrado.',
+    category: 'base',
+    type: 'chips',
+    prompt: '¿Tenés un sistema para repartir tu ingreso cuando entra?',
+    hint: 'Hablamos de cómo decidís cuánto va a obligatorios, ahorro, inversión y gusto — no del monto, sino del método.',
+    glossaryTerms: ['sistemaCubetas'],
+    options: [
+      {
+        value: 'no',
+        label: 'No tengo método',
+        sublabel: 'Gasto y veo qué queda al final del mes',
+        score: 10,
+      },
+      {
+        value: 'mental',
+        label: 'Mental',
+        sublabel: 'Tengo una idea de cuánto va a cada cosa, pero todo en una sola cuenta',
+        score: 40,
+      },
+      {
+        value: 'accounts',
+        label: 'Cuentas separadas',
+        sublabel: 'Una cuenta para gastos, otra para ahorro, otra para inversión',
+        score: 80,
+      },
+      {
+        value: 'automated',
+        label: 'Automatizado',
+        sublabel: 'El banco o una app reparte automáticamente cuando llega el ingreso',
+        score: 100,
+      },
+    ],
+    insights: [
+      {
+        id: 'noBudgetSystem',
+        when: {kind: 'equals', key: 'hasBudgetSystem', value: 'no'},
+        severity: 'warning',
+        diagnostic: 'No tenés un sistema para repartir tu ingreso.',
+        tip: 'Lo que sobra al final del mes nunca alcanza. Probá la regla más simple: cuando entra el ingreso, mové primero un porcentaje fijo a ahorro/inversión, y vivir con lo que queda. Mental, en cuentas separadas o automatizado — cualquier sistema le gana a no tener.',
+      },
+      {
+        id: 'automatedBudget',
+        when: {kind: 'equals', key: 'hasBudgetSystem', value: 'automated'},
+        severity: 'positive',
+        diagnostic: 'Tu reparto está automatizado.',
+        tip: 'Es la versión más sólida del sistema: el ahorro no depende de tu disciplina mensual. Verificá una vez al año que los porcentajes sigan haciendo sentido para tu ingreso y tus metas.',
+      },
     ],
   },
   {
@@ -811,6 +871,13 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         diagnostic: 'Parte de tu deuda está produciendo o conservando valor.',
         tip: 'No es la deuda en sí lo que daña — es la que solo financia consumo. Revisá si las tasas son razonables comparadas con el rendimiento que te dan.',
       },
+      {
+        id: 'leverageAgainstAssets',
+        when: {kind: 'gridAnyIn', key: 'debtKinds', values: ['investment']},
+        severity: 'info',
+        diagnostic: 'Tu deuda productiva opera como apalancamiento contra activos.',
+        tip: 'Es la misma mecánica que usan los patrimonios grandes: pedir prestado contra activos en vez de venderlos. Conservan el activo, evitan el impuesto a la ganancia, y pagan la tasa. Mientras el activo rinda más que la tasa de la deuda, la estructura suma.',
+      },
     ],
   },
   {
@@ -846,7 +913,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'emergencyMonths', values: ['none', 'lt1']},
         severity: 'warning',
         diagnostic: 'Tu fondo de emergencia es inexistente o muy chico.',
-        tip: 'Antes de invertir o de pagar deuda extra, apuntá a reservar al menos 3 meses de gastos obligatorios en una cuenta líquida. Sin ese colchón, cualquier imprevisto te empuja a tomar deuda cara.',
+        tip: 'Empezá por una meta chica que sí puedas cumplir: 1 mes de gastos obligatorios en cuenta líquida. Las metas grandes que no se cumplen producen abandono; las chicas que se cumplen producen hábito. Cuando llegues a 1 mes, redefiní el siguiente objetivo a 3 meses.',
       },
       {
         id: 'strongEmergencyFund',
@@ -998,6 +1065,122 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     ],
   },
   {
+    storageKey: 'financialStressLevel',
+    title: 'Nivel de estrés financiero',
+    description:
+      'Cuán seguido el usuario percibe ansiedad o malestar por la situación financiera. Es una variable subjetiva que no aparece en ninguna otra pregunta y que el video de Galloway identifica como factor de daño a la salud. Va al final de Estabilidad porque acumula el efecto de todo lo anterior.',
+    category: 'stability',
+    type: 'chips',
+    prompt: '¿Con qué frecuencia sentís estrés financiero?',
+    hint: 'Ansiedad cuando se acerca fin de mes, evitar abrir cuentas, dormir mal por dinero — esas señales.',
+    options: [
+      {value: 'none', label: 'Casi nunca', sublabel: 'La plata no me quita el sueño', score: 100},
+      {value: 'sometimes', label: 'A veces', sublabel: 'En meses puntuales o ante imprevistos', score: 70},
+      {value: 'frequent', label: 'Seguido', sublabel: 'Varias veces al mes', score: 30},
+      {value: 'constant', label: 'Constante', sublabel: 'Lo cargo casi todos los días', score: 10},
+    ],
+    insights: [
+      {
+        id: 'chronicFinancialStress',
+        when: {kind: 'in', key: 'financialStressLevel', values: ['frequent', 'constant']},
+        severity: 'critical',
+        diagnostic: 'Estás cargando estrés financiero sostenido.',
+        tip: 'La presión financiera prolongada sube presión arterial, deteriora el sueño y empeora decisiones. Arreglar el cash-flow no es solo financiero, también es salud — empezá por el rubro más doloroso (deuda cara, gasto fijo grande) y atacalo aunque sea con un primer paso chico.',
+      },
+    ],
+  },
+  {
+    storageKey: 'inRelationship',
+    title: 'Convivencia económica',
+    description:
+      'Si el usuario comparte decisiones económicas con una pareja. Es el gate que decide si se pregunta por la alineación financiera del hogar. No puntúa por sí solo — es informativo.',
+    category: 'stability',
+    type: 'toggle',
+    prompt: '¿Compartís decisiones económicas con una pareja?',
+    hint: 'Conviviendo o no, casados o no — lo que importa es si las decisiones de plata grandes las negociás con alguien más.',
+    trueLabel: 'Sí',
+    falseLabel: 'No',
+  },
+  {
+    storageKey: 'householdFinancialAlignment',
+    title: 'Alineación financiera con la pareja',
+    description:
+      'Si la pareja conversa de dinero y qué tan alineados están en gastos y ahorro. El backlog del video lo cita como predictor #1 de divorcio. Pregunta sensible — el copy es deliberadamente neutro para no juzgar.',
+    category: 'stability',
+    type: 'chips',
+    prompt: '¿Cómo manejan el tema dinero entre los dos?',
+    hint: 'Sin juicio: lo importante es identificar si hay un canal de conversación, no si son perfectos.',
+    dependsOn: [{storageKey: 'inRelationship', equals: true}],
+    options: [
+      {
+        value: 'never-talk',
+        label: 'No hablamos del tema',
+        sublabel: 'Cada uno con su plata, sin coordinación',
+        score: 10,
+      },
+      {
+        value: 'disagree',
+        label: 'Hablamos pero discutimos',
+        sublabel: 'No estamos de acuerdo en cómo gastar o ahorrar',
+        score: 30,
+      },
+      {
+        value: 'aligned-no-plan',
+        label: 'Estamos alineados pero sin plan',
+        sublabel: 'En la misma página, sin metas escritas',
+        score: 70,
+      },
+      {
+        value: 'aligned-plan',
+        label: 'Alineados con plan',
+        sublabel: 'Metas concretas, revisión periódica',
+        score: 100,
+      },
+    ],
+    insights: [
+      {
+        id: 'householdFinancialMisalignment',
+        when: {kind: 'in', key: 'householdFinancialAlignment', values: ['never-talk', 'disagree']},
+        severity: 'warning',
+        diagnostic: 'No hay un canal aceitado para hablar de plata con tu pareja.',
+        tip: 'La falta de conversación financiera es el predictor más fuerte de conflicto serio en una pareja, antes que el monto ahorrado. Probá la conversación más simple: una vez al mes, 20 minutos, repasar lo que entró, lo que salió y un objetivo a 90 días.',
+      },
+    ],
+  },
+  {
+    storageKey: 'yearsInvesting',
+    title: 'Años invirtiendo',
+    description:
+      'Cuánto tiempo lleva el usuario invirtiendo, contado desde la primera inversión real. No depende de `invests`: capta el caso "joven que no invierte" para activar el insight de interés compuesto. La opción "Nunca" puntúa bajo aunque el usuario no se considere inversor.',
+    category: 'investment',
+    type: 'chips',
+    prompt: '¿Hace cuánto invertís plata?',
+    hint: 'Desde la primera inversión real que sigue activa o de la que aprendiste algo. Cuentas de ahorro genéricas no cuentan.',
+    glossaryTerms: ['interesCompuesto'],
+    options: [
+      {value: 'never', label: 'Nunca invertí', score: 10},
+      {value: 'lt1', label: 'Menos de 1 año', sublabel: 'Estoy arrancando', score: 40},
+      {value: '1to3', label: '1 a 3 años', sublabel: 'Empezando a ver resultados', score: 70},
+      {value: '3to10', label: '3 a 10 años', sublabel: 'Ya pasé al menos un ciclo de mercado', score: 90},
+      {value: 'gt10', label: 'Más de 10 años', sublabel: 'Inversor experimentado', score: 100},
+    ],
+    insights: [
+      {
+        id: 'compoundTimeWasted',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'in', key: 'yearsInvesting', values: ['never', 'lt1']},
+            {kind: 'numberBelow', key: 'age', threshold: 30},
+          ],
+        },
+        severity: 'warning',
+        diagnostic: 'Sos joven y todavía no estás capturando interés compuesto.',
+        tip: 'Cada año invertido a los 20 vale más que diez años invertidos a los 40, gracias al interés compuesto. Empezar tarde con más plata pierde contra empezar temprano con poca. No hace falta saber mucho: un fondo indexado básico ya activa el reloj.',
+      },
+    ],
+  },
+  {
     storageKey: 'professionalEducationInvestment',
     title: 'Inversión en formación profesional',
     description:
@@ -1125,6 +1308,62 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         severity: 'positive',
         diagnostic: 'Estás invirtiendo, lo cual indica un hábito financiero saludable.',
         tip: 'Asegurate de que las tasas de tus deudas no superen el rendimiento de tus inversiones — si lo superan, pagar deuda es matemáticamente la mejor inversión.',
+      },
+    ],
+  },
+  {
+    storageKey: 'tradingFrequency',
+    title: 'Frecuencia de trading',
+    description:
+      'Cuán seguido el usuario compra o vende sus inversiones. El backlog del video lo identifica como predictor robusto: tradear frecuentemente correlaciona con peor rendimiento que comprar y mantener. Capta day-trading aunque el usuario no lo declare como tal.',
+    category: 'investment',
+    type: 'chips',
+    prompt: '¿Con qué frecuencia comprás o vendés tus inversiones?',
+    hint: 'No cuenta el aporte mensual a un fondo; cuenta cuándo decidís entrar o salir de una posición.',
+    dependsOn: [{storageKey: 'invests', equals: true}],
+    options: [
+      {
+        value: 'never',
+        label: 'Casi nunca',
+        sublabel: 'Compré y dejé; ajusto rara vez',
+        score: 100,
+      },
+      {value: 'few-year', label: 'Pocas veces al año', score: 90},
+      {value: 'monthly', label: 'Mensual', score: 60},
+      {value: 'weekly', label: 'Semanal', score: 25},
+      {value: 'daily', label: 'Diario', sublabel: 'Sigo el mercado todos los días', score: 5},
+    ],
+    insights: [
+      {
+        id: 'frequentTrading',
+        when: {kind: 'in', key: 'tradingFrequency', values: ['weekly', 'daily']},
+        severity: 'warning',
+        diagnostic: 'Estás tradeando con mucha frecuencia.',
+        tip: 'La evidencia es consistente: en promedio, quien tradea seguido rinde menos que quien compra y mantiene, después de comisiones e impuestos. Si tu rentabilidad neta no le está ganando a un fondo indexado, conviene reducir la frecuencia y dejar que el tiempo trabaje.',
+      },
+    ],
+  },
+  {
+    storageKey: 'usesIndexFunds',
+    title: 'Uso de fondos indexados',
+    description:
+      'Si el usuario usa fondos indexados o ETFs en su portafolio. El backlog del video lo cita como atajo de bajo costo que históricamente le gana a la mayoría de gestores activos en el largo plazo.',
+    category: 'investment',
+    type: 'toggle',
+    prompt: '¿Usás fondos indexados o ETFs en tu portafolio?',
+    hint: 'Replican un índice (S&P 500, MSCI World, etc.) a bajo costo, en vez de elegir activos uno por uno.',
+    glossaryTerms: ['fondoIndexado'],
+    dependsOn: [{storageKey: 'invests', equals: true}],
+    trueLabel: 'Sí',
+    falseLabel: 'No',
+    score: {whenTrue: 100, whenFalse: 30},
+    insights: [
+      {
+        id: 'noIndexFunds',
+        when: {kind: 'equals', key: 'usesIndexFunds', value: false},
+        severity: 'info',
+        diagnostic: 'Tu portafolio no incluye fondos indexados.',
+        tip: 'En plazos de 20 años, alrededor del 94% de los gestores activos profesionales no le gana a un índice básico tipo S&P 500. Para la mayoría de inversores particulares, un fondo indexado de base — y construir alrededor — es la apuesta con mejor relación esfuerzo/resultado.',
       },
     ],
   },
@@ -1359,6 +1598,19 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         severity: 'warning',
         diagnostic: 'Al menos uno de tus vehículos rinde por debajo de la inflación.',
         tip: 'Si la inflación local supera ese rendimiento, ese vehículo te está haciendo perder poder adquisitivo. Revisá si conviene rotarlo a algo más productivo.',
+      },
+      {
+        id: 'unsustainableHighYield',
+        when: {
+          kind: 'any',
+          of: [
+            {kind: 'gridAnyIn', key: 'investmentYields', values: ['gt15']},
+            {kind: 'gridAnyNumberAbove', key: 'investmentYields', threshold: 30},
+          ],
+        },
+        severity: 'warning',
+        diagnostic: 'Tenés al menos un vehículo con rendimientos muy altos.',
+        tip: 'Rendimientos consistentemente altos casi siempre esconden riesgo no contabilizado o sesgo de supervivencia (ves al ganador, no a los que perdieron). Antes de duplicar la apuesta, verificá el track record en años malos — si nunca lo viste perder, todavía no lo conocés.',
       },
     ],
   },
