@@ -162,6 +162,16 @@ export type StepperProps<TAnswer = unknown> = {
   /** Sidebar opcional. Recibe el state vigente. */
   renderSidebar?: (state: StepperState<TAnswer>) => ReactNode
 
+  /**
+   * Overlay opcional — se renderiza fuera del wrapper de sidebar para
+   * que aparezca también en mobile. Pensado para FABs flotantes, modales,
+   * drawers globales del producto.
+   */
+  renderOverlay?: (
+    state: StepperState<TAnswer>,
+    actions: StepperActions<TAnswer>,
+  ) => ReactNode
+
   /** Override de la pantalla "done". Default: mensaje minimalista. */
   renderDone?: (state: StepperState<TAnswer>, actions: StepperActions<TAnswer>) => ReactNode
 }

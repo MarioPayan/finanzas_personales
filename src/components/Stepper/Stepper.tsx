@@ -49,6 +49,7 @@ export function Stepper<TAnswer>(props: StepperProps<TAnswer>) {
         renderProgress={props.renderProgress}
         renderNavigation={props.renderNavigation}
         renderSidebar={props.renderSidebar}
+        renderOverlay={props.renderOverlay}
         renderDone={props.renderDone}
       />
     </StepperProvider>
@@ -62,13 +63,19 @@ function StepperLayout<TAnswer>({
   renderProgress,
   renderNavigation,
   renderSidebar,
+  renderOverlay,
   renderDone,
 }: {
   state: StepperState<TAnswer>
   actions: StepperActions<TAnswer>
 } & Pick<
   StepperProps<TAnswer>,
-  'renderHeader' | 'renderProgress' | 'renderNavigation' | 'renderSidebar' | 'renderDone'
+  | 'renderHeader'
+  | 'renderProgress'
+  | 'renderNavigation'
+  | 'renderSidebar'
+  | 'renderOverlay'
+  | 'renderDone'
 >) {
   const theme = useTheme()
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
@@ -103,6 +110,7 @@ function StepperLayout<TAnswer>({
           {sidebar}
         </Box>
       )}
+      {renderOverlay?.(state, actions)}
       <Box sx={{flex: 1, py: {xs: 3, md: 6}, px: {xs: 2, md: 4}}}>
         <Stack spacing={4} sx={{maxWidth: 760, mx: 'auto'}}>
           {progress}

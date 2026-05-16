@@ -251,7 +251,7 @@ const renderCategoryHeader = (id: DiagnosisCategoryId) => {
   )
 }
 
-const TreePanel = ({answers, currentStorageKey}: {answers: Answers; currentStorageKey: string | null}) => (
+export const TreePanel = ({answers, currentStorageKey}: {answers: Answers; currentStorageKey: string | null}) => (
   <Card variant='outlined'>
     <CardContent>
       <Stack spacing={1}>
@@ -544,7 +544,6 @@ export default function Sidebar({
   const incomeAnswered = answers['incomeBand'] !== undefined
   return (
     <Stack spacing={2} sx={{position: 'sticky', top: 16}}>
-      <TreePanel answers={answers} currentStorageKey={currentStorageKey} />
       {incomeAnswered && (
         <IncomeEditorPanel
           answers={answers}

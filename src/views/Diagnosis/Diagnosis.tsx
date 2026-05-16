@@ -6,6 +6,7 @@ import {detectCountryCode, detectMinimumWage} from '../../utils/detectCountry'
 import Sidebar from './Sidebar'
 import {buildDiagnosisSteps} from './buildDiagnosisSteps'
 import {DiagnosisProgress} from './DiagnosisProgress'
+import {DiagnosisTreeDrawer} from './DiagnosisTreeDrawer'
 import {useStepperActions} from '../../components/Stepper'
 
 /**
@@ -51,6 +52,18 @@ export default function Diagnosis() {
           countryCode={countryCode}
         />
       )}
+      renderOverlay={state => {
+        const currentKey =
+          state.currentStep && state.currentStep.kind !== 'interstitial'
+            ? state.currentStep.id
+            : null
+        return (
+          <DiagnosisTreeDrawer
+            answers={state.answers}
+            currentStorageKey={currentKey}
+          />
+        )
+      }}
     />
   )
 }
