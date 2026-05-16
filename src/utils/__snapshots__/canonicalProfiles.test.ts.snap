@@ -1,0 +1,195 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Perfiles canónicos · snapshot > Asalariado clase media mexicano (mexican-middle-class) 1`] = `
+{
+  "insightIds": [
+    "hasGoodDebt",
+    "investingActively",
+    "noIndexFunds",
+    "riskProfileMatchesAge",
+  ],
+  "overallProfile": {
+    "bottleneck": "debt",
+    "label": "Manejando la deuda",
+    "reason": "bottleneck",
+  },
+  "pais": "MX",
+  "perfil": "Asalariado clase media mexicano",
+  "sectionProfiles": {
+    "base": "Con margen",
+    "debt": "Manejando la deuda",
+    "investment": "Inversor activo",
+    "stability": "Bien protegido",
+  },
+  "sectionScores": {
+    "base": 74,
+    "debt": 59,
+    "investment": 62,
+    "stability": 73,
+  },
+}
+`;
+
+exports[`Perfiles canónicos · snapshot > Estudiante con deuda educativa (student-with-loans) 1`] = `
+{
+  "insightIds": [
+    "chronicFinancialStress",
+    "compoundTimeWasted",
+    "hasGoodDebt",
+    "leverageAgainstAssets",
+    "noEmergencyFund",
+  ],
+  "overallProfile": {
+    "bottleneck": "base",
+    "label": "Equilibrista",
+    "reason": "bottleneck",
+  },
+  "pais": "AR",
+  "perfil": "Estudiante con deuda educativa",
+  "sectionProfiles": {
+    "base": "Equilibrista",
+    "debt": "Casi sin lastre",
+    "investment": "Inversor en formación",
+    "stability": "Resiliencia parcial",
+  },
+  "sectionScores": {
+    "base": 43,
+    "debt": 62,
+    "investment": 45,
+    "stability": 46,
+  },
+}
+`;
+
+exports[`Perfiles canónicos · snapshot > Freelancer ahorrador colombiano (colombian-freelancer) 1`] = `
+{
+  "insightIds": [
+    "investingActively",
+    "noDebt",
+    "strongEmergencyFund",
+  ],
+  "overallProfile": {
+    "bottleneck": undefined,
+    "label": "Equilibrado",
+    "reason": "well-rounded",
+  },
+  "pais": "CO",
+  "perfil": "Freelancer ahorrador colombiano",
+  "sectionProfiles": {
+    "base": "Con margen",
+    "debt": "Sin lastre",
+    "investment": "Inversor activo",
+    "stability": "Fortaleza",
+  },
+  "sectionScores": {
+    "base": 76,
+    "debt": 100,
+    "investment": 78,
+    "stability": 81,
+  },
+}
+`;
+
+exports[`Perfiles canónicos · snapshot > Joven precarizado argentino (young-argentine-precarious) 1`] = `
+{
+  "insightIds": [
+    "allBadDebt",
+    "chronicFinancialStress",
+    "compoundTimeWasted",
+    "debtPaymentPressure",
+    "incomeBelowMinimum",
+    "noBudgetSystem",
+    "noEmergencyFund",
+    "noFinancialEducation",
+    "noInsuranceModerateRisk",
+    "toxicRates",
+  ],
+  "overallProfile": {
+    "bottleneck": "stability",
+    "label": "Construyendo el colchón",
+    "reason": "bottleneck",
+  },
+  "pais": "AR",
+  "perfil": "Joven precarizado argentino",
+  "sectionProfiles": {
+    "base": "Apretado",
+    "debt": "Manejando la deuda",
+    "investment": "Curioso del mercado",
+    "stability": "Construyendo el colchón",
+  },
+  "sectionScores": {
+    "base": 35,
+    "debt": 43,
+    "investment": 23,
+    "stability": 20,
+  },
+}
+`;
+
+exports[`Perfiles canónicos · snapshot > Pareja con hijos clase trabajadora (working-family) 1`] = `
+{
+  "insightIds": [
+    "badCreditScore",
+    "chronicFinancialStress",
+    "hasGoodDebt",
+    "highObligatorySpending",
+    "noFinancialEducation",
+    "notInvestingButReady",
+    "toxicRates",
+  ],
+  "overallProfile": {
+    "bottleneck": "investment",
+    "label": "Curioso del mercado",
+    "reason": "bottleneck",
+  },
+  "pais": "CO",
+  "perfil": "Pareja con hijos clase trabajadora",
+  "sectionProfiles": {
+    "base": "Con margen",
+    "debt": "Manejando la deuda",
+    "investment": "Curioso del mercado",
+    "stability": "Bien protegido",
+  },
+  "sectionScores": {
+    "base": 71,
+    "debt": 50,
+    "investment": 23,
+    "stability": 66,
+  },
+}
+`;
+
+exports[`Perfiles canónicos · snapshot > Rentista experimentado chileno (chilean-rentier) 1`] = `
+{
+  "insightIds": [
+    "automatedBudget",
+    "hasGoodDebt",
+    "incomeHigh",
+    "investingActively",
+    "leverageAgainstAssets",
+    "lowObligatorySpending",
+    "oneVeryLargeDebt",
+    "riskProfileMatchesAge",
+    "strongEmergencyFund",
+  ],
+  "overallProfile": {
+    "bottleneck": "debt",
+    "label": "Casi sin lastre",
+    "reason": "bottleneck",
+  },
+  "pais": "CL",
+  "perfil": "Rentista experimentado chileno",
+  "sectionProfiles": {
+    "base": "Cómodo",
+    "debt": "Casi sin lastre",
+    "investment": "Inversor maduro",
+    "stability": "Fortaleza",
+  },
+  "sectionScores": {
+    "base": 93,
+    "debt": 66,
+    "investment": 93,
+    "stability": 100,
+  },
+}
+`;
