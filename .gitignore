@@ -2,3 +2,12 @@ node_modules
 dist
 coverage
 .vite
+
+# Lockfiles: este repo usa pnpm únicamente.
+package-lock.json
+
+# Workspace state local de Obsidian (cambia al abrir/cerrar tabs).
+PersonalFinancesVault/.obsidian/workspace.json
+
+# Notas de referencia personal que no son parte del producto.
+video.md
