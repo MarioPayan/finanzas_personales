@@ -1,5 +1,16 @@
 # Plan de Acción — Desarrollo de la App (v1.1)
 
+> **OBSOLETO (mayo 2026).** Este plan describe el modelo de **3 pirámides
+> + árbol + misiones IRL post-quiz + mascota Pataco** que se implementó
+> hasta Fase 6 y luego se descartó vía rollback ([[Rollback - Estado
+> minimo]]). El plan vigente es [[Plan de Accion - Roadmap v2]], que
+> reemplazó el modelo de misiones IRL por un quiz one-shot de
+> diagnóstico con scoring + insights.
+>
+> Se conserva como referencia histórica: muchas decisiones (inputs
+> low-friction, SMM por país, opciones-no-opiniones, mínima fricción) se
+> mantienen vigentes en v2.
+
 > Documento que integra `Propuesta - Modelo Ludico v1.md` con los ajustes del `Raw plan.md` y la iteración 2. Pensado como hoja de ruta accionable, no como diseño cerrado.
 
 ---

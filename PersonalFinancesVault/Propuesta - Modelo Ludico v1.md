@@ -1,5 +1,14 @@
 # Propuesta — App de finanzas personales con modelo lúdico (v1)
 
+> **OBSOLETO (mayo 2026).** Propuesta original del modelo lúdico (5
+> niveles, stats múltiples, William como guía). Inspiró el [[Plan de
+> Accion - Desarrollo v1]] que también está obsoleto. El plan vigente
+> es [[Plan de Accion - Roadmap v2]].
+>
+> Se conserva como contexto para entender la genealogía del proyecto y
+> de dónde vienen ciertas decisiones (niveles, misiones, perfil de
+> personaje).
+
 > Documento vivo. Pensado para iterar contigo. Cada sección es una decisión que podemos discutir por separado.
 
 ---

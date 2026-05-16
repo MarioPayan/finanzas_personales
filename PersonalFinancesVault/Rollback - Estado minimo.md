@@ -1,5 +1,15 @@
 # Rollback — Estado mínimo (cuestionario + resumen)
 
+> **Documento histórico (mayo 2026).** Registra la decisión de
+> descartar lo construido en [[Plan de Accion - Desarrollo v1]] y
+> volver al mínimo. Este rollback es el **punto de partida** desde el
+> cual se construye [[Plan de Accion - Roadmap v2]] (que ya superó este
+> "estado mínimo": agregó motor de scoring, insights, vista Debug,
+> validador, simulador, etc.).
+>
+> Se conserva porque explica de dónde viene la arquitectura actual
+> ("nodos fuertes", quiz one-shot, sin persistencia, sin mascota).
+
 > Decisión tomada después de tener implementadas las Fases 0-6 del plan: **rehacer todo desde un estado mínimo**. La app se reduce al cuestionario y una pantalla de resumen final con las respuestas. Todo lo demás (motor, persistencia, pirámides, árbol, mascota, eventos, logros, biblioteca, PWA) se elimina del código pero queda documentado.
 
 ---

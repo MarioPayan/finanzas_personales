@@ -1,29 +1,31 @@
-# Archivo — Originales preservados
+# Archivo — Referencia histórica
 
-Esta carpeta guarda el estado del proyecto **antes de la Fase 0 de la reescritura**, para no perder de vista de dónde venimos y poder rescatar contenido si algo se necesita más adelante.
+> **Mayo 2026.** El código histórico (drawio, steps.ts, hooks, utils,
+> componentes pre-rollback) fue **borrado** en el cleanup posterior al
+> [[Rollback - Estado minimo|rollback]]. En esta carpeta solo queda el
+> contenido editorial valioso.
 
 ## Qué hay aquí
 
-- `README original.md` — la guía narrativa con William y los 3 bloques (Deudas, Presupuestos, Inversiones). El contenido educativo central.
-- `App.tsx` — el shell de la app antes de la limpieza.
-- `steps.ts` — el motor que recorría los nodos del diagrama drawio para producir tabs/preguntas.
-- `components/` — los componentes originales (`AppContainer`, `ContentContainer`, `Score`, `Slide`, `Tabs`, `TabContent`).
-- `hooks/` — `smoothScore` (animación del score) y `useMobile` (responsive).
-- `utils/` — `colors` (gradiente del fondo según score) y `tabs` (helpers del modelo de tabs).
-- `scripts/` — el pipeline drawio → json:
-  - `drawio.xml` — el diagrama fuente del cuestionario.
-  - `data.json` — JSON resultado de la conversión.
-  - `xml_to_json.py` — script Python de conversión.
+- `README original.md` — la guía narrativa con **William** y los 3
+  bloques (Deudas, Presupuestos, Inversiones). Es la fuente del
+  contenido educativo original que inspiró el cuestionario actual y
+  los textos de los insights.
 
-## Para qué pueden servir luego
+## Qué se borró (y dónde recuperarlo)
 
-- El **README original** es la fuente del contenido de la biblioteca y de buena parte de las misiones de las 3 pirámides.
-- El **drawio + data.json** contienen las preguntas y la lógica de clasificación de deuda (mala/buena/subsistencia/ahorro), útiles cuando aterricemos las misiones del Nivel 2 de la Pirámide de Deuda.
-- `useMobile` y la idea de animación con `Slide` se pueden volver a usar.
-- `colors.ts` queda obsoleto (era para el score lineal -100/100) pero ilustra la idea del feedback visual cromático.
+Todo el código antiguo (`App.tsx`, `steps.ts`, `components/`, `hooks/`,
+`utils/`, `scripts/drawio.xml`, `scripts/data.json`,
+`scripts/xml_to_json.py`) se eliminó del repo. Si alguna pieza vuelve a
+ser necesaria, está en el historial de git: `git log -- "PersonalFinancesVault/Archivo/"`
+recupera los commits que lo tocaron, y `git show <sha>:<path>` saca el
+archivo del momento exacto.
 
-## Qué NO se rescata
+Lo que NO se rescata del enfoque viejo:
 
-- El score lineal -100/100. Reemplazado por nivel + stats.
-- El pipeline drawio → json. Reemplazado por contenido tipado en TS/MDX.
-- "William" como guía de la app. Reemplazado por la mascota Pataco. William sobrevive como narrador en la biblioteca.
+- El score lineal -100/100 → reemplazado por score 0-100 por sección +
+  insights.
+- El pipeline drawio → json → reemplazado por
+  `src/content/diagnosis.ts` (TypeScript tipado).
+- "William" como guía obligatoria de la app → la idea de mascota/guía
+  quedó diferida (decisión del usuario en el roadmap v2).
