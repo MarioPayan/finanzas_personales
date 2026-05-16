@@ -1,5 +1,4 @@
 import type {ReactNode} from 'react'
-import {Button, Stack, Typography} from '@mui/material'
 import ChipGroup from '../../components/inputs/ChipGroup'
 import Toggle from '../../components/inputs/Toggle'
 import RangeSlider from '../../components/inputs/RangeSlider'
@@ -9,7 +8,6 @@ import Grid from '../../components/inputs/Grid'
 import {
   DIAGNOSIS_QUESTIONS,
   getGridRows,
-  isAnswerComplete,
   type AnswerValue,
   type Answers,
   type ChipOption,
@@ -23,62 +21,29 @@ import {findCreditScoreBands} from '../../content/creditScoreBands'
 import {formatBracket, formatShare, getDerivationBase} from '../../utils/calculations'
 
 /**
- * Render unificado de un nodo del diagnóstico.
+ * Renderiza SOLO el cuerpo (input) de una pregunta del diagnóstico.
  *
- * Recibe el nodo y se encarga de toda su representación: prompt, hint, body
- * (delegando al input correspondiente) y la zona de avance. La estructura
- * visual y la lógica de "respuesta completa" son las mismas para todos los
- * tipos — así se cumple el principio de "una sola representación visual"
- * (ver [[01 - Vision y filosofia]]).
+ * El header (prompt + hint) y la navegación (botones Atrás/Siguiente) los
+ * maneja el Stepper. Este componente es agnóstico al chrome — recibe la
+ * respuesta actual y dos callbacks (`setAnswer` para cambios sin avance,
+ * `commit` para cambios con auto-advance).
  *
- * El botón Siguiente/Terminar siempre está visible, deshabilitado hasta que
- * la respuesta esté completa. El auto-avance se dispara solo cuando el input
- * emite `{commit: true}` (chip click o toggle); todo lo demás requiere que el
- * usuario presione el botón.
+ * La lógica de "qué input renderizar según `question.type`" vive acá —
+ * es el registry implícito del diagnóstico.
  */
 
-type AnswerOpts = {commit?: boolean}
-
-type QuestionStepProps = {
+type Props = {
   question: DiagnosisQuestion
   answers: Answers
+  answer: AnswerValue | undefined
   minimumWage: MinimumWageEntry | null
   countryCode: string | null
-  isLast: boolean
-  onAnswer: (key: string, value: AnswerValue, opts?: AnswerOpts) => void
-  onAdvance: () => void
+  /** Cambio sin commit (slider, number, multiChips: el usuario sigue ajustando). */
+  setAnswer: (value: AnswerValue) => void
+  /** Cambio con auto-advance (chip único, toggle: interacción decisiva). */
+  commit: (value: AnswerValue) => void
 }
 
-/**
- * `true` cuando toda interacción posible del nodo commitea (auto-avanza).
- * En esos casos el botón Siguiente sería redundante y se oculta. Para nodos
- * con al menos una vía no-commit (p. ej. tipear un valor exacto, mover un
- * slider, marcar varios chips) el botón se mantiene visible.
- */
-const everyInteractionCommits = (q: DiagnosisQuestion): boolean => {
-  if (q.type === 'toggle') return true
-  if (q.type === 'chips' && !q.exactInput) return true
-  return false
-}
-
-/**
- * Resuelve cómo se renderizan los chips de un nodo según su `derivation`:
- *
- *   - `multiplyMinimumWage` con SMM disponible: **intercambia** label y
- *     sublabel — el rango en moneda local pasa a ser el texto principal,
- *     y "1 a 2 SMM" pasa a ser la referencia secundaria abajo. Más
- *     legible para el usuario que piensa en su moneda, no en múltiplos
- *     del SMM.
- *   - `creditScoreBands` con país conocido: deja la label de la opción
- *     ("Bueno", "Excelente") y suma el rango numérico del buró como
- *     sublabel.
- *   - Otros casos (sin derivation, o derivation sin datos disponibles):
- *     options sin cambios.
- *
- * Devuelve `{options, derivedSublabels}` para que la caller los pase tal
- * cual a `ChipGroup` / `Grid` sin tener que saber qué tipo de derivation
- * había.
- */
 const prepareChipsForRender = (
   options: ChipsQuestion['options'],
   derivation: ChipsQuestion['derivation'],
@@ -104,9 +69,6 @@ const prepareChipsForRender = (
   const base = getDerivationBase(derivation.kind, answers, minimumWage.amount)
   if (base === null) return {options}
 
-  // multiplyMinimumWage (incomeBand, debtAmounts, investmentAmounts):
-  // el rango formateado en moneda local toma el lugar de la label, y la
-  // banda en SMM original baja a sublabel como referencia.
   if (derivation.kind === 'multiplyMinimumWage') {
     const transformed = options.map(opt => {
       if (!opt.bracket) return opt
@@ -119,8 +81,6 @@ const prepareChipsForRender = (
     return {options: transformed}
   }
 
-  // Otras derivations monetarias (multiplyMonthlyIncome, etc.): mantienen
-  // label original y agregan rango como sublabel.
   const derivedSublabels: Record<string, string> = {}
   for (const opt of options) {
     if (opt.bracket) {
@@ -128,6 +88,16 @@ const prepareChipsForRender = (
     }
   }
   return {options, derivedSublabels}
+}
+
+const prepareGridCellForRender = (
+  q: GridQuestion,
+  answers: Answers,
+  minimumWage: MinimumWageEntry | null,
+  countryCode: string | null,
+): {options: readonly ChipOption[]; derivedSublabels?: Record<string, string>} | null => {
+  if (q.cell.kind !== 'chips') return null
+  return prepareChipsForRender(q.cell.options, q.derivation, answers, minimumWage, countryCode)
 }
 
 const computeSliderHint = (
@@ -153,28 +123,8 @@ const computeDerivationInfo = (q: DiagnosisQuestion): string | undefined => {
   return `Calculado a partir de tu respuesta en: ${titles}.`
 }
 
-const prepareGridCellForRender = (
-  q: GridQuestion,
-  answers: Answers,
-  minimumWage: MinimumWageEntry | null,
-  countryCode: string | null,
-): {options: readonly ChipOption[]; derivedSublabels?: Record<string, string>} | null => {
-  if (q.cell.kind !== 'chips') return null
-  return prepareChipsForRender(
-    q.cell.options,
-    q.derivation,
-    answers,
-    minimumWage,
-    countryCode,
-  )
-}
-
 const buildGridRowChange =
-  (
-    q: GridQuestion,
-    answers: Answers,
-    onAnswer: (key: string, value: AnswerValue, opts?: AnswerOpts) => void,
-  ) =>
+  (q: GridQuestion, answers: Answers, setAnswer: (v: AnswerValue) => void) =>
   (rowIndex: number, cellValue: string | number) => {
     const rows = getGridRows(q, answers)
     const existing = answers[q.storageKey]
@@ -184,17 +134,19 @@ const buildGridRowChange =
     const next: (string | number | null)[] = rows.map((_, i) =>
       i === rowIndex ? cellValue : (base[i] ?? null),
     )
-    onAnswer(q.storageKey, next)
+    setAnswer(next as AnswerValue)
   }
 
-const renderBody = (
-  question: DiagnosisQuestion,
-  answers: Answers,
-  minimumWage: MinimumWageEntry | null,
-  countryCode: string | null,
-  onAnswer: (key: string, value: AnswerValue, opts?: AnswerOpts) => void,
-): ReactNode => {
-  const value = answers[question.storageKey]
+export default function DiagnosisQuestionBody({
+  question,
+  answers,
+  answer,
+  minimumWage,
+  countryCode,
+  setAnswer,
+  commit,
+}: Props): ReactNode {
+  const value = answer
 
   if (question.type === 'chips') {
     const {options, derivedSublabels} = prepareChipsForRender(
@@ -208,7 +160,7 @@ const renderBody = (
       <ChipGroup
         options={options}
         value={typeof value === 'string' || typeof value === 'number' ? value : null}
-        onChange={(v, opts) => onAnswer(question.storageKey, v, opts)}
+        onChange={(v, opts) => (opts?.commit ? commit(v) : setAnswer(v))}
         ariaLabel={question.prompt}
         derivedSublabels={derivedSublabels}
         exactInput={question.exactInput}
@@ -220,7 +172,7 @@ const renderBody = (
     return (
       <Toggle
         value={typeof value === 'boolean' ? value : null}
-        onChange={(v, opts) => onAnswer(question.storageKey, v, opts)}
+        onChange={(v, opts) => (opts?.commit ? commit(v) : setAnswer(v))}
         trueLabel={question.trueLabel}
         falseLabel={question.falseLabel}
         ariaLabel={question.prompt}
@@ -233,7 +185,7 @@ const renderBody = (
     return (
       <RangeSlider
         value={sliderValue}
-        onChange={v => onAnswer(question.storageKey, v)}
+        onChange={v => setAnswer(v)}
         min={question.min}
         max={question.max}
         step={question.step}
@@ -251,7 +203,7 @@ const renderBody = (
     return (
       <NumberInput
         value={numValue}
-        onChange={v => onAnswer(question.storageKey, v ?? question.defaultValue ?? 0)}
+        onChange={v => setAnswer(v ?? question.defaultValue ?? 0)}
         min={question.min}
         max={question.max}
         step={question.step}
@@ -271,7 +223,7 @@ const renderBody = (
       <MultiChips
         options={question.options}
         value={arrValue}
-        onChange={v => onAnswer(question.storageKey, v)}
+        onChange={v => setAnswer(v)}
         ariaLabel={question.prompt}
       />
     )
@@ -283,8 +235,6 @@ const renderBody = (
       ? value.map(v => (typeof v === 'boolean' ? null : v))
       : []
     const prepared = prepareGridCellForRender(question, answers, minimumWage, countryCode)
-    // Si hubo transformación de options (multiplyMinimumWage), pasamos un
-    // question clonado con la cell que lleva las options ya intercambiadas.
     const renderQuestion: GridQuestion =
       prepared && question.cell.kind === 'chips'
         ? {...question, cell: {...question.cell, options: prepared.options}}
@@ -294,43 +244,11 @@ const renderBody = (
         question={renderQuestion}
         rows={rows}
         value={gridValue}
-        onChange={buildGridRowChange(question, answers, onAnswer)}
+        onChange={buildGridRowChange(question, answers, setAnswer)}
         derivedSublabels={prepared?.derivedSublabels}
       />
     )
   }
 
   return null
-}
-
-export default function QuestionStep({
-  question,
-  answers,
-  minimumWage,
-  countryCode,
-  isLast,
-  onAnswer,
-  onAdvance,
-}: QuestionStepProps) {
-  const canAdvance = isAnswerComplete(question, answers)
-  const showAdvanceButton = !everyInteractionCommits(question)
-
-  return (
-    <Stack spacing={4} sx={{alignItems: 'center', maxWidth: 720, mx: 'auto', width: '100%'}}>
-      <Typography variant='h4' component='h1' sx={{textAlign: 'center'}}>
-        {question.prompt}
-      </Typography>
-      {question.hint && (
-        <Typography variant='body2' color='text.secondary' sx={{textAlign: 'center'}}>
-          {question.hint}
-        </Typography>
-      )}
-      {renderBody(question, answers, minimumWage, countryCode, onAnswer)}
-      {showAdvanceButton && (
-        <Button variant='contained' size='large' onClick={onAdvance} disabled={!canAdvance}>
-          {isLast ? 'Terminar' : 'Siguiente'}
-        </Button>
-      )}
-    </Stack>
-  )
 }
