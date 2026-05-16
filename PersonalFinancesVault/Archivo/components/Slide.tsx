@@ -1,28 +1,21 @@
-import { default as MuiSlide } from '@mui/material/Slide';
+import {default as MuiSlide} from '@mui/material/Slide'
 
-export type SlideDirection = 'up' | 'down';
+export type SlideDirection = 'up' | 'down'
 
 type SlideProps = {
-  animationIn: boolean,
-  slideDirection: SlideDirection,
-  children: JSX.Element,
+  animationIn: boolean
+  slideDirection: SlideDirection
+  children: JSX.Element
 }
 
-const Slide = ({
-  animationIn,
-  slideDirection,
-  children
-}: SlideProps) => {
-  const getDirection = (
-    direction: SlideDirection,
-    transitionIn: boolean
-  ): SlideDirection => {
+const Slide = ({animationIn, slideDirection, children}: SlideProps) => {
+  const getDirection = (direction: SlideDirection, transitionIn: boolean): SlideDirection => {
     if (transitionIn) {
-      return direction;
+      return direction
     } else {
-      return { 'up': 'down', 'down': 'up' }[direction] as SlideDirection
+      return {up: 'down', down: 'up'}[direction] as SlideDirection
     }
-  };
+  }
 
   return (
     <MuiSlide
@@ -33,7 +26,7 @@ const Slide = ({
       mountOnEnter>
       {children}
     </MuiSlide>
-  );
+  )
 }
 
-export default Slide;
+export default Slide

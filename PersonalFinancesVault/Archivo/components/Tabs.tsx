@@ -1,33 +1,27 @@
-import {default as MuiTabs} from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import { Typography } from '@mui/material';
-import useMobile from '../hooks/useMobile';
-import { backgroundColorGradiant } from '../utils/colors';
-import { Step } from '../steps';
+import {default as MuiTabs} from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import {Typography} from '@mui/material'
+import useMobile from '../hooks/useMobile'
+import {backgroundColorGradiant} from '../utils/colors'
+import {Step} from '../steps'
 
-export type TabType = Step & { index: number };
+export type TabType = Step & {index: number}
 
 type TabsProps = {
-  tabs: TabType[],
-  currentTabKey: TabType['key'],
-  nextTabKey: TabType['key'] | undefined,
-  setNextTabKey: (key: TabType['key']) => void,
-  score: number,
+  tabs: TabType[]
+  currentTabKey: TabType['key']
+  nextTabKey: TabType['key'] | undefined
+  setNextTabKey: (key: TabType['key']) => void
+  score: number
 }
 
-const Tabs = ({
-  tabs,
-  currentTabKey,
-  nextTabKey,
-  setNextTabKey,
-  score
-}: TabsProps): JSX.Element => {
-  const isMobile = useMobile();
+const Tabs = ({tabs, currentTabKey, nextTabKey, setNextTabKey, score}: TabsProps): JSX.Element => {
+  const isMobile = useMobile()
 
   return (
     <MuiTabs
       orientation={isMobile ? 'horizontal' : 'vertical'}
-      variant="scrollable"
+      variant='scrollable'
       value={nextTabKey || currentTabKey}
       onChange={(_, value) => setNextTabKey(value)}
       sx={{
@@ -35,29 +29,31 @@ const Tabs = ({
         borderColor: 'divider',
         minWidth: 200,
         backgroundColor: 'rgba(0,0,0,0.5)',
-        boxShadow: "5px 0 10px rgba(0,0,0,0.5)",
-        ".MuiTabs-indicator": {
+        boxShadow: '5px 0 10px rgba(0,0,0,0.5)',
+        '.MuiTabs-indicator': {
           backgroundColor: backgroundColorGradiant(score),
         },
       }}>
-      {tabs.map((tab) => (
-        <Tab key={tab.key}
+      {tabs.map(tab => (
+        <Tab
+          key={tab.key}
           tabIndex={tab.index}
           value={tab.key}
           // disabled={true}
-          label={<Typography variant="h6">{tab.label}</Typography>}
+          label={<Typography variant='h6'>{tab.label}</Typography>}
           sx={{
-            "&.MuiTab-root": {
+            '&.MuiTab-root': {
               color: backgroundColorGradiant(score),
             },
-            "&.Mui-selected": {
+            '&.Mui-selected': {
               color: backgroundColorGradiant(score),
             },
             textTransform: 'capitalize',
-          }} />
+          }}
+        />
       ))}
     </MuiTabs>
-  );
+  )
 }
 
-export default Tabs;
+export default Tabs
