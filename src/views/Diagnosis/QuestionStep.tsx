@@ -12,6 +12,7 @@ import {
   isAnswerComplete,
   type AnswerValue,
   type Answers,
+  type ChipOption,
   type ChipsQuestion,
   type DiagnosisQuestion,
   type GridQuestion,
@@ -60,38 +61,73 @@ const everyInteractionCommits = (q: DiagnosisQuestion): boolean => {
   return false
 }
 
-const computeChipsDerivedSublabels = (
+/**
+ * Resuelve cómo se renderizan los chips de un nodo según su `derivation`:
+ *
+ *   - `multiplyMinimumWage` con SMM disponible: **intercambia** label y
+ *     sublabel — el rango en moneda local pasa a ser el texto principal,
+ *     y "1 a 2 SMM" pasa a ser la referencia secundaria abajo. Más
+ *     legible para el usuario que piensa en su moneda, no en múltiplos
+ *     del SMM.
+ *   - `creditScoreBands` con país conocido: deja la label de la opción
+ *     ("Bueno", "Excelente") y suma el rango numérico del buró como
+ *     sublabel.
+ *   - Otros casos (sin derivation, o derivation sin datos disponibles):
+ *     options sin cambios.
+ *
+ * Devuelve `{options, derivedSublabels}` para que la caller los pase tal
+ * cual a `ChipGroup` / `Grid` sin tener que saber qué tipo de derivation
+ * había.
+ */
+const prepareChipsForRender = (
   options: ChipsQuestion['options'],
   derivation: ChipsQuestion['derivation'],
   answers: Answers,
   minimumWage: MinimumWageEntry | null,
   countryCode: string | null,
-): Record<string, string> | undefined => {
-  if (!derivation) return undefined
+): {options: readonly ChipOption[]; derivedSublabels?: Record<string, string>} => {
+  if (!derivation) return {options}
 
-  // Lookup por país: cada `option.value` mapea a un rango absoluto de la
-  // tabla del buró del país. No usa `bracket` ni multiplicación numérica.
   if (derivation.kind === 'creditScoreBands') {
-    if (!countryCode) return undefined
+    if (!countryCode) return {options}
     const bands = findCreditScoreBands(countryCode)
-    if (!bands) return undefined
-    const out: Record<string, string> = {}
+    if (!bands) return {options}
+    const derivedSublabels: Record<string, string> = {}
     for (const opt of options) {
       const r = bands.ranges[opt.value as keyof typeof bands.ranges]
-      if (r) out[opt.value] = `${r.min}–${r.max}`
+      if (r) derivedSublabels[opt.value] = `${r.min}–${r.max}`
     }
-    return out
+    return {options, derivedSublabels}
   }
 
-  // Resto de kinds: multiplicación de `bracket` por una base monetaria.
-  if (!minimumWage) return undefined
+  if (!minimumWage) return {options}
   const base = getDerivationBase(derivation.kind, answers, minimumWage.amount)
-  if (base === null) return undefined
-  const out: Record<string, string> = {}
-  for (const opt of options) {
-    if (opt.bracket) out[opt.value] = formatBracket(opt.bracket, base, minimumWage.currency)
+  if (base === null) return {options}
+
+  // multiplyMinimumWage (incomeBand, debtAmounts, investmentAmounts):
+  // el rango formateado en moneda local toma el lugar de la label, y la
+  // banda en SMM original baja a sublabel como referencia.
+  if (derivation.kind === 'multiplyMinimumWage') {
+    const transformed = options.map(opt => {
+      if (!opt.bracket) return opt
+      return {
+        ...opt,
+        label: formatBracket(opt.bracket, base, minimumWage.currency),
+        sublabel: opt.label,
+      }
+    })
+    return {options: transformed}
   }
-  return out
+
+  // Otras derivations monetarias (multiplyMonthlyIncome, etc.): mantienen
+  // label original y agregan rango como sublabel.
+  const derivedSublabels: Record<string, string> = {}
+  for (const opt of options) {
+    if (opt.bracket) {
+      derivedSublabels[opt.value] = formatBracket(opt.bracket, base, minimumWage.currency)
+    }
+  }
+  return {options, derivedSublabels}
 }
 
 const computeSliderHint = (
@@ -117,14 +153,14 @@ const computeDerivationInfo = (q: DiagnosisQuestion): string | undefined => {
   return `Calculado a partir de tu respuesta en: ${titles}.`
 }
 
-const computeGridDerivedSublabels = (
+const prepareGridCellForRender = (
   q: GridQuestion,
   answers: Answers,
   minimumWage: MinimumWageEntry | null,
   countryCode: string | null,
-): Record<string, string> | undefined => {
-  if (q.cell.kind !== 'chips') return undefined
-  return computeChipsDerivedSublabels(
+): {options: readonly ChipOption[]; derivedSublabels?: Record<string, string>} | null => {
+  if (q.cell.kind !== 'chips') return null
+  return prepareChipsForRender(
     q.cell.options,
     q.derivation,
     answers,
@@ -161,19 +197,20 @@ const renderBody = (
   const value = answers[question.storageKey]
 
   if (question.type === 'chips') {
+    const {options, derivedSublabels} = prepareChipsForRender(
+      question.options,
+      question.derivation,
+      answers,
+      minimumWage,
+      countryCode,
+    )
     return (
       <ChipGroup
-        options={question.options}
+        options={options}
         value={typeof value === 'string' || typeof value === 'number' ? value : null}
         onChange={(v, opts) => onAnswer(question.storageKey, v, opts)}
         ariaLabel={question.prompt}
-        derivedSublabels={computeChipsDerivedSublabels(
-          question.options,
-          question.derivation,
-          answers,
-          minimumWage,
-          countryCode,
-        )}
+        derivedSublabels={derivedSublabels}
         exactInput={question.exactInput}
       />
     )
@@ -245,13 +282,20 @@ const renderBody = (
     const gridValue: readonly (string | number | null)[] = Array.isArray(value)
       ? value.map(v => (typeof v === 'boolean' ? null : v))
       : []
+    const prepared = prepareGridCellForRender(question, answers, minimumWage, countryCode)
+    // Si hubo transformación de options (multiplyMinimumWage), pasamos un
+    // question clonado con la cell que lleva las options ya intercambiadas.
+    const renderQuestion: GridQuestion =
+      prepared && question.cell.kind === 'chips'
+        ? {...question, cell: {...question.cell, options: prepared.options}}
+        : question
     return (
       <Grid
-        question={question}
+        question={renderQuestion}
         rows={rows}
         value={gridValue}
         onChange={buildGridRowChange(question, answers, onAnswer)}
-        derivedSublabels={computeGridDerivedSublabels(question, answers, minimumWage, countryCode)}
+        derivedSublabels={prepared?.derivedSublabels}
       />
     )
   }

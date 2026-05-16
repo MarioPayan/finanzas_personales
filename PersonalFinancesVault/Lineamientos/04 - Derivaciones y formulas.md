@@ -57,6 +57,25 @@ Convierte `{min?, max?}` y un `base` en texto:
 Para opciones sin `bracket` (p. ej. "Ninguno", "No sé"), no se calcula nada
 y se mantiene el `sublabel` estático si lo hay.
 
+## Cómo se renderizan las options según la derivación
+
+Implementado en `prepareChipsForRender` (`src/views/Diagnosis/QuestionStep.tsx`).
+La derivación decide qué va arriba (label principal) y qué va abajo
+(sublabel de referencia):
+
+| Derivación             | Con datos disponibles                                                                  | Sin datos (fallback) |
+| ---------------------- | -------------------------------------------------------------------------------------- | -------------------- |
+| `multiplyMinimumWage`  | **label = rango en moneda local**, sublabel = etiqueta original (`"1 a 2 SMM"`)        | label original       |
+| `multiplyMonthlyIncome` / `multiplyMonthlyExpenses` | label original; sublabel = rango en moneda local            | label original       |
+| `creditScoreBands`     | label original (`"Bueno"`, etc.); sublabel = rango del buró del país (`"650–720"`)     | label original       |
+| Sin derivation         | label original; sublabel estático si existe en `diagnosis.ts`                          | —                    |
+
+`multiplyMinimumWage` es el único caso que **swappea**: el usuario piensa
+en su moneda, no en múltiplos del SMM. Los nodos afectados son
+`incomeBand`, `debtAmounts` e `investmentAmounts` (los tres usan SMM como
+base). El resto de derivaciones agregan el monto como referencia
+secundaria sin tapar la etiqueta semántica.
+
 ## Reglas
 
 - Si agregás un `DerivationKind`, agregalo a la unión en `diagnosis.ts` **y**
