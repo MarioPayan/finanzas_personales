@@ -1,15 +1,31 @@
-import {Stack, Chip, Typography, Box} from '@mui/material'
+import {useEffect, useRef, useState} from 'react'
+import {Stack, Chip, Typography, Box, useMediaQuery} from '@mui/material'
+import {AnimatePresence, motion} from 'framer-motion'
 import type {ChipOption, ExactInput} from '../../content/diagnosis'
 import NumberInput from './NumberInput'
 
+const CheckGlyph = () => (
+  <svg width='14' height='14' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path
+      d='M5 12.5l4.5 4.5L19 7.5'
+      stroke='currentColor'
+      strokeWidth='3'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+  </svg>
+)
+
 /**
- * `derivedSublabels` permite sobreescribir el `sublabel` estático con un valor
- * calculado (p. ej. el monto derivado de respuestas previas). Si una opción no
- * tiene entrada en el mapa, conserva su `sublabel` original.
+ * Selector de chips con micro-interacciones.
  *
- * El `onChange` emite `{commit: true}` cuando el usuario hace click en un chip
- * (decisión única y decisiva → auto-avance) y sin opts cuando tipea un valor
- * exacto (no hay un "fin" claro de la interacción → requiere Siguiente).
+ * - Al seleccionar: chip hace un pequeño "bounce" (scale spring),
+ *   aparece un check icon a la izquierda del label, y un badge flotante
+ *   "+X pts" sale hacia arriba si la opción declara `score`.
+ * - Respeta `prefers-reduced-motion`: las animaciones se vuelven cortes
+ *   discretos.
+ * - El `onChange` emite `{commit: true}` cuando se hace click en un
+ *   chip (auto-advance); sin opts cuando se tipea valor exacto.
  */
 type ChipGroupProps = {
   options: readonly ChipOption[]
@@ -30,6 +46,23 @@ export default function ChipGroup({
 }: ChipGroupProps) {
   const exactValue = typeof value === 'number' ? value : null
   const chipValue = typeof value === 'string' ? value : null
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+
+  /** Última opción clickeada — dispara el floating "+X pts" sobre el chip. */
+  const [poppedKey, setPoppedKey] = useState<string | null>(null)
+  const poppedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => {
+    if (poppedTimer.current) clearTimeout(poppedTimer.current)
+  }, [])
+
+  const handleClick = (opt: ChipOption) => {
+    if (poppedTimer.current) clearTimeout(poppedTimer.current)
+    if (!reducedMotion && typeof opt.score === 'number' && opt.score > 0) {
+      setPoppedKey(opt.value)
+      poppedTimer.current = setTimeout(() => setPoppedKey(null), 900)
+    }
+    onChange(opt.value, {commit: true})
+  }
 
   return (
     <Stack spacing={2} sx={{width: '100%', alignItems: 'center'}}>
@@ -42,39 +75,106 @@ export default function ChipGroup({
         {options.map(option => {
           const selected = chipValue === option.value
           const sublabel = derivedSublabels?.[option.value] ?? option.sublabel
+          const showPlus = poppedKey === option.value
           const inner = (
-            <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', px: 0.5}}>
-              <Typography variant='body1' sx={{fontWeight: selected ? 600 : 500}}>
-                {option.label}
-              </Typography>
-              {sublabel && (
-                <Typography variant='caption' color='text.secondary' component='span'>
-                  {sublabel}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 0.5,
+                px: 0.5,
+              }}>
+              <AnimatePresence>
+                {selected && (
+                  <motion.span
+                    key='check'
+                    initial={reducedMotion ? {opacity: 1, width: 18} : {opacity: 0, width: 0}}
+                    animate={{opacity: 1, width: 18}}
+                    exit={{opacity: 0, width: 0}}
+                    transition={{duration: 0.18}}
+                    style={{display: 'inline-flex', alignItems: 'center', overflow: 'hidden'}}>
+                    <CheckGlyph />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+              <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <Typography variant='body1' sx={{fontWeight: selected ? 600 : 500}}>
+                  {option.label}
                 </Typography>
-              )}
-              {option.examples && option.examples.length > 0 && (
-                <Typography
-                  variant='caption'
-                  color='text.disabled'
-                  component='span'
-                  sx={{mt: 0.25}}>
-                  {option.examples.join(' · ')}
-                </Typography>
-              )}
+                {sublabel && (
+                  <Typography variant='caption' color='text.secondary' component='span'>
+                    {sublabel}
+                  </Typography>
+                )}
+                {option.examples && option.examples.length > 0 && (
+                  <Typography
+                    variant='caption'
+                    color='text.disabled'
+                    component='span'
+                    sx={{mt: 0.25}}>
+                    {option.examples.join(' · ')}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           )
           return (
-            <Chip
-              key={option.value}
-              label={inner}
-              clickable
-              color={selected ? 'primary' : 'default'}
-              variant={selected ? 'filled' : 'outlined'}
-              onClick={() => onChange(option.value, {commit: true})}
-              role='radio'
-              aria-checked={selected}
-              sx={{height: 'auto', py: 1, px: 1.5, '& .MuiChip-label': {py: 0.5}}}
-            />
+            <Box key={option.value} sx={{position: 'relative'}}>
+              <AnimatePresence>
+                {showPlus && typeof option.score === 'number' && (
+                  <motion.div
+                    key='plus'
+                    initial={{opacity: 0, y: 0, scale: 0.8}}
+                    animate={{opacity: 1, y: -28, scale: 1}}
+                    exit={{opacity: 0, y: -44, scale: 0.8}}
+                    transition={{duration: 0.8, ease: 'easeOut'}}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      pointerEvents: 'none',
+                      zIndex: 2,
+                    }}>
+                    <Box
+                      sx={{
+                        bgcolor: 'success.main',
+                        color: 'success.contrastText',
+                        px: 1,
+                        py: 0.25,
+                        borderRadius: 999,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                      }}>
+                      +{option.score} pts
+                    </Box>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <motion.div
+                whileTap={reducedMotion ? undefined : {scale: 0.96}}
+                animate={selected && !reducedMotion ? {scale: [1, 1.06, 1]} : {scale: 1}}
+                transition={{duration: 0.28, ease: 'easeOut'}}>
+                <Chip
+                  label={inner}
+                  clickable
+                  color={selected ? 'primary' : 'default'}
+                  variant={selected ? 'filled' : 'outlined'}
+                  onClick={() => handleClick(option)}
+                  role='radio'
+                  aria-checked={selected}
+                  sx={{
+                    height: 'auto',
+                    py: 1,
+                    px: 1.5,
+                    '& .MuiChip-label': {py: 0.5},
+                    transition: 'border-color 0.2s, background-color 0.2s',
+                  }}
+                />
+              </motion.div>
+            </Box>
           )
         })}
       </Stack>
@@ -101,3 +201,4 @@ export default function ChipGroup({
     </Stack>
   )
 }
+
