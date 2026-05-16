@@ -1,60 +1,64 @@
 import {useEffect, useMemo, useState} from 'react'
-import {Box, Button, Chip, LinearProgress, Paper, Stack, Typography} from '@mui/material'
-import ChipGroup from '../../components/inputs/ChipGroup'
-import RangeSlider from '../../components/inputs/RangeSlider'
-import Toggle from '../../components/inputs/Toggle'
+import {Box, Button, LinearProgress, Link, Typography} from '@mui/material'
 import {
-  CATEGORIES,
   DIAGNOSIS_QUESTIONS,
+  cleanOrphanAnswers,
   filterApplicableQuestions,
+  isAnswerComplete,
   isQuestionSkipped,
-  type DiagnosisQuestion,
+  type AnswerValue,
+  type Answers,
+  type DiagnosisCategoryId,
 } from '../../content/diagnosis'
-import {detectMinimumWage} from '../../utils/detectCountry'
-import {formatMinimumWage, type MinimumWageEntry} from '../../content/minimumWages'
+import {detectCountryCode, detectMinimumWage} from '../../utils/detectCountry'
+import {type MinimumWageEntry} from '../../content/minimumWages'
 import Summary from './Summary'
-import DecisionTree from './DecisionTree'
+import Sidebar from './Sidebar'
+import QuestionStep from './QuestionStep'
+import SectionScore from './SectionScore'
 
-type AnswerValue = string | number | boolean
-type Answers = Record<string, AnswerValue>
-
-const cleanOrphanAnswers = (answers: Answers): Answers => {
-  const next: Answers = {...answers}
-  for (const q of DIAGNOSIS_QUESTIONS) {
-    if (q.dependsOn && next[q.dependsOn.storageKey] !== q.dependsOn.equals) {
-      delete next[q.storageKey]
-    }
-  }
-  return next
-}
+const FIRST_KEY = DIAGNOSIS_QUESTIONS.find(q => !q.dependsOn)?.storageKey ?? null
+const AUTO_ADVANCE_MS = 250
 
 const computeProgress = (answers: Answers): number => {
   let resolved = 0
   for (const q of DIAGNOSIS_QUESTIONS) {
-    if (answers[q.storageKey] !== undefined) resolved += 1
-    else if (isQuestionSkipped(q, answers)) resolved += 1
+    if (isAnswerComplete(q, answers) || isQuestionSkipped(q, answers)) resolved += 1
   }
   return Math.min(100, (resolved / DIAGNOSIS_QUESTIONS.length) * 100)
 }
 
-const AUTO_ADVANCE_MS = 250
+const categoryOf = (storageKey: string): DiagnosisCategoryId | null =>
+  DIAGNOSIS_QUESTIONS.find(q => q.storageKey === storageKey)?.category ?? null
 
 export default function Diagnosis() {
   const [answers, setAnswers] = useState<Answers>({})
-  const [index, setIndex] = useState(0)
+  const [currentKey, setCurrentKey] = useState<string | null>(FIRST_KEY)
   const [done, setDone] = useState(false)
   const [minimumWage, setMinimumWage] = useState<MinimumWageEntry | null>(null)
+  const [countryCode, setCountryCode] = useState<string | null>(null)
+  /**
+   * Cuando el usuario termina la última pregunta de una sección, se setea
+   * a esa categoría para mostrar la pantalla de puntaje. El avance real
+   * (a la siguiente sección o al diagnóstico final) ocurre cuando el
+   * usuario presiona "Continuar".
+   */
+  const [interstitial, setInterstitial] = useState<{
+    category: DiagnosisCategoryId
+    isFinal: boolean
+  } | null>(null)
 
   useEffect(() => {
     setMinimumWage(detectMinimumWage())
+    setCountryCode(detectCountryCode())
   }, [])
 
   const visible = useMemo(() => filterApplicableQuestions(DIAGNOSIS_QUESTIONS, answers), [answers])
-  const safeIndex = Math.min(index, Math.max(visible.length - 1, 0))
-  const current: DiagnosisQuestion | undefined = visible[safeIndex]
-  const isLast = safeIndex === visible.length - 1
+  const current = visible.find(q => q.storageKey === currentKey) ?? visible[0]
+  const currentIdx = current ? visible.indexOf(current) : -1
+  const isFirst = currentIdx <= 0
+  const isLast = currentIdx === visible.length - 1
   const progress = computeProgress(answers)
-  const currentCategory = current ? CATEGORIES[current.category] : null
 
   const updateAnswer = (key: string, value: AnswerValue): Answers => {
     const next = cleanOrphanAnswers({...answers, [key]: value})
@@ -62,45 +66,82 @@ export default function Diagnosis() {
     return next
   }
 
-  const goNext = (afterAnswers: Answers) => {
-    const nextVisible = filterApplicableQuestions(DIAGNOSIS_QUESTIONS, afterAnswers)
-    if (safeIndex >= nextVisible.length - 1) {
-      setDone(true)
-    } else {
-      setIndex(safeIndex + 1)
+  const goNext = (afterAnswers: Answers, fromKey: string) => {
+    const next = filterApplicableQuestions(DIAGNOSIS_QUESTIONS, afterAnswers)
+    const idx = next.findIndex(q => q.storageKey === fromKey)
+    const fromCategory = categoryOf(fromKey)
+    const isLastApplicable = idx === -1 || idx === next.length - 1
+    const nextQ = isLastApplicable ? null : next[idx + 1]
+    const crossesSection = nextQ ? nextQ.category !== fromCategory : false
+
+    if (fromCategory && (isLastApplicable || crossesSection)) {
+      setInterstitial({category: fromCategory, isFinal: isLastApplicable})
+      return
+    }
+
+    if (nextQ) setCurrentKey(nextQ.storageKey)
+  }
+
+  const handleAnswer = (key: string, value: AnswerValue, opts?: {commit?: boolean}) => {
+    const next = updateAnswer(key, value)
+    if (opts?.commit) {
+      setTimeout(() => goNext(next, key), AUTO_ADVANCE_MS)
     }
   }
 
-  const handleChips = (key: string, value: string) => {
-    const next = updateAnswer(key, value)
-    setTimeout(() => goNext(next), AUTO_ADVANCE_MS)
-  }
-
-  const handleToggle = (key: string, value: boolean) => {
-    const next = updateAnswer(key, value)
-    setTimeout(() => goNext(next), AUTO_ADVANCE_MS)
-  }
-
-  const handleSliderChange = (key: string, value: number) => {
-    updateAnswer(key, value)
+  const handleConfirm = () => {
+    if (current) goNext(answers, current.storageKey)
   }
 
   const handleBack = () => {
-    if (safeIndex > 0) setIndex(safeIndex - 1)
-  }
-
-  const handleSliderConfirm = () => {
-    goNext(answers)
+    if (currentIdx > 0) setCurrentKey(visible[currentIdx - 1].storageKey)
   }
 
   const handleRestart = () => {
     setAnswers({})
-    setIndex(0)
+    setCurrentKey(FIRST_KEY)
     setDone(false)
+    setInterstitial(null)
+  }
+
+  const dismissInterstitial = () => {
+    if (!interstitial) return
+    if (interstitial.isFinal) {
+      setDone(true)
+      setInterstitial(null)
+      return
+    }
+    if (current) {
+      const next = filterApplicableQuestions(DIAGNOSIS_QUESTIONS, answers)
+      const idx = next.findIndex(q => q.storageKey === current.storageKey)
+      const nextQ = idx >= 0 ? next[idx + 1] : null
+      if (nextQ) {
+        setCurrentKey(nextQ.storageKey)
+      } else {
+        setDone(true)
+      }
+    }
+    setInterstitial(null)
   }
 
   const mainContent = done ? (
-    <Summary answers={answers} onRestart={handleRestart} />
+    <Summary
+      answers={answers}
+      smm={minimumWage?.amount ?? null}
+      countryCode={countryCode}
+      onRestart={handleRestart}
+    />
+  ) : interstitial ? (
+    <Box sx={{display: 'flex', flexDirection: 'column', minHeight: '100vh', justifyContent: 'center', px: 3}}>
+      <SectionScore
+        category={interstitial.category}
+        answers={answers}
+        smm={minimumWage?.amount ?? null}
+        countryCode={countryCode}
+        isFinal={interstitial.isFinal}
+        onContinue={dismissInterstitial}
+      />
+    </Box>
   ) : !current ? (
     <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}>
       <Typography>Cargando…</Typography>
@@ -108,169 +149,81 @@ export default function Diagnosis() {
   ) : (
     <Box sx={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
       <Box sx={{px: 3, pt: 3}}>
-        {minimumWage && (
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 1.25,
-              mb: 2,
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 1,
-              alignItems: 'center',
-              bgcolor: 'background.default',
-            }}
-            aria-label="Referencia de salario mínimo"
-          >
-            <Typography variant="caption" color="text.secondary">
-              SMM en {minimumWage.countryName} ({minimumWage.year})
-            </Typography>
-            <Chip
-              label={formatMinimumWage(minimumWage)}
-              size="small"
-              color="primary"
-              variant="outlined"
-            />
-            <Typography variant="caption" color="text.disabled" sx={{ml: 'auto'}}>
-              referencia para tus cálculos
-            </Typography>
-          </Paper>
-        )}
+        <LinearProgress variant='determinate' value={progress} sx={{height: 6, borderRadius: 3}} />
+        <Typography variant='caption' color='text.secondary' sx={{mt: 1, display: 'block'}}>
+          {Math.round(progress)}% del diagnóstico
+        </Typography>
+      </Box>
 
-        <LinearProgress
-          variant="determinate"
-          value={progress}
-          sx={{height: 6, borderRadius: 3}}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          px: 3,
+          py: 4,
+        }}>
+        <QuestionStep
+          question={current}
+          answers={answers}
+          minimumWage={minimumWage}
+          countryCode={countryCode}
+          isLast={isLast}
+          onAnswer={handleAnswer}
+          onAdvance={handleConfirm}
         />
-        <Box sx={{mt: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap'}}>
-          <Typography variant="caption" color="text.secondary">
-            {Math.round(progress)}% del diagnóstico
-          </Typography>
-          {currentCategory && (
-            <Chip
-              label={currentCategory.label}
-              size="small"
-              color={currentCategory.color}
-              variant="outlined"
-              sx={{height: 22}}
-            />
-          )}
-        </Box>
       </Box>
 
-      <Box sx={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', px: 3, py: 4}}>
-        <Stack spacing={4} sx={{alignItems: 'center', maxWidth: 640, mx: 'auto', width: '100%'}}>
-          <Typography variant="h4" component="h1" sx={{textAlign: 'center'}}>
-            {current.prompt}
-          </Typography>
-          {current.hint && (
-            <Typography variant="body2" color="text.secondary" sx={{textAlign: 'center'}}>
-              {current.hint}
-            </Typography>
-          )}
-
-          {current.examples && current.examples.length > 0 && (
-            <Box
-              sx={{
-                width: '100%',
-                maxWidth: 560,
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                p: 2,
-                bgcolor: 'background.default',
-              }}
-            >
-              <Typography
-                variant="overline"
-                color="text.secondary"
-                sx={{display: 'block', mb: 1, lineHeight: 1}}
-              >
-                Ejemplos
-              </Typography>
-              <Box component="ul" sx={{m: 0, pl: 2.5}}>
-                {current.examples.map((ex, i) => (
-                  <Typography
-                    key={i}
-                    component="li"
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{lineHeight: 1.5}}
-                  >
-                    {ex}
-                  </Typography>
-                ))}
-              </Box>
-            </Box>
-          )}
-
-          {current.type === 'chips' && (
-            <ChipGroup
-              options={current.options}
-              value={(answers[current.storageKey] as string | undefined) ?? null}
-              onChange={value => handleChips(current.storageKey, value)}
-              ariaLabel={current.prompt}
-            />
-          )}
-
-          {current.type === 'toggle' && (
-            <Toggle
-              value={(answers[current.storageKey] as boolean | undefined) ?? null}
-              onChange={value => handleToggle(current.storageKey, value)}
-              trueLabel={current.trueLabel}
-              falseLabel={current.falseLabel}
-              ariaLabel={current.prompt}
-            />
-          )}
-
-          {current.type === 'slider' && (
-            <Stack spacing={3} sx={{alignItems: 'center', width: '100%'}}>
-              <RangeSlider
-                value={(answers[current.storageKey] as number | undefined) ?? current.defaultValue}
-                onChange={value => handleSliderChange(current.storageKey, value)}
-                min={current.min}
-                max={current.max}
-                step={current.step}
-                unit={current.unit}
-                marks={current.marks}
-                ariaLabel={current.prompt}
-              />
-              <Button variant="contained" size="large" onClick={handleSliderConfirm}>
-                {isLast ? 'Terminar' : 'Siguiente'}
-              </Button>
-            </Stack>
-          )}
-        </Stack>
-      </Box>
-
-      <Box sx={{display: 'flex', justifyContent: 'space-between', px: 3, pb: 3}}>
-        <Button onClick={handleBack} disabled={safeIndex === 0}>
+      <Box sx={{px: 3, pb: 3}}>
+        <Button onClick={handleBack} disabled={isFirst}>
           Atrás
         </Button>
-        <Box />
       </Box>
     </Box>
   )
 
   return (
     <Box sx={{display: 'flex', flexDirection: {xs: 'column', md: 'row'}, minHeight: '100vh'}}>
+      <Link
+        href='/debug'
+        sx={{
+          position: 'fixed',
+          top: 8,
+          right: 12,
+          fontSize: 11,
+          fontFamily: 'monospace',
+          color: 'text.disabled',
+          textDecoration: 'none',
+          letterSpacing: 0.5,
+          textTransform: 'uppercase',
+          px: 1,
+          py: 0.5,
+          zIndex: 1200,
+          '&:hover': {color: 'text.secondary'},
+        }}
+      >
+        debug
+      </Link>
       <Box sx={{flex: 1, minWidth: 0}}>{mainContent}</Box>
       <Box
-        component="aside"
+        component='aside'
         sx={{
           width: {xs: '100%', md: 380},
           flexShrink: 0,
           borderLeft: {md: '1px solid'},
           borderTop: {xs: '1px solid', md: 'none'},
-          borderColor: {xs: 'divider', md: 'divider'},
+          borderColor: 'divider',
           bgcolor: 'background.default',
           p: 2,
           display: {xs: 'none', md: 'block'},
-        }}
-      >
-        <DecisionTree
+        }}>
+        <Sidebar
           answers={answers}
-          currentStorageKey={done ? null : (current?.storageKey ?? null)}
+          currentStorageKey={done || interstitial ? null : (current?.storageKey ?? null)}
+          minimumWage={minimumWage}
+          countryCode={countryCode}
+          onAnswer={(key, value) => updateAnswer(key, value)}
         />
       </Box>
     </Box>
