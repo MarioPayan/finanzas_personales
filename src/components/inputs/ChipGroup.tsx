@@ -1,35 +1,64 @@
 import {Stack, Chip, Typography, Box} from '@mui/material'
-import type {ChipOption} from '../../content/diagnosis'
+import type {ChipOption, ExactInput} from '../../content/diagnosis'
+import NumberInput from './NumberInput'
 
+/**
+ * `derivedSublabels` permite sobreescribir el `sublabel` estático con un valor
+ * calculado (p. ej. el monto derivado de respuestas previas). Si una opción no
+ * tiene entrada en el mapa, conserva su `sublabel` original.
+ *
+ * El `onChange` emite `{commit: true}` cuando el usuario hace click en un chip
+ * (decisión única y decisiva → auto-avance) y sin opts cuando tipea un valor
+ * exacto (no hay un "fin" claro de la interacción → requiere Siguiente).
+ */
 type ChipGroupProps = {
   options: readonly ChipOption[]
-  value: string | null
-  onChange: (value: string) => void
+  value: string | number | null
+  onChange: (value: string | number, opts?: {commit?: boolean}) => void
   ariaLabel?: string
+  derivedSublabels?: Record<string, string>
+  exactInput?: ExactInput
 }
 
-export default function ChipGroup({options, value, onChange, ariaLabel}: ChipGroupProps) {
-  const optionsWithExamples = options.filter(o => o.examples && o.examples.length > 0)
+export default function ChipGroup({
+  options,
+  value,
+  onChange,
+  ariaLabel,
+  derivedSublabels,
+  exactInput,
+}: ChipGroupProps) {
+  const exactValue = typeof value === 'number' ? value : null
+  const chipValue = typeof value === 'string' ? value : null
 
   return (
-    <Stack spacing={2.5} sx={{width: '100%', alignItems: 'center'}}>
+    <Stack spacing={2} sx={{width: '100%', alignItems: 'center'}}>
       <Stack
-        direction="row"
+        direction='row'
         spacing={1.5}
         sx={{flexWrap: 'wrap', justifyContent: 'center', rowGap: 1.5}}
-        role="radiogroup"
-        aria-label={ariaLabel}
-      >
+        role='radiogroup'
+        aria-label={ariaLabel}>
         {options.map(option => {
-          const selected = value === option.value
+          const selected = chipValue === option.value
+          const sublabel = derivedSublabels?.[option.value] ?? option.sublabel
           const inner = (
             <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', px: 0.5}}>
-              <Typography variant="body1" sx={{fontWeight: selected ? 600 : 500}}>
+              <Typography variant='body1' sx={{fontWeight: selected ? 600 : 500}}>
                 {option.label}
               </Typography>
-              {option.sublabel && (
-                <Typography variant="caption" color="text.secondary" component="span">
-                  {option.sublabel}
+              {sublabel && (
+                <Typography variant='caption' color='text.secondary' component='span'>
+                  {sublabel}
+                </Typography>
+              )}
+              {option.examples && option.examples.length > 0 && (
+                <Typography
+                  variant='caption'
+                  color='text.disabled'
+                  component='span'
+                  sx={{mt: 0.25}}>
+                  {option.examples.join(' · ')}
                 </Typography>
               )}
             </Box>
@@ -41,8 +70,8 @@ export default function ChipGroup({options, value, onChange, ariaLabel}: ChipGro
               clickable
               color={selected ? 'primary' : 'default'}
               variant={selected ? 'filled' : 'outlined'}
-              onClick={() => onChange(option.value)}
-              role="radio"
+              onClick={() => onChange(option.value, {commit: true})}
+              role='radio'
               aria-checked={selected}
               sx={{height: 'auto', py: 1, px: 1.5, '& .MuiChip-label': {py: 0.5}}}
             />
@@ -50,48 +79,24 @@ export default function ChipGroup({options, value, onChange, ariaLabel}: ChipGro
         })}
       </Stack>
 
-      {optionsWithExamples.length > 0 && (
-        <Box
-          sx={{
-            width: '100%',
-            maxWidth: 560,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 1,
-            p: 2,
-            bgcolor: 'background.default',
-          }}
-        >
-          <Typography
-            variant="overline"
-            color="text.secondary"
-            sx={{display: 'block', mb: 1, lineHeight: 1}}
-          >
-            Ejemplos
+      {exactInput && (
+        <Stack direction='row' spacing={1} sx={{alignItems: 'center'}}>
+          <Typography variant='caption' color='text.secondary'>
+            o exacto:
           </Typography>
-          <Stack spacing={1.25}>
-            {optionsWithExamples.map(option => (
-              <Box key={option.value}>
-                <Typography variant="subtitle2" sx={{fontWeight: 600}}>
-                  {option.label}
-                </Typography>
-                <Box component="ul" sx={{m: 0, pl: 2.5}}>
-                  {option.examples!.map((ex, i) => (
-                    <Typography
-                      key={i}
-                      component="li"
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{lineHeight: 1.5}}
-                    >
-                      {ex}
-                    </Typography>
-                  ))}
-                </Box>
-              </Box>
-            ))}
-          </Stack>
-        </Box>
+          <NumberInput
+            value={exactValue}
+            onChange={v => {
+              if (v !== null) onChange(v)
+            }}
+            min={exactInput.min}
+            max={exactInput.max}
+            step={exactInput.step}
+            unit={exactInput.unit}
+            placeholder={exactInput.placeholder}
+            ariaLabel={`${ariaLabel ?? ''} (valor exacto)`}
+          />
+        </Stack>
       )}
     </Stack>
   )

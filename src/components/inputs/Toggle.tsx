@@ -2,7 +2,7 @@ import {Stack, ToggleButton, ToggleButtonGroup} from '@mui/material'
 
 type ToggleProps = {
   value: boolean | null
-  onChange: (value: boolean) => void
+  onChange: (value: boolean, opts?: {commit?: boolean}) => void
   trueLabel?: string
   falseLabel?: string
   ariaLabel?: string
@@ -16,17 +16,16 @@ export default function Toggle({
   ariaLabel,
 }: ToggleProps) {
   return (
-    <Stack direction="row" sx={{justifyContent: 'center'}}>
+    <Stack direction='row' sx={{justifyContent: 'center'}}>
       <ToggleButtonGroup
         exclusive
         value={value}
         onChange={(_, next) => {
-          if (typeof next === 'boolean') onChange(next)
+          if (typeof next === 'boolean') onChange(next, {commit: true})
         }}
         aria-label={ariaLabel}
-        color="primary"
-        size="large"
-      >
+        color='primary'
+        size='large'>
         <ToggleButton value={true} sx={{px: 5, py: 1.5}}>
           {trueLabel}
         </ToggleButton>
