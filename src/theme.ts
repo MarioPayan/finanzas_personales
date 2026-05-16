@@ -3,34 +3,30 @@ import {createTheme} from '@mui/material/styles'
 /**
  * Tema MUI de la aplicación.
  *
- * Por ahora **solo modo claro** — la gamificación visual queda diferida; el
- * foco está en la lógica del cuestionario. La estructura ya soporta agregar
- * un `dark` palette más adelante sin cambios estructurales.
+ * Modo claro únicamente por ahora — la gamificación del dark queda
+ * diferida. La paleta busca identidad propia (no MUI default) y refleja
+ * la asignación de colores por categoría del diagnóstico:
  *
- * Decisiones:
- *   - **Primary verde-azulado** ("teal verdoso") en vez del azul MUI default,
- *     para tener una identidad mínima sin necesidad de logo ni mascota.
- *   - **Tipografía system** — rápida, legible, neutra. No cargamos webfonts
- *     hasta que la identidad visual completa (item C1 del roadmap) lo
- *     justifique.
- *   - **Radios suaves pero no excesivos** (10px chips, 12px cards) — entre
- *     el "serio" del MUI default y el "redondeado infantil" del default
- *     de muchos quiz apps.
- *   - **Tipografía con jerarquía marcada** (h1-h3 grandes, h4-h6 chicos
- *     pero pesados) — el quiz tiene mucho texto secundario, queremos que
- *     los títulos resalten sin gritar.
+ *   - **primary** (teal): Base · salario y gastos
+ *   - **warning** (amber): Deudas
+ *   - **info** (blue): Estabilidad
+ *   - **success** (emerald): Inversiones
+ *   - **secondary** (violet): accents narrativos (perfiles, badges)
+ *
+ * Tipografía system con jerarquía marcada y `letter-spacing` negativo en
+ * h-grandes para sensación editorial.
  */
 export const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#0F766E', // teal-700: serio, verdoso, distinto al azul genérico
+      main: '#0F766E', // teal-700
       light: '#14B8A6',
       dark: '#115E59',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#7C3AED', // violeta-600: contrastante, usable en accents
+      main: '#7C3AED', // violet-600
       light: '#A78BFA',
       dark: '#5B21B6',
     },
@@ -55,7 +51,7 @@ export const theme = createTheme({
       dark: '#1D4ED8',
     },
     background: {
-      default: '#F8FAFC', // slate-50: bg ligeramente más cálido que blanco puro
+      default: '#F8FAFC', // slate-50: bg cálido
       paper: '#FFFFFF',
     },
     text: {
@@ -67,43 +63,70 @@ export const theme = createTheme({
   typography: {
     fontFamily:
       'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    h1: {fontWeight: 700, letterSpacing: '-0.02em'},
-    h2: {fontWeight: 700, letterSpacing: '-0.02em'},
-    h3: {fontWeight: 700, letterSpacing: '-0.01em'},
-    h4: {fontWeight: 700, letterSpacing: '-0.01em'},
-    h5: {fontWeight: 600},
+    h1: {fontWeight: 800, letterSpacing: '-0.03em'},
+    h2: {fontWeight: 800, letterSpacing: '-0.025em'},
+    h3: {fontWeight: 700, letterSpacing: '-0.02em'},
+    h4: {fontWeight: 700, letterSpacing: '-0.015em'},
+    h5: {fontWeight: 700, letterSpacing: '-0.01em'},
     h6: {fontWeight: 600},
+    body1: {lineHeight: 1.6},
+    body2: {lineHeight: 1.6},
     button: {
-      textTransform: 'none', // sin all-caps en botones — más conversacional
+      textTransform: 'none',
       fontWeight: 600,
     },
     overline: {
       letterSpacing: '0.08em',
-      fontWeight: 600,
+      fontWeight: 700,
     },
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: 12,
   },
   components: {
     MuiButton: {
       styleOverrides: {
-        root: {borderRadius: 10, paddingInline: 16},
+        root: {
+          borderRadius: 10,
+          paddingInline: 18,
+          paddingBlock: 10,
+        },
+        sizeLarge: {
+          paddingBlock: 12,
+          fontSize: '1rem',
+        },
       },
     },
     MuiChip: {
       styleOverrides: {
-        root: {borderRadius: 10, fontWeight: 500},
+        root: {borderRadius: 8, fontWeight: 500},
+        outlined: {
+          borderWidth: 1.5,
+        },
       },
     },
     MuiPaper: {
       styleOverrides: {
-        root: {borderRadius: 12},
+        root: {borderRadius: 16},
       },
     },
     MuiCard: {
       styleOverrides: {
-        root: {borderRadius: 12},
+        root: {
+          borderRadius: 16,
+          boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 24px rgba(15, 23, 42, 0.04)',
+        },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          borderRadius: 999,
+          backgroundColor: '#E2E8F0',
+        },
+        bar: {
+          borderRadius: 999,
+        },
       },
     },
   },

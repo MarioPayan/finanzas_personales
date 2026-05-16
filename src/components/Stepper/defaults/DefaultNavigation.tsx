@@ -2,9 +2,9 @@ import {Button, Stack} from '@mui/material'
 import type {StepperActions, StepperState} from '../types'
 
 /**
- * Footer default: Atrás / Siguiente. Para pasos intersticiales (sin
- * `isComplete` que dependa de respuesta), el CTA suele venir del propio
- * render del paso — en esos casos el adapter puede ocultar esta nav.
+ * Footer default: Atrás (ghost) / Siguiente (filled). Para pasos
+ * intersticiales (sin `isComplete` que dependa de respuesta), el CTA
+ * típicamente vive en el render del paso, así que ocultamos esta nav.
  */
 export function DefaultNavigation({
   state,
@@ -25,16 +25,22 @@ export function DefaultNavigation({
     <Stack
       direction='row'
       spacing={1.5}
-      sx={{justifyContent: 'space-between', width: '100%', maxWidth: 720, mx: 'auto'}}>
+      sx={{justifyContent: 'space-between', width: '100%', maxWidth: 760, mx: 'auto'}}>
       <Button
         variant='text'
+        size='large'
         onClick={actions.goBack}
         disabled={isFirst}
-        sx={{visibility: isFirst ? 'hidden' : 'visible'}}>
-        Atrás
+        sx={{visibility: isFirst ? 'hidden' : 'visible', minWidth: 100}}>
+        ← Atrás
       </Button>
-      <Button variant='contained' onClick={actions.goNext} disabled={!canAdvance}>
-        {isLast ? 'Terminar' : 'Siguiente'}
+      <Button
+        variant='contained'
+        size='large'
+        onClick={actions.goNext}
+        disabled={!canAdvance}
+        sx={{minWidth: 140}}>
+        {isLast ? 'Ver resultado' : 'Siguiente →'}
       </Button>
     </Stack>
   )

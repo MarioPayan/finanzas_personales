@@ -1,4 +1,7 @@
-import {Box, Stack, Typography} from '@mui/material'
+import type {ReactNode} from 'react'
+import {Box, Card, CardContent, Stack, Typography, useMediaQuery, useTheme} from '@mui/material'
+import type {Theme} from '@mui/material/styles'
+import {AnimatePresence, motion} from 'framer-motion'
 import {DefaultHeader} from './defaults/DefaultHeader'
 import {DefaultNavigation} from './defaults/DefaultNavigation'
 import {DefaultProgress} from './defaults/DefaultProgress'
@@ -67,6 +70,8 @@ function StepperLayout<TAnswer>({
   StepperProps<TAnswer>,
   'renderHeader' | 'renderProgress' | 'renderNavigation' | 'renderSidebar' | 'renderDone'
 >) {
+  const theme = useTheme()
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
   const sidebar = renderSidebar?.(state)
   const progress = renderProgress
     ? renderProgress(state)
@@ -89,53 +94,118 @@ function StepperLayout<TAnswer>({
         <Box
           sx={{
             display: {xs: 'none', md: 'block'},
-            width: 380,
+            width: 360,
             flexShrink: 0,
             borderRight: 1,
             borderColor: 'divider',
+            bgcolor: 'background.paper',
           }}>
           {sidebar}
         </Box>
       )}
-      <Box sx={{flex: 1, p: {xs: 2, md: 4}}}>
-        <Stack spacing={4} sx={{maxWidth: 960, mx: 'auto'}}>
+      <Box sx={{flex: 1, py: {xs: 3, md: 6}, px: {xs: 2, md: 4}}}>
+        <Stack spacing={4} sx={{maxWidth: 760, mx: 'auto'}}>
           {progress}
-          {state.done
-            ? renderDone
-              ? renderDone(state, actions)
-              : <DefaultDone />
-            : (
-              <>
-                {header}
-                <StepBody state={state} actions={actions} />
-                {navigation}
-              </>
-            )}
+          {state.done ? (
+            renderDone ? renderDone(state, actions) : <DefaultDone />
+          ) : (
+            <>
+              <StepShell
+                state={state}
+                actions={actions}
+                header={header}
+                navigation={navigation}
+                accentColor={state.currentStep?.tagColor ?? 'primary'}
+                reducedMotion={prefersReducedMotion}
+                theme={theme}
+              />
+            </>
+          )}
         </Stack>
       </Box>
     </Box>
   )
 }
 
-function StepBody<TAnswer>({
+function StepShell<TAnswer>({
   state,
   actions,
+  header,
+  navigation,
+  accentColor,
+  reducedMotion,
+  theme,
 }: {
   state: StepperState<TAnswer>
   actions: StepperActions<TAnswer>
+  header: ReactNode
+  navigation: ReactNode
+  accentColor: 'primary' | 'secondary' | 'warning' | 'info' | 'success' | 'error' | 'default'
+  reducedMotion: boolean
+  theme: Theme
 }) {
-  const step: Step<TAnswer> | null = state.currentStep
+  const step = state.currentStep
   if (!step) return null
+  const isInterstitial = step.kind === 'interstitial'
+  const accent =
+    accentColor === 'default' ? theme.palette.primary.main : theme.palette[accentColor].main
+
   return (
-    <Box sx={{width: '100%'}}>
-      {step.render({
-        answer: state.answers[step.id],
-        answers: state.answers,
-        setAnswer: (v: TAnswer) => actions.setAnswer(step.id, v),
-        commit: (v?: TAnswer) => actions.commit(v),
-      })}
-    </Box>
+    <Stack spacing={3}>
+      <AnimatePresence mode='wait'>
+        <motion.div
+          key={step.id}
+          initial={reducedMotion ? {opacity: 1, x: 0} : {opacity: 0, x: 24}}
+          animate={{opacity: 1, x: 0}}
+          exit={reducedMotion ? {opacity: 1, x: 0} : {opacity: 0, x: -24}}
+          transition={{duration: reducedMotion ? 0 : 0.22, ease: 'easeOut'}}>
+          {isInterstitial ? (
+            <Box sx={{width: '100%'}}>{renderStepBody(step, state, actions)}</Box>
+          ) : (
+            <Card
+              elevation={0}
+              sx={{
+                border: 1,
+                borderColor: 'divider',
+                position: 'relative',
+                overflow: 'hidden',
+              }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
+                  background: accent,
+                }}
+              />
+              <CardContent sx={{p: {xs: 3, md: 5}}}>
+                <Stack spacing={4}>
+                  {header}
+                  <Box>{renderStepBody(step, state, actions)}</Box>
+                </Stack>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+      </AnimatePresence>
+      {!isInterstitial && navigation}
+    </Stack>
   )
+}
+
+function renderStepBody<TAnswer>(
+  step: Step<TAnswer>,
+  state: StepperState<TAnswer>,
+  actions: StepperActions<TAnswer>,
+): ReactNode {
+  return step.render({
+    answer: state.answers[step.id],
+    answers: state.answers,
+    setAnswer: (v: TAnswer) => actions.setAnswer(step.id, v),
+    commit: (v?: TAnswer) => actions.commit(v),
+  })
 }
 
 function DefaultDone() {

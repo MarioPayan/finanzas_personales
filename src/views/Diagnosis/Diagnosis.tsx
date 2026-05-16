@@ -5,6 +5,7 @@ import {type MinimumWageEntry} from '../../content/minimumWages'
 import {detectCountryCode, detectMinimumWage} from '../../utils/detectCountry'
 import Sidebar from './Sidebar'
 import {buildDiagnosisSteps} from './buildDiagnosisSteps'
+import {DiagnosisProgress} from './DiagnosisProgress'
 import {useStepperActions} from '../../components/Stepper'
 
 /**
@@ -42,6 +43,7 @@ export default function Diagnosis() {
     <Stepper
       key={restartTick}
       steps={steps}
+      renderProgress={state => <DiagnosisProgress state={state} />}
       renderSidebar={state => (
         <DiagnosisSidebar
           state={state}
@@ -63,9 +65,6 @@ function DiagnosisSidebar({
   countryCode: string | null
 }) {
   const actions = useStepperActions<AnswerValue>()
-  // Solo pasamos como "currentStorageKey" a la pregunta actual cuando es
-  // una pregunta normal — para intersticiales y done, el sidebar muestra
-  // su estado neutro (sin pregunta activa).
   const currentKey =
     state.currentStep && state.currentStep.kind !== 'interstitial'
       ? state.currentStep.id
