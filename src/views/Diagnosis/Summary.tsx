@@ -1,4 +1,17 @@
-import {Box, Button, Card, CardContent, Divider, Stack, Typography} from '@mui/material'
+import {useMemo} from 'react'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material'
+import {motion} from 'framer-motion'
 import {
   CATEGORIES,
   CATEGORY_ORDER,
@@ -10,6 +23,8 @@ import {
   type InsightSeverity,
 } from '../../content/diagnosis'
 import {collectInsights, type CollectedInsight} from '../../utils/insights'
+import {computeSectionScore} from '../../utils/scoring'
+import {getOverallProfile, getProfileForSection} from '../../content/profiles'
 
 type SummaryProps = {
   answers: Answers
@@ -23,31 +38,36 @@ const colorToken = (sev: InsightSeverity): string =>
 
 const labelOf = (sev: InsightSeverity): string => SUMMARY_NODE.severityLabels[sev].label
 
-function InsightRow({item}: {item: CollectedInsight}) {
+function InsightRow({item, index, reducedMotion}: {item: CollectedInsight; index: number; reducedMotion: boolean}) {
   const sev = item.insight.severity ?? 'info'
   const color = colorToken(sev)
   const label = labelOf(sev)
   const cat = CATEGORIES[item.category]
   return (
-    <Stack direction='row' spacing={2} sx={{alignItems: 'stretch'}}>
-      <Box sx={{width: 4, bgcolor: color, borderRadius: 1, flexShrink: 0}} />
-      <Stack spacing={0.5} sx={{flex: 1, minWidth: 0}}>
-        <Stack direction='row' spacing={1} sx={{alignItems: 'center', flexWrap: 'wrap'}}>
-          <Typography variant='overline' color='text.secondary' sx={{lineHeight: 1}}>
-            {cat.shortLabel}
+    <motion.div
+      initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 8}}
+      animate={{opacity: 1, y: 0}}
+      transition={{duration: 0.3, delay: reducedMotion ? 0 : Math.min(index * 0.05, 1)}}>
+      <Stack direction='row' spacing={2} sx={{alignItems: 'stretch'}}>
+        <Box sx={{width: 4, bgcolor: color, borderRadius: 1, flexShrink: 0}} />
+        <Stack spacing={0.5} sx={{flex: 1, minWidth: 0}}>
+          <Stack direction='row' spacing={1} sx={{alignItems: 'center', flexWrap: 'wrap'}}>
+            <Typography variant='overline' color='text.secondary' sx={{lineHeight: 1}}>
+              {cat.shortLabel}
+            </Typography>
+            <Typography variant='caption' sx={{color, fontWeight: 600}}>
+              · {label}
+            </Typography>
+          </Stack>
+          <Typography variant='body1' sx={{fontWeight: 500}}>
+            {item.insight.diagnostic}
           </Typography>
-          <Typography variant='caption' sx={{color, fontWeight: 600}}>
-            · {label}
+          <Typography variant='body2' color='text.secondary'>
+            {item.insight.tip}
           </Typography>
         </Stack>
-        <Typography variant='body1' sx={{fontWeight: 500}}>
-          {item.insight.diagnostic}
-        </Typography>
-        <Typography variant='body2' color='text.secondary'>
-          {item.insight.tip}
-        </Typography>
       </Stack>
-    </Stack>
+    </motion.div>
   )
 }
 
@@ -65,27 +85,119 @@ function groupByCategory(
 }
 
 export default function Summary({answers, smm, countryCode, onRestart}: SummaryProps) {
+  const theme = useTheme()
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
   const answered = DIAGNOSIS_QUESTIONS.filter(q => answers[q.storageKey] !== undefined)
   const insights = collectInsights(answers, smm, countryCode)
   const grouped = groupByCategory(insights)
-  const answersComponent = SUMMARY_NODE.components.find(c => c.id === 'answers')
+
+  const sectionScores = useMemo(() => {
+    const out: Record<DiagnosisCategoryId, number> = {base: 0, debt: 0, stability: 0, investment: 0}
+    for (const cat of CATEGORY_ORDER) {
+      out[cat] = computeSectionScore(cat, answers, smm).score
+    }
+    return out
+  }, [answers, smm])
+
+  const overall = useMemo(() => getOverallProfile(sectionScores), [sectionScores])
 
   return (
-    <Box sx={{minHeight: '100vh', width: '100vw', py: 5, px: 3}}>
-      <Stack spacing={3} sx={{maxWidth: 720, mx: 'auto'}}>
-        <Stack spacing={1}>
-          <Typography variant='overline' color='text.secondary'>
-            Diagnóstico
-          </Typography>
-          <Typography variant='h4' component='h1'>
-            {SUMMARY_NODE.userHeading}
-          </Typography>
+    <Box sx={{minHeight: '100vh', width: '100%', py: 5, px: {xs: 2, md: 3}}}>
+      <Stack spacing={4} sx={{maxWidth: 760, mx: 'auto'}}>
+        {/* Hero: perfil global */}
+        <motion.div
+          initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 16}}
+          animate={{opacity: 1, y: 0}}
+          transition={{duration: 0.4}}>
+          <Card
+            elevation={0}
+            sx={{
+              border: 1,
+              borderColor: 'divider',
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}11, ${theme.palette.secondary.main}11)`,
+            }}>
+            <CardContent sx={{p: {xs: 3, md: 5}, textAlign: 'center'}}>
+              <Stack spacing={1.5} sx={{alignItems: 'center'}}>
+                <Chip
+                  size='small'
+                  label='Tu diagnóstico'
+                  color='primary'
+                  variant='outlined'
+                  sx={{letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 700}}
+                />
+                <Typography variant='h3' sx={{fontWeight: 800, mt: 1}}>
+                  {overall.profile.label}
+                </Typography>
+                <Typography variant='body1' color='text.secondary' sx={{maxWidth: 520}}>
+                  {overall.profile.description}
+                </Typography>
+              </Stack>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Mini grid de scores por sección */}
+        <Stack
+          direction={{xs: 'column', sm: 'row'}}
+          spacing={2}
+          sx={{justifyContent: 'space-between'}}>
+          {CATEGORY_ORDER.map((catId, i) => {
+            const score = sectionScores[catId]
+            const cat = CATEGORIES[catId]
+            const profile = getProfileForSection(catId, score)
+            const accent = theme.palette[cat.color].main
+            return (
+              <motion.div
+                key={catId}
+                initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 8}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.3, delay: reducedMotion ? 0 : 0.1 + i * 0.06}}
+                style={{flex: 1}}>
+                <Card
+                  elevation={0}
+                  sx={{border: 1, borderColor: 'divider', height: '100%'}}>
+                  <CardContent>
+                    <Stack spacing={1}>
+                      <Chip
+                        size='small'
+                        label={cat.shortLabel}
+                        color={cat.color}
+                        variant='outlined'
+                        sx={{
+                          alignSelf: 'flex-start',
+                          fontWeight: 700,
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                        }}
+                      />
+                      <Typography
+                        variant='h4'
+                        sx={{
+                          fontWeight: 800,
+                          color: accent,
+                          fontVariantNumeric: 'tabular-nums',
+                        }}>
+                        {score}
+                      </Typography>
+                      <Typography variant='caption' color='text.secondary'>
+                        {profile?.label ?? '—'}
+                      </Typography>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
         </Stack>
 
+        {/* Insights agrupados con stagger */}
         {insights.length > 0 && (
-          <Card variant='outlined'>
-            <CardContent>
-              <Stack spacing={3}>
+          <Card elevation={0} sx={{border: 1, borderColor: 'divider'}}>
+            <CardContent sx={{p: {xs: 2.5, md: 4}}}>
+              <Stack spacing={3.5}>
+                <Typography variant='h5' sx={{fontWeight: 700}}>
+                  Tus puntos de acción
+                </Typography>
                 {CATEGORY_ORDER.map(catId => {
                   const items = grouped[catId]
                   if (items.length === 0) return null
@@ -96,8 +208,13 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
                         {cat.label}
                       </Typography>
                       <Stack spacing={2} divider={<Divider flexItem />}>
-                        {items.map(item => (
-                          <InsightRow key={`${item.nodeKey}:${item.insight.id}`} item={item} />
+                        {items.map((item, i) => (
+                          <InsightRow
+                            key={`${item.nodeKey}:${item.insight.id}`}
+                            item={item}
+                            index={i}
+                            reducedMotion={reducedMotion}
+                          />
                         ))}
                       </Stack>
                     </Stack>
@@ -108,37 +225,32 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
           </Card>
         )}
 
-        <Card variant='outlined'>
-          <CardContent>
-            <Stack spacing={1} sx={{mb: 2}}>
-              <Typography variant='overline' color='text.secondary'>
-                Resumen
+        {/* Tus respuestas — colapsable visualmente vía detalle más sobrio */}
+        <Card elevation={0} sx={{border: 1, borderColor: 'divider'}}>
+          <CardContent sx={{p: {xs: 2.5, md: 4}}}>
+            <Stack spacing={2}>
+              <Typography variant='subtitle1' sx={{fontWeight: 700}}>
+                Tus respuestas
               </Typography>
-              <Typography variant='h6'>
-                {answersComponent?.userHeading ?? answersComponent?.title}
-              </Typography>
-            </Stack>
-            <Stack spacing={2} divider={<Divider flexItem />}>
-              {answered.map(question => (
-                <Box key={question.storageKey}>
-                  <Typography variant='overline' color='text.secondary' sx={{lineHeight: 1}}>
-                    {question.title}
-                  </Typography>
-                  <Typography variant='body2' color='text.secondary'>
-                    {question.prompt}
-                  </Typography>
-                  <Typography variant='body1' sx={{fontWeight: 500, mt: 0.5}}>
-                    {formatAnswerVerbose(question, answers[question.storageKey], answers)}
-                  </Typography>
-                </Box>
-              ))}
+              <Stack spacing={1.5} divider={<Divider flexItem />}>
+                {answered.map(question => (
+                  <Box key={question.storageKey}>
+                    <Typography variant='caption' color='text.secondary'>
+                      {question.title}
+                    </Typography>
+                    <Typography variant='body2' sx={{fontWeight: 500, mt: 0.25}}>
+                      {formatAnswerVerbose(question, answers[question.storageKey]!, answers)}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
             </Stack>
           </CardContent>
         </Card>
 
-        <Box sx={{display: 'flex', justifyContent: 'center'}}>
-          <Button variant='outlined' onClick={onRestart}>
-            Volver a empezar
+        <Box sx={{display: 'flex', justifyContent: 'center', py: 2}}>
+          <Button variant='outlined' size='large' onClick={onRestart}>
+            ↻ Volver a empezar
           </Button>
         </Box>
       </Stack>
