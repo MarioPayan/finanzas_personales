@@ -1,6 +1,7 @@
 import {lazy, Suspense} from 'react'
-import {Box, CircularProgress} from '@mui/material'
+import {Box, CircularProgress, CssBaseline, ThemeProvider} from '@mui/material'
 import Diagnosis from './views/Diagnosis/Diagnosis'
+import {theme} from './theme'
 
 const Debug = lazy(() => import('./views/Debug/Debug'))
 
@@ -22,12 +23,16 @@ const Loading = () => (
 
 export default function App() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
-  if (isDebugRoute(path)) {
-    return (
-      <Suspense fallback={<Loading />}>
-        <Debug />
-      </Suspense>
-    )
-  }
-  return <Diagnosis />
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {isDebugRoute(path) ? (
+        <Suspense fallback={<Loading />}>
+          <Debug />
+        </Suspense>
+      ) : (
+        <Diagnosis />
+      )}
+    </ThemeProvider>
+  )
 }
