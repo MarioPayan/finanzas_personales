@@ -1,25 +1,27 @@
 import {useMemo, useState} from 'react'
-import {Box, Drawer, IconButton, Link, Stack, Typography} from '@mui/material'
+import {Box, Drawer, IconButton, Link, Stack, Tab, Tabs, Typography} from '@mui/material'
 import {DIAGNOSIS_QUESTIONS, findResultNode} from '../../content/diagnosis'
 import DebugGraph from './DebugGraph'
 import DebugDetail from './DebugDetail'
 import DebugDetailSection from './DebugDetailSection'
 import DebugDetailSummary from './DebugDetailSummary'
+import DebugValidator from './DebugValidator'
+import DebugSimulator from './DebugSimulator'
 
 /**
- * Vista interna en `/debug`. El cuestionario renderizado como flujo
- * vertical sobre GoJS; cada nodo es compacto (título + chips) y al
- * clickearlo se abre un Drawer derecho con su ficha:
+ * Vista interna en `/debug`. Dos pestañas:
  *
- *   - Pregunta normal (`question` / `gate`) → ficha del nodo.
- *   - Nodo `__sectionScore__{cat}` → cómo se calcula el puntaje de la
- *     sección.
- *   - Nodo `__summary__` → cómo se compone la pantalla final.
+ *   - **Flujo de nodos** — el cuestionario renderizado sobre GoJS. Click
+ *     en cualquier nodo abre un Drawer con su ficha.
+ *   - **Validador** — análisis declarativo de `diagnosis.ts` que reporta
+ *     inconsistencias estructurales (referencias rotas, gates mal
+ *     ordenados, scoring incompleto).
  *
  * Pensada para uso interno — la licencia comercial de GoJS la hace
  * inadecuada para producción pública.
  */
 export default function Debug() {
+  const [tab, setTab] = useState<'flow' | 'validator' | 'simulator'>('flow')
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
   const drawerContent = useMemo(() => {
@@ -41,21 +43,34 @@ export default function Debug() {
             Debug
           </Typography>
           <Typography variant='h4' component='h1'>
-            Cuestionario · flujo de nodos
+            Herramientas internas del cuestionario
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            Click en cualquier nodo para abrir su ficha en el panel derecho.
-            Los nodos de resultado (puntaje de sección y diagnóstico final)
-            explican cómo se calculan. <Link href='/'>Volver al diagnóstico</Link>.
+            Inspección estructural y validación. <Link href='/'>Volver al diagnóstico</Link>.
           </Typography>
         </Stack>
 
-        <DebugGraph
-          questions={DIAGNOSIS_QUESTIONS}
-          selectedKey={selectedKey}
-          onNodeClick={setSelectedKey}
-          height={1300}
-        />
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          sx={{borderBottom: 1, borderColor: 'divider'}}
+        >
+          <Tab value='flow' label='Flujo de nodos' />
+          <Tab value='validator' label='Validador' />
+          <Tab value='simulator' label='Simulador' />
+        </Tabs>
+
+        {tab === 'flow' && (
+          <DebugGraph
+            questions={DIAGNOSIS_QUESTIONS}
+            selectedKey={selectedKey}
+            onNodeClick={setSelectedKey}
+            height={1300}
+          />
+        )}
+
+        {tab === 'validator' && <DebugValidator />}
+        {tab === 'simulator' && <DebugSimulator />}
       </Stack>
 
       <Drawer
