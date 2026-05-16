@@ -16,32 +16,38 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   smm: {
     id: 'smm',
     term: 'SMM',
-    definition: 'Salario Mínimo Mensual: el ingreso mínimo legal en tu país, fijado por el gobierno. Lo usamos como referencia para que las preguntas funcionen sin importar la moneda.',
+    definition:
+      'Salario Mínimo Mensual: el ingreso mínimo legal en tu país, fijado por el gobierno. Lo usamos como referencia para que las preguntas funcionen sin importar la moneda.',
   },
   ea: {
     id: 'ea',
     term: 'EA',
-    definition: 'Tasa Efectiva Anual: cuánto crece una deuda en un año si no pagas nada. Es la forma estándar de comparar tasas entre productos.',
+    definition:
+      'Tasa Efectiva Anual: cuánto crece una deuda en un año si no pagas nada. Es la forma estándar de comparar tasas entre productos.',
   },
   gastosObligatorios: {
     id: 'gastosObligatorios',
     term: 'Gastos obligatorios',
-    definition: 'Lo que no puedes dejar de pagar este mes sin consecuencias serias: vivienda, servicios, transporte, comida básica, salud.',
+    definition:
+      'Lo que no puedes dejar de pagar este mes sin consecuencias serias: vivienda, servicios, transporte, comida básica, salud.',
   },
   fondoEmergencia: {
     id: 'fondoEmergencia',
     term: 'Fondo de emergencia',
-    definition: 'Dinero líquido reservado para imprevistos (despido, salud, daño grave). Se mide en meses de tus gastos obligatorios.',
+    definition:
+      'Dinero líquido reservado para imprevistos (despido, salud, daño grave). Se mide en meses de tus gastos obligatorios.',
   },
   cdt: {
     id: 'cdt',
     term: 'CDT',
-    definition: 'Certificado de Depósito a Término: un producto bancario donde dejas dinero un plazo fijo a cambio de una tasa garantizada.',
+    definition:
+      'Certificado de Depósito a Término: un producto bancario donde dejas dinero un plazo fijo a cambio de una tasa garantizada.',
   },
   diversificacion: {
     id: 'diversificacion',
     term: 'Diversificación',
-    definition: 'Repartir el dinero en distintos vehículos (acciones, fondos, bienes raíces, etc.) para que un mal año en uno no destruya todo.',
+    definition:
+      'Repartir el dinero en distintos vehículos (acciones, fondos, bienes raíces, etc.) para que un mal año en uno no destruya todo.',
   },
   debtKindInvestment: {
     id: 'debtKindInvestment',
@@ -56,7 +62,8 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   debtKindBad: {
     id: 'debtKindBad',
     term: 'Deuda mala',
-    definition: 'Deuda tomada para gastos que no producen ingreso ni evitan otro gasto. Suele ser la más urgente de pagar.',
+    definition:
+      'Deuda tomada para gastos que no producen ingreso ni evitan otro gasto. Suele ser la más urgente de pagar.',
   },
 }
 

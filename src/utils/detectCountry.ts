@@ -65,28 +65,6 @@ const TIMEZONE_TO_COUNTRY: Record<string, string> = {
   'America/Caracas': 'VE',
 }
 
-const LOCALE_TO_COUNTRY: Record<string, string> = {
-  'es-AR': 'AR',
-  'es-BO': 'BO',
-  'pt-BR': 'BR',
-  'es-CL': 'CL',
-  'es-CO': 'CO',
-  'es-CR': 'CR',
-  'es-CU': 'CU',
-  'es-DO': 'DO',
-  'es-EC': 'EC',
-  'es-SV': 'SV',
-  'es-GT': 'GT',
-  'es-HN': 'HN',
-  'es-MX': 'MX',
-  'es-NI': 'NI',
-  'es-PA': 'PA',
-  'es-PY': 'PY',
-  'es-PE': 'PE',
-  'es-UY': 'UY',
-  'es-VE': 'VE',
-}
-
 export const detectCountryCode = (): string | null => {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -98,9 +76,6 @@ export const detectCountryCode = (): string | null => {
   if (typeof navigator !== 'undefined') {
     const candidates = [navigator.language, ...(navigator.languages ?? [])]
     for (const lang of candidates) {
-      if (lang && LOCALE_TO_COUNTRY[lang]) return LOCALE_TO_COUNTRY[lang]
-    }
-    for (const lang of candidates) {
       const region = lang?.split('-')[1]?.toUpperCase()
       if (region && MINIMUM_WAGES[region]) return region
     }
@@ -111,6 +86,5 @@ export const detectCountryCode = (): string | null => {
 
 export const detectMinimumWage = (): MinimumWageEntry | null => {
   const code = detectCountryCode()
-  if (!code) return null
-  return MINIMUM_WAGES[code] ?? null
+  return code ? (MINIMUM_WAGES[code] ?? null) : null
 }
