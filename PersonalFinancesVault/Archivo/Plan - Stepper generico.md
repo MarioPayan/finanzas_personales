@@ -66,7 +66,7 @@ ejecuta.
 > hooks. Recomendamos seguir esa convención — `Stepper` es un function
 > component + types, no `class extends`. Si más adelante necesitamos
 > control imperativo (ej. ".reset()", ".goTo(id)"), exponemos via
-> `useImperativeHandle` con un ref. Avisame si preferís class literal.
+> `useImperativeHandle` con un ref. Avisame si prefieres class literal.
 
 ---
 
@@ -288,7 +288,7 @@ ve un `Step` y un `render`.
 
 ---
 
-## 6. Decisiones que necesito de vos
+## 6. Decisiones que necesito de tú
 
 ### 6.1 — Animation library
 
@@ -298,7 +298,7 @@ ve un `Step` y un `render`.
 | CSS Transitions + `clsx` | Cero dep, simple | Mucho menos potente; orquestar enter/exit es manual | 0 KB |
 | `react-spring` | Físicas reales, performante | DX más áspera que Framer | ~30 KB gzip |
 
-→ Mi propuesta: **Framer Motion**. Si querés mantener cero deps
+→ Mi propuesta: **Framer Motion**. Si quieres mantener cero deps
 extra, vamos con CSS y aceptamos que las transiciones son más
 modestas. El v1 anterior tenía Framer en su plan.
 
@@ -316,7 +316,7 @@ viendo el resultado de la fase C en pantalla).
 
 ### 6.3 — Persistencia del Stepper
 
-Hoy las respuestas viven en memoria; si recargás, perdés todo. ¿Querés
+Hoy las respuestas viven en memoria; si recargas, pierdes todo. ¿Quieres
 que el Stepper persista en `localStorage` o lo mantenemos volátil?
 
 → Mi propuesta: **volátil** por ahora (alineado con [[Rollback - Estado minimo]]).
@@ -358,7 +358,7 @@ MUI.
    con `AnswerValue` que es una unión. Riesgo bajo — si TS molesta,
    simplificamos a `Step` no genérico y casteamos en el adapter.
 3. **Framer Motion + MUI**: hay casos conocidos de jitter cuando
-   animás `Box` MUI con motion. Mitigación: usar `motion.div` puro
+   animas `Box` MUI con motion. Mitigación: usar `motion.div` puro
    dentro de `Box`, no spreadear sx por encima.
 4. **Sidebar acoplado a estado**: hoy el Sidebar lee de `Diagnosis.tsx`
    varios bits. Necesita un hook propio (`useStepperState`) o recibir
@@ -388,7 +388,7 @@ Necesito tu visto bueno explícito en:
 4. § 6.4 — tests
 5. § 6.5 — naming
 
-Marcá tu opción al lado o respondé en chat. Cuando esté aprobado,
+Marca tu opción al lado o responde en chat. Cuando esté aprobado,
 arranco con la Fase A.
 
 ---

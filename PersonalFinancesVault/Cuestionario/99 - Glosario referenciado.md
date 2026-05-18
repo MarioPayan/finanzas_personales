@@ -76,9 +76,9 @@ Aparece en: [[02 - Deudas#Naturaleza de cada deuda · `debtKinds`]].
 
 ### Apalancamiento contra activos
 
-Tomar deuda usando activos como garantía en vez de venderlos: conservás
-el activo, evitás el impuesto a la ganancia, y el costo es la tasa que
-pagás. Es la mecánica que usan los patrimonios grandes para financiar
+Tomar deuda usando activos como garantía en vez de venderlos: conservas
+el activo, evitas el impuesto a la ganancia, y el costo es la tasa que
+pagas. Es la mecánica que usan los patrimonios grandes para financiar
 consumo sin liquidar inversiones.
 
 Aparece en: [[02 - Deudas#Naturaleza de cada deuda · `debtKinds`]].

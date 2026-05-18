@@ -4,7 +4,7 @@ Reglas generales que rigen cómo está pensada esta aplicación. **No** son una
 guía de cómo usarla ni un tutorial — son los principios bajo los que se diseña
 y se hace crecer el código y los datos.
 
-Si vas a tocar algo en `src/`, leé esto primero. Si lo que vas a cambiar
+Si vas a tocar algo en `src/`, lee esto primero. Si lo que vas a cambiar
 afecta uno de estos documentos, actualizalo en la misma pasada.
 
 ## Documentos

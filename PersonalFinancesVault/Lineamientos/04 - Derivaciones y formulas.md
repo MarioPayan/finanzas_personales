@@ -31,9 +31,10 @@ bracket?: { min?: number; max?: number }
 | Kind                       | Base                                            | Cómo se aplica al `bracket`                                       | Ejemplo de uso         |
 | -------------------------- | ----------------------------------------------- | ------------------------------------------------------------------ | ---------------------- |
 | `multiplyMinimumWage`      | Salario mínimo del país detectado               | `min × SMM`, `max × SMM`                                           | `incomeBand`           |
-| `multiplyMonthlyIncome`    | Ingreso mensual estimado (banda × SMM)          | `min × ingreso`, `max × ingreso`                                   | `debtMagnitude`        |
+| `multiplyMonthlyIncome`    | Ingreso mensual estimado (banda × SMM)          | `min × ingreso`, `max × ingreso`                                   | `debtAmounts`          |
 | `multiplyMonthlyExpenses`  | Gastos mensuales = ingreso × `obligatoryPct`    | `min × gastos`, `max × gastos`                                     | `emergencyMonths`      |
 | `shareOfMonthlyIncome`     | Ingreso mensual                                 | Para sliders: `(value / 100) × ingreso` (no usa `bracket`)         | `obligatoryPct`        |
+| `creditScoreBands`         | Tabla por país en `creditScoreBands.ts`         | Lookup por `option.value` (`bad`/`regular`/`good`/`excellent`) → rango absoluto del buró. No usa `bracket`. | `creditScoreBand` |
 
 ## Ingreso estimado: por qué un punto medio
 
@@ -59,7 +60,7 @@ y se mantiene el `sublabel` estático si lo hay.
 
 ## Cómo se renderizan las options según la derivación
 
-Implementado en `prepareChipsForRender` (`src/views/Diagnosis/QuestionStep.tsx`).
+Implementado en `prepareChipsForRender` (`src/views/Diagnosis/DiagnosisQuestionBody.tsx`).
 La derivación decide qué va arriba (label principal) y qué va abajo
 (sublabel de referencia):
 
@@ -78,9 +79,9 @@ secundaria sin tapar la etiqueta semántica.
 
 ## Reglas
 
-- Si agregás un `DerivationKind`, agregalo a la unión en `diagnosis.ts` **y**
+- Si agregas un `DerivationKind`, agregalo a la unión en `diagnosis.ts` **y**
   a `getDerivationBase` en `utils/calculations.ts`. TypeScript marcará el
-  `switch` exhaustivo si olvidás uno.
+  `switch` exhaustivo si olvidas uno.
 - `derivation.inputs` es **documental**: lista los `storageKey` que la fórmula
   consume. Sirve para análisis externo (¿qué nodo bloquea cuál?), no afecta el
   comportamiento. Manténelo correcto.

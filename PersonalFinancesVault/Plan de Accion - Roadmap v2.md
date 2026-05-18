@@ -1,13 +1,18 @@
 # Plan de Acción — Roadmap v2 (mayo 2026)
 
-> Roadmap operativo para llevar la app actual (quiz de diagnóstico con 27 nodos, scoring e insights ya implementados) hacia un quiz **gamificado as fuck**, divertido de responder, con herramientas internas que den claridad total sobre la lógica.
+> Roadmap operativo para llevar la app de diagnóstico hacia un quiz
+> **gamificado as fuck**, divertido de responder, con herramientas
+> internas que den claridad total sobre la lógica. El detalle de qué
+> commits ejecutaron qué fase vive en `git log`; este documento solo
+> mantiene el estado por ítem.
 
-## Antecedentes y relación con docs previos
+## Antecedentes
 
-- [[Plan de Accion - Desarrollo v1]] — versión 1.1, planteaba un modelo de **3 pirámides + árbol + misiones IRL post-quiz**. Quedó parcialmente implementada (la base técnica, los inputs low-friction, el diagnóstico) y luego el modelo evolucionó: **dejamos el componente "misiones IRL / retención semanal" y nos quedamos con un quiz one-shot de diagnóstico** que entrega scoring + insights accionables. Esta v2 reemplaza la v1 como roadmap activo.
-- [[Propuesta - Modelo Ludico v1]] — filosofía lúdica original. La esencia (mascota guía, opciones-no-opiniones, inputs sin tipear) se mantiene; lo que cambia es que **el "juego" no es el seguimiento a lo largo del tiempo, es el quiz mismo**.
-- [[Propuestas - Cambios desde video Algebra de Riqueza]] — backlog de contenido (6 nodos nuevos, 8 insights nuevos, 4 términos de glosario) que esta v2 absorbe como Sprint 1.
-- [[Lineamientos/01 - Vision y filosofia]], [[Lineamientos/06 - Como extender]] — anclas de filosofía que el plan respeta.
+Para genealogía completa (modelo de pirámides v1, propuesta lúdica
+original, rollback al estado mínimo, backlog "Algebra de Riqueza"
+absorbido) ver los documentos en [[Archivo/]]. Anclas de filosofía
+vigentes: [[Lineamientos/01 - Vision y filosofia]],
+[[Lineamientos/06 - Como extender]].
 
 ---
 
@@ -53,7 +58,7 @@ Tomados de [[Lineamientos/01 - Vision y filosofia]] y [[Lineamientos/06 - Como e
 
 1. **Mínima fricción.** Bandas antes que precisión, defaults razonables, sin login. *Cualquier gamificación que estorbe responder rápido, fuera.*
 2. **Nodos autocontenidos.** Toda la lógica vive en `diagnosis.ts` y motores, no en componentes. *La capa de juego se monta encima sin tocar el modelo.*
-3. **App de diagnóstico, no libro contable.** No registramos transacciones, no proyectamos a 30 años. *La gamificación tampoco debe sugerir "save y volvé mañana" — un quiz se completa en una sentada.*
+3. **App de diagnóstico, no libro contable.** No registramos transacciones, no proyectamos a 30 años. *La gamificación tampoco debe sugerir "save y vuelve mañana" — un quiz se completa en una sentada.*
 4. **Vault sincronizado.** Cualquier nodo o insight nuevo se documenta en la misma pasada (regla del `CLAUDE.md` del repo).
 
 ---
@@ -91,8 +96,8 @@ Los ejes se pueden adelantar en paralelo sin pisarse. La única dependencia real
 
 - Revisar todos los `prompt`, `hint` e insights. Ajustar al tono **lúdico para adultos** (no infantil).
 - Ejemplos:
-  - Hoy: *"¿Cuánto ganás al mes, más o menos?"*
-  - Después: *"Hablemos plata: ¿en qué rango cae tu ingreso mensual?"*
+  - Hoy: *"¿Cuánto ganas al mes, más o menos?"*
+  - Después: *"Hablemos de dinero: ¿en qué rango cae tu ingreso mensual?"*
 - Mensajes de feedback por rango ("Vas bien", "Hay margen", "Esto necesita atención") en vez de solo número.
 
 ---
@@ -113,7 +118,7 @@ Checks que corre y reporta:
 - Insights con `severity` fuera del set válido.
 - Términos de glosario referenciados desde prompts pero no definidos.
 
-Te ahorra ojo humano cada vez que tocás `diagnosis.ts`.
+Te ahorra ojo humano cada vez que tocas `diagnosis.ts`.
 
 #### B2. Simulador de perfiles canónicos
 
@@ -128,7 +133,7 @@ Te ahorra ojo humano cada vez que tocás `diagnosis.ts`.
   - "Pareja con hijos clase trabajadora"
 - En `/debug`: picker de perfil → rellena el quiz instantáneamente.
 - Vista lado a lado: respuestas, scoring derivado, insights disparados, severidad.
-- Botón "duplicar y editar": modificás una respuesta y ves qué cambia.
+- Botón "duplicar y editar": modificas una respuesta y ves qué cambia.
 - Permite responder en segundos: *"si cambio el peso de X en scoring, ¿qué perfiles se ven afectados?"*
 
 #### B3. Tests de regresión de scoring
@@ -136,14 +141,14 @@ Te ahorra ojo humano cada vez que tocás `diagnosis.ts`.
 > **Estimado**: 1 día. Cierra el loop B1 + B2 contra el código.
 
 - Vitest + snapshot tests por cada perfil canónico de B2.
-- Si tocás un nodo y cambia el resultado de un perfil sin querer, el test rompe en CI.
+- Si tocas un nodo y cambia el resultado de un perfil sin querer, el test rompe en CI.
 
 #### B4. Inspector "live preview" en el grafo
 
 > **Estimado**: 1-2 días.
 
 - Hoy el grafo de gojs es estático.
-- Mejora: clickeás un nodo → ves su pregunta renderizada igual que en la app, podés responderla y propaga al resto. Nodo activo + gates abiertos se iluminan.
+- Mejora: clickeas un nodo → ves su pregunta renderizada igual que en la app, puedes responderla y propaga al resto. Nodo activo + gates abiertos se iluminan.
 - Modo *"armar el quiz como product owner sin recorrerlo entero"*.
 
 ---
@@ -166,7 +171,7 @@ Te ahorra ojo humano cada vez que tocás `diagnosis.ts`.
 
 > **Estimado**: 1-2 días.
 
-- Pantalla 1: presentación del personaje + promesa (*"respondé 5 minutos, llevate tu diagnóstico"*).
+- Pantalla 1: presentación del personaje + promesa (*"responde 5 minutos, llevate tu diagnóstico"*).
 - Pantalla 2: detección de país (función ya existe, hoy es silenciosa) → *"te detecté en Argentina, ¿correcto?"* con override.
 - Siembra el sentimiento *"esto sabe de mí"* desde el primer touch.
 
@@ -183,7 +188,7 @@ Te ahorra ojo humano cada vez que tocás `diagnosis.ts`.
 
 > **Estimado**: 3-4 días.
 
-- Reemplazar la barra de progreso lineal por una **ruta del quiz**: 4 estaciones (Base, Deudas, Estabilidad, Inversiones) tipo mapa. Cada nodo es un punto en la ruta. El personaje "camina" por la ruta a medida que respondés.
+- Reemplazar la barra de progreso lineal por una **ruta del quiz**: 4 estaciones (Base, Deudas, Estabilidad, Inversiones) tipo mapa. Cada nodo es un punto en la ruta. El personaje "camina" por la ruta a medida que respondes.
 - Animación en `SectionScore`: contador que sube de 0 al score real, badge ganado con flip-card.
 - "Skip back" sin perder respuestas — hoy ya se puede pero se siente neutro; premiarlo visualmente.
 
@@ -214,7 +219,7 @@ Sprint 1 (semana 1): A1 + A2 + B1 + B3
 
 Sprint 2 (semana 2): A3 + B2 + C1
   → Copywriting + simulador de perfiles + identidad visual.
-  Acá ya tenés "todo listo para empezar a verse divertido".
+  Acá ya tienes "todo listo para empezar a verse divertido".
 
 Sprint 3 (semana 3): C2 + C3
   → Onboarding + micro-feedback. Primera versión que se siente quiz.
@@ -235,10 +240,10 @@ Sprint 6: C6 + polish + telemetría básica.
 1. **¿Cuál es el orden real?**
    - Cerrar lógica antes de gamificación → Sprint 1 + 2 sin tocar UI más allá de tokens.
    - Mostrar progreso visual rápido para alguien → mini-sprint 0 de identidad + onboarding antes de cerrar contenido.
-2. **El personaje narrador.** ¿Tenés algo en mente (estética, nombre, animal/objeto)? Si no, propongo 3-4 direcciones con sketches descriptivos antes de comprometerme.
+2. **El personaje narrador.** ¿Tienes algo en mente (estética, nombre, animal/objeto)? Si no, propongo 3-4 direcciones con sketches descriptivos antes de comprometerme.
 3. **¿Modo dark desde día uno o solo claro?** Suma poco esfuerzo si lo planifico desde C1, mucho si lo retrofiteo después.
-4. **¿Querés telemetría?** Sin telemetría, los "datos comparativos" en la carta final son estimaciones desde perfiles canónicos. Con telemetría (Plausible o similar, sin PII), son reales. Cambia C5.
-5. **Alcance del Debug.** ¿Solo para vos, o vista pública con autenticación simple? Cambia C5 también (la carta puede vivir bajo un usuario, no solo en localStorage).
+4. **¿Quieres telemetría?** Sin telemetría, los "datos comparativos" en la carta final son estimaciones desde perfiles canónicos. Con telemetría (Plausible o similar, sin PII), son reales. Cambia C5.
+5. **Alcance del Debug.** ¿Solo para ti, o vista pública con autenticación simple? Cambia C5 también (la carta puede vivir bajo un usuario, no solo en localStorage).
 ## 4.1 Respuestas
 
 1. 
@@ -260,53 +265,63 @@ Cuando demos el OK, **Sprint 1**:
 3. Pasada B1 — validador como pestaña en `/debug`.
 4. Definir perfiles canónicos para B3 (no implementar B2 todavía, solo definir los perfiles).
 
-> Marcá con `?` o tachá lo que no te cuadre y ajustamos antes de arrancar.
+> Marca con `?` o tacha lo que no te cuadre y ajustamos antes de arrancar.
 
 ---
 
-## 6. Bitácora de ejecución
+## 6. Estado del plan
 
-### Sprint 1+ (mayo 2026)
+> Convención: este plan documenta **decisiones y alcance**. La
+> ejecución por paso vive en commits (`git log --oneline`). No
+> duplicamos bitácora en el vault.
 
-Hecho de un tirón después de las respuestas de §4.1 (foco en lógica,
-mini-sprint 0 de identidad, sin telemetría, sin dark, debug accesible).
+### Hecho ✅
 
-- **A1 — Backlog "Algebra de Riqueza" cerrado.** 7 nodos nuevos
-  (`hasBudgetSystem`, `financialStressLevel`, `inRelationship`,
-  `householdFinancialAlignment`, `yearsInvesting`, `tradingFrequency`,
-  `usesIndexFunds`), 10 insights nuevos, 4 términos de glosario.
-  Vault sincronizado en la misma pasada (índice, archivos por
-  categoría, glosario, marca de absorción en Propuestas). Totales:
-  26 → 33 nodos, 35 → 45 insights.
-- **A2 — Perfiles de personaje.** Tabla en `src/content/profiles.ts`
-  con 5 perfiles por sección y un perfil global por "cuello de
-  botella". Lineamiento nuevo: [[Lineamientos/07 - Perfiles de personaje]].
-- **B1 — Validador declarativo.** `src/utils/validator.ts` corre 7
-  tipos de check sobre `diagnosis.ts` + `glossary.ts`. Pestaña
-  "Validador" en `/debug`.
-- **B2 — Simulador de perfiles canónicos.** Pestaña "Simulador" en
-  `/debug` con picker de perfil, scores por sección, perfil global,
-  insights disparados y respuestas. (Versión 1: solo lectura — la
-  duplicación-y-edición queda para más adelante.)
-- **B3 — Tests de regresión.** Vitest + snapshot tests sobre los 6
-  perfiles canónicos definidos en `src/content/canonicalProfiles.ts`.
-  `pnpm test` corre y queda lista la base de CI.
-- **Mini identidad.** `src/theme.ts` con paleta teal + tipografía
-  system + radios consistentes. ThemeProvider en `App.tsx`. Sin
-  mascota, sin dark mode (postergados explícitamente).
-- **Consolidación del vault.** Welcome.md reescrito como índice
-  vigente, Plan v1 / Propuesta v1 / Rollback marcados como obsoletos
-  con punteros a v2, Raw plan.md borrado, Archivo/Indice.md
-  actualizado (ya no había código histórico que indexar).
+- **Eje A — Lógica y contenido**
+  - A1 backlog "Algebra de Riqueza" cerrado (7 nodos + 10 insights + 4
+    términos). Totales del cuestionario hoy: **37 nodos, 45 insights**
+    (vault sincronizado en la misma pasada).
+  - A2 perfiles de personaje implementados en `src/content/profiles.ts`
+    + lineamiento [[Lineamientos/07 - Perfiles de personaje]].
+- **Eje B — Herramientas internas**
+  - B1 validador declarativo (`src/utils/validator.ts` + pestaña
+    "Validador" en `/debug`).
+  - B2 simulador de perfiles canónicos (pestaña "Simulador" en
+    `/debug`, versión solo lectura).
+  - B3 tests de regresión con vitest + snapshots sobre
+    `src/content/canonicalProfiles.ts`.
+- **Eje C — Gamificación (parcial)**
+  - C1 identidad visual base: paleta teal + tipografía + radios en
+    `src/theme.ts`. Mascota y dark mode siguen postergados.
+  - C3 micro-feedback: bounce + "+X pts" en chips, toggle animado,
+    transiciones slide entre pasos (Framer Motion).
+  - C5 parcial: SectionScore y Summary repensados con perfiles +
+    animaciones de entrada. Falta carta exportable a PNG y plan de
+    acción priorizado.
+  - C6 mobile-first review hecho: árbol y panel de info ahora viven en
+    drawers laterales con FABs en mobile.
+- **Refactor habilitador (no estaba en este plan)**
+  - Componente `Stepper<TAnswer>` genérico + adaptador para diagnosis
+    (separa UI de lógica). Habilita el resto del eje C sin tocar
+    `diagnosis.ts`. El plan fuente vivía como
+    `Plan - Stepper generico.md` y está archivado (todas las fases
+    A-E completadas).
 
-### Diferido / no ejecutado en este sprint
+### Pendiente
 
-- **A3 — Pass de copywriting al tono lúdico.** Decidido posponer:
-  cuando lleguemos a la capa de gamificación visual conviene
-  reescribir copy y diseño juntos.
-- **B4 — Inspector live preview en el grafo.** El simulador (B2) ya
-  cubre el caso de uso principal; B4 sería un nice-to-have.
-- **Eje C completo (C2-C6).** Onboarding, micro-feedback, ruta visual,
-  pantalla final wow, mobile-first review. Foco en lógica primero
-  (decisión del usuario).
+- **A3** copywriting al tono lúdico — diferido hasta hacer copy y
+  visual juntos.
+- **B4** inspector live preview en el grafo — nice-to-have, B2 ya
+  cubre el caso de uso.
+- **C2** onboarding de 2 pantallas (presentación + override de país).
+- **C4** progreso emocional como ruta del quiz con personaje caminando.
+- **C5 (parte restante)** carta exportable a PNG + plan de acción
+  priorizado en la pantalla final.
 
+### Decisiones que siguen vigentes (de §4.1)
+
+- Foco en lógica antes que en UI compleja.
+- Mascota: pospuesta hasta que la pida la UX, no antes.
+- Solo modo claro.
+- Sin telemetría.
+- Debug accesible (la app vive solo en local).

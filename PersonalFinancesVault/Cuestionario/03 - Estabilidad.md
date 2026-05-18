@@ -24,7 +24,7 @@ usuario, no de su ingreso.
 
 > ¿Cuántos meses de gastos tienes guardados como fondo de emergencia?
 
-**Indicación auxiliar:** Aproximadamente, o ingresá la cantidad exacta de
+**Indicación auxiliar:** Aproximadamente, o ingresa la cantidad exacta de
 meses.
 
 **Opciones / configuración:**
@@ -85,10 +85,10 @@ puntaje es directamente el de esta opción.
 - **`noEmergencyFund`** (a revisar). *Se muestra si:* la respuesta es
   "Ninguno" o "Menos de 1 mes".
   - Diagnóstico: "Tu fondo de emergencia es inexistente o muy chico."
-  - Tip: "Empezá por una meta chica que sí puedas cumplir: 1 mes de
+  - Tip: "Empieza por una meta chica que sí puedas cumplir: 1 mes de
     gastos obligatorios en cuenta líquida. Las metas grandes que no
     se cumplen producen abandono; las chicas que se cumplen producen
-    hábito. Cuando llegues a 1 mes, redefiní el siguiente objetivo a
+    hábito. Cuando llegues a 1 mes, redefine el siguiente objetivo a
     3 meses."
 - **`strongEmergencyFund`** (a favor). *Se muestra si:* la respuesta
   es "6 a 12 meses" o "12 meses o más".
@@ -115,7 +115,7 @@ sentido preguntar qué tan rápido se accede a él.
 
 > ¿Qué tan rápido podrías disponer de tu fondo si lo necesitaras hoy?
 
-**Indicación auxiliar:** Pensalo como: si esta noche se me daña el
+**Indicación auxiliar:** Piénsalo como: si esta noche se me daña el
 auto y necesito el dinero, ¿cuándo lo tengo en mi mano?
 
 **Opciones / configuración:**
@@ -138,7 +138,7 @@ auto y necesito el dinero, ¿cuándo lo tengo en mi mano?
     en estar disponible."
   - Tip: "El propósito del fondo es cubrir lo inesperado. Si tarda
     semanas o meses, la emergencia ya pasó. Una cuenta de ahorros o
-    un fondo a la vista cumplen mejor ese rol; podés mantener el
+    un fondo a la vista cumplen mejor ese rol; puedes mantener el
     resto a más plazo."
 
 ---
@@ -167,7 +167,7 @@ FONASA), privada, o seguro complementario.
 
 - **`noInsuranceHighRisk`** (crítico). *Se muestra si:* sin seguro y
   `age > 40`.
-  - Diagnóstico: "No tenés seguro de salud y por tu edad el riesgo es
+  - Diagnóstico: "No tienes seguro de salud y por tu edad el riesgo es
     alto."
   - Tip: "Una urgencia médica sin cobertura puede vaciar tu fondo de
     emergencia y endeudarte mucho. Un plan básico — público si está
@@ -175,7 +175,7 @@ FONASA), privada, o seguro complementario.
     prioridad."
 - **`noInsuranceModerateRisk`** (a revisar). *Se muestra si:* sin
   seguro y `age ≤ 40`.
-  - Diagnóstico: "No tenés seguro de salud."
+  - Diagnóstico: "No tienes seguro de salud."
   - Tip: "Aunque tu probabilidad anual de evento médico sea baja, un
     accidente puede pasarle a cualquiera. Aunque sea un plan público
     o un seguro de accidentes mínimo cubre lo peor."
@@ -255,10 +255,10 @@ actual.
 
 - **`noSecondIncomeShortHorizon`** (a revisar). *Se muestra si:*
   `secondIncomeStream ∈ [no, no-interest]`.
-  - Diagnóstico: "Tu horizonte laboral es corto y no tenés otra
+  - Diagnóstico: "Tu horizonte laboral es corto y no tienes otra
     fuente en marcha."
   - Tip: "No es urgente, pero conviene empezar a pensarlo. Una
-    segunda fuente toma años en madurar; si esperás a necesitarla ya
+    segunda fuente toma años en madurar; si esperas a necesitarla ya
     es tarde."
 
 ---
@@ -277,7 +277,7 @@ el efecto de todo lo anterior.
 
 **Pregunta visible:**
 
-> ¿Con qué frecuencia sentís estrés financiero?
+> ¿Con qué frecuencia sientes estrés financiero?
 
 **Indicación auxiliar:** Ansiedad cuando se acerca fin de mes, evitar
 abrir cuentas, dormir mal por dinero — esas señales.
@@ -286,7 +286,7 @@ abrir cuentas, dormir mal por dinero — esas señales.
 
 | Valor | Etiqueta | Sublabel | Puntos |
 | ----- | -------- | -------- | -----: |
-| `none` | Casi nunca | La plata no me quita el sueño | 100 |
+| `none` | Casi nunca | El dinero no me quita el sueño | 100 |
 | `sometimes` | A veces | En meses puntuales o ante imprevistos | 70 |
 | `frequent` | Seguido | Varias veces al mes | 30 |
 | `constant` | Constante | Lo cargo casi todos los días | 10 |
@@ -306,8 +306,8 @@ abrir cuentas, dormir mal por dinero — esas señales.
   - Diagnóstico: "Estás cargando estrés financiero sostenido."
   - Tip: "La presión financiera prolongada sube presión arterial,
     deteriora el sueño y empeora decisiones. Arreglar el cash-flow no
-    es solo financiero, también es salud — empezá por el rubro más
-    doloroso (deuda cara, gasto fijo grande) y atacalo aunque sea con
+    es solo financiero, también es salud — empieza por el rubro más
+    doloroso (deuda cara, gasto fijo grande) y atácalo aunque sea con
     un primer paso chico."
 
 ---
@@ -324,10 +324,10 @@ hogar. No puntúa por sí solo — es informativo.
 
 **Pregunta visible:**
 
-> ¿Compartís decisiones económicas con una pareja?
+> ¿Compartes decisiones económicas con una pareja?
 
 **Indicación auxiliar:** Conviviendo o no, casados o no — lo que
-importa es si las decisiones de plata grandes las negociás con alguien
+importa es si las decisiones económicas grandes las negocias con alguien
 más.
 
 **Términos del glosario referenciados:** ninguno.
@@ -365,7 +365,7 @@ hay un canal de conversación, no si son perfectos.
 
 | Valor | Etiqueta | Sublabel | Puntos |
 | ----- | -------- | -------- | -----: |
-| `never-talk` | No hablamos del tema | Cada uno con su plata, sin coordinación | 10 |
+| `never-talk` | No hablamos del tema | Cada uno con su dinero, sin coordinación | 10 |
 | `disagree` | Hablamos pero discutimos | No estamos de acuerdo en cómo gastar o ahorrar | 30 |
 | `aligned-no-plan` | Estamos alineados pero sin plan | En la misma página, sin metas escritas | 70 |
 | `aligned-plan` | Alineados con plan | Metas concretas, revisión periódica | 100 |
@@ -382,10 +382,10 @@ hay un canal de conversación, no si son perfectos.
 
 - **`householdFinancialMisalignment`** (a revisar). *Se muestra si:*
   `householdFinancialAlignment ∈ [never-talk, disagree]`.
-  - Diagnóstico: "No hay un canal aceitado para hablar de plata con
+  - Diagnóstico: "No hay un canal aceitado para hablar de dinero con
     tu pareja."
   - Tip: "La falta de conversación financiera es el predictor más
     fuerte de conflicto serio en una pareja, antes que el monto
-    ahorrado. Probá la conversación más simple: una vez al mes, 20
+    ahorrado. Prueba la conversación más simple: una vez al mes, 20
     minutos, repasar lo que entró, lo que salió y un objetivo a 90
     días."

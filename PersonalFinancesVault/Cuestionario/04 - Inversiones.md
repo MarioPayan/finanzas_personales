@@ -23,7 +23,7 @@ inversor.
 
 **Pregunta visible:**
 
-> ¿Hace cuánto invertís plata?
+> ¿Hace cuánto inviertes?
 
 **Indicación auxiliar:** Desde la primera inversión real que sigue
 activa o de la que aprendiste algo. Cuentas de ahorro genéricas no
@@ -51,11 +51,11 @@ cuentan.
 
 - **`compoundTimeWasted`** (a revisar). *Se muestra si:*
   `yearsInvesting ∈ [never, lt1]` **Y** `age < 30`.
-  - Diagnóstico: "Sos joven y todavía no estás capturando interés
+  - Diagnóstico: "Eres joven y todavía no estás capturando interés
     compuesto."
   - Tip: "Cada año invertido a los 20 vale más que diez años
     invertidos a los 40, gracias al interés compuesto. Empezar tarde
-    con más plata pierde contra empezar temprano con poca. No hace
+    con más dinero pierde contra empezar temprano con poca. No hace
     falta saber mucho: un fondo indexado básico ya activa el reloj."
 
 ---
@@ -93,7 +93,7 @@ mentorías, posgrado.
 - **`noProfessionalEducation`** (info). *Se muestra si:*
   `professionalEducationInvestment = no`.
   - Diagnóstico: "No estás invirtiendo en formación de tu rubro."
-  - Tip: "Tu mejor activo sos vos mismo. Cualquier mejora en tu
+  - Tip: "Tu mejor activo eres tú mismo. Cualquier mejora en tu
     trabajo se compone — sube el ingreso, abre puertas, da margen
     para todo lo demás. No tiene por qué ser caro: empezar con
     contenido gratuito ya cuenta."
@@ -137,7 +137,7 @@ comunidades. Antes de invertir conviene saber en qué.
   - Diagnóstico: "No estás invirtiendo en tu educación financiera."
   - Tip: "No es necesario gastar dinero — un par de podcasts o libros
     gratuitos te dan lo básico. Lo importante es saber qué estás
-    haciendo antes de mover plata, no aprenderlo cuando ya cometiste
+    haciendo antes de mover dinero, no aprenderlo cuando ya cometiste
     el error."
 
 ---
@@ -190,13 +190,13 @@ no se completa con un castigo total). **Máximo posible:** 100.
   (`emergencyMonths` ∈ {1 a 3, 3 a 6, Más de 6}) **Y** (no tiene deudas
   o la magnitud es Pequeña/Mediana).
   - Diagnóstico: "No estás invirtiendo, pero tu situación lo permitiría."
-  - Tip: "Con un fondo de emergencia razonable y sin deuda grande, tenés
+  - Tip: "Con un fondo de emergencia razonable y sin deuda grande, tienes
     margen para empezar con instrumentos seguros (CDT, fondos de
     inversión) e ir escalando a medida que ganes confianza."
 - **`investingActively`** (a favor). *Se muestra si:* `invests = Sí`.
   - Diagnóstico: "Estás invirtiendo, lo cual indica un hábito financiero
     saludable."
-  - Tip: "Asegurate de que las tasas de tus deudas no superen el
+  - Tip: "Asegúrate de que las tasas de tus deudas no superen el
     rendimiento de tus inversiones — si lo superan, pagar deuda es
     matemáticamente la mejor inversión."
 
@@ -215,10 +215,10 @@ mantener. Capta day-trading aunque el usuario no lo declare como tal.
 
 **Pregunta visible:**
 
-> ¿Con qué frecuencia comprás o vendés tus inversiones?
+> ¿Con qué frecuencia compras o vendes tus inversiones?
 
 **Indicación auxiliar:** No cuenta el aporte mensual a un fondo;
-cuenta cuándo decidís entrar o salir de una posición.
+cuenta cuándo decides entrar o salir de una posición.
 
 **Opciones / configuración:**
 
@@ -264,7 +264,7 @@ plazo.
 
 **Pregunta visible:**
 
-> ¿Usás fondos indexados o ETFs en tu portafolio?
+> ¿Usas fondos indexados o ETFs en tu portafolio?
 
 **Indicación auxiliar:** Replican un índice (S&P 500, MSCI World,
 etc.) a bajo costo, en vez de elegir activos uno por uno.
@@ -306,9 +306,9 @@ sugiere un perfil basado en la edad.
 
 > ¿Cuál es tu perfil de inversionista?
 
-**Indicación auxiliar:** Conservador: preferís rentabilidad baja pero
+**Indicación auxiliar:** Conservador: prefieres rentabilidad baja pero
 segura. Moderado: balance entre rendimiento y riesgo. Agresivo:
-aceptás volatilidad y posibles pérdidas a cambio de mayor rentabilidad
+aceptas volatilidad y posibles pérdidas a cambio de mayor rentabilidad
 esperada.
 
 **Opciones / configuración:**
@@ -334,10 +334,10 @@ esperada.
     salud."
 - **`riskProfileUnknown`** (info). *Se muestra si:* `riskProfile =
   unknown`.
-  - Diagnóstico: "No tenés claro tu perfil de inversionista."
+  - Diagnóstico: "No tienes claro tu perfil de inversionista."
   - Tip: "Definirlo es uno de los pasos más útiles: te dice qué
-    instrumentos tienen sentido para vos y cuáles no, y te evita
-    entrar en una inversión que no podés sostener cuando empiece a
+    instrumentos tienen sentido para ti y cuáles no, y te evita
+    entrar en una inversión que no puedes sostener cuando empiece a
     moverse."
 
 ---
@@ -441,7 +441,7 @@ la pregunta es la suma de todas. La idea es premiar diversificación.
 - **`lowDiversification`** (a revisar). *Se muestra si:* hay un solo
   vehículo seleccionado.
   - Diagnóstico: "Estás invirtiendo en un solo vehículo."
-  - Tip: "Diversificá entre instrumentos con riesgos distintos. Un mal
+  - Tip: "Diversifica entre instrumentos con riesgos distintos. Un mal
     año en un único vehículo no debería poder destruir tu plan
     completo."
 - **`cryptoOnly`** (crítico). *Se muestra si:* el único vehículo
@@ -519,8 +519,8 @@ vehículos seleccionados.
   posiciones son menores a 1 SMM.
   - Diagnóstico: "Tus posiciones individuales son menores a 1 SMM."
   - Tip: "Es razonable empezar pequeño para aprender, pero es el capital
-    significativo el que mueve la aguja en el largo plazo. Apuntá a
-    escalar a medida que ganás confianza con cada vehículo."
+    significativo el que mueve la aguja en el largo plazo. Apunta a
+    escalar a medida que ganas confianza con cada vehículo."
 
 ---
 
@@ -541,7 +541,7 @@ con botones; quien tenga la cifra precisa puede tipear.
 
 > ¿Cuál es el rendimiento anual de cada uno?
 
-**Indicación auxiliar:** Si no estás seguro, ingresá tu mejor
+**Indicación auxiliar:** Si no estás seguro, ingresa tu mejor
 estimación (en % EA).
 
 **Origen de las filas:** Una fila por cada vehículo seleccionado en
@@ -555,7 +555,7 @@ estimación (en % EA).
 | `lt3` | 0% a 3% | Apenas inflación | 25 |
 | `3to7` | 3% a 7% | Cuenta de ahorros, CDT | 55 |
 | `7to15` | 7% a 15% | Renta fija con riesgo, fondos diversificados | 90 |
-| `gt15` | Más de 15% | Rentabilidad alta — verificá riesgo | 100 |
+| `gt15` | Más de 15% | Rentabilidad alta — verifica riesgo | 100 |
 
 Cada celda admite además un **rendimiento exacto** (rango -100% a
 1000%, paso 0.1%, unidad "% EA"). Si lo ingresan, se ubica en una
@@ -578,15 +578,15 @@ seleccionados.
   - Diagnóstico: "Al menos uno de tus vehículos rinde por debajo de
     la inflación."
   - Tip: "Si la inflación local supera ese rendimiento, ese vehículo
-    te está haciendo perder poder adquisitivo. Revisá si conviene
+    te está haciendo perder poder adquisitivo. Revisa si conviene
     rotarlo a algo más productivo."
 - **`unsustainableHighYield`** (a revisar). *Se muestra si:* algún
   vehículo está en banda `gt15` **O** el rendimiento exacto declarado
   supera 30%.
-  - Diagnóstico: "Tenés al menos un vehículo con rendimientos muy
+  - Diagnóstico: "Tienes al menos un vehículo con rendimientos muy
     altos."
   - Tip: "Rendimientos consistentemente altos casi siempre esconden
     riesgo no contabilizado o sesgo de supervivencia (ves al ganador,
-    no a los que perdieron). Antes de duplicar la apuesta, verificá
+    no a los que perdieron). Antes de duplicar la apuesta, verifica
     el track record en años malos — si nunca lo viste perder,
-    todavía no lo conocés."
+    todavía no lo conoces."

@@ -20,7 +20,7 @@ El efecto: si un nodo lista `'diversificacion'` en `glossaryTerms` pero la
 palabra "Diversificación" no aparece en su texto, la entrada **no se
 muestra**. Es una regla de integridad: no se define lo que no se mencionó.
 
-### Qué hacer si una entrada se filtra y querés que aparezca
+### Qué hacer si una entrada se filtra y quieres que aparezca
 
 Dos caminos:
 

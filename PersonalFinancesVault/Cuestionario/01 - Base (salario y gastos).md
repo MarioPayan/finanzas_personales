@@ -25,7 +25,7 @@ de esta banda (o del valor exacto si el usuario lo ingresó).
 > ¿Cuánto ganas al mes, más o menos?
 
 **Indicación auxiliar:** En múltiplos del salario mínimo de tu país, o
-ingresá el valor exacto.
+ingresa el valor exacto.
 
 **Opciones / configuración:**
 
@@ -61,7 +61,7 @@ monto, año, moneda).
 **Tips contextuales:**
 
 - Un valor exacto te dará un diagnóstico más fino que la banda. La banda
-  sirve si no recordás la cifra exacta.
+  sirve si no recuerdas la cifra exacta.
 
 **Puntaje (peso):** asume que ingreso más alto da mayor margen para
 absorber imprevistos y deudas, así que pondera positivamente al subir de
@@ -104,13 +104,13 @@ qué banda cae para usar su puntaje. **Máximo posible:** 100.
 - **`incomeAboveAverage`** (a favor). *Se muestra si:* el ingreso
   estimado es mayor a 1.5× la media nacional.
   - Diagnóstico: "Tu salario está por encima de la media nacional."
-  - Tip: "Tenés margen real para construir fondo de emergencia y
+  - Tip: "Tienes margen real para construir fondo de emergencia y
     destinar a inversión sin recortar calidad de vida."
 - **`incomeHigh`** (info). *Se muestra si:* el ingreso estimado es mayor
   a 8 SMM.
   - Diagnóstico: "Tu ingreso está claramente por encima del promedio."
-  - Tip: "Asegurate de que la mayor parte esté trabajando para vos:
-    revisá diversificación y rendimiento de tus inversiones. Un ingreso
+  - Tip: "Asegúrate de que la mayor parte esté trabajando para ti:
+    revisa diversificación y rendimiento de tus inversiones. Un ingreso
     alto sin inversión es ahorro estancado."
 
 Los insights de "comparación contra la media nacional" no se disparan
@@ -208,14 +208,15 @@ obligatorios**, que se usa después para dimensionar el fondo de emergencia.
 
 > ¿Qué porcentaje de tu ingreso se va en gastos obligatorios?
 
-**Indicación auxiliar:** Comida, vivienda, transporte, servicios. Lo que no
-podrías dejar de pagar este mes. Incluí también los gastos anuales
-(impuestos, matrículas, seguros) divididos por 12.
+**Indicación auxiliar:** Solo lo que pagas todos los meses: comida,
+vivienda, transporte, servicios, salud. Los gastos anuales (impuestos,
+matrículas, seguros) se preguntan justo después, en
+`obligatoryAnnualItems` / `obligatoryAnnualAmounts`.
 
 **Opciones / configuración:**
 
 - Rango: 0% a 100%.
-- Paso: 5%.
+- Paso: 1%.
 - Valor por defecto: 50%.
 - Marcas visibles en el slider: 0%, 50%, 100%.
 - Unidad: `%`.
@@ -257,13 +258,13 @@ disparan; en su lugar aplica `obligatoryBelowSubsistence`.
   - Diagnóstico: "Tu gasto absoluto en obligatorios está por debajo del
     mínimo de subsistencia."
   - Tip: "Probablemente tengas apoyos externos (vivienda familiar,
-    subsidios) o no estés contando todo. Revisá si tu cifra incluye
+    subsidios) o no estés contando todo. Revisa si tu cifra incluye
     realmente comida, vivienda, transporte y servicios."
 - **`highObligatorySpending`** (a revisar). *Se muestra si:*
   `obligatoryPct > 70%` **y** el monto absoluto supera `0.4 × SMM`.
   - Diagnóstico: "Más del 70% de tu ingreso se va en gastos
     obligatorios."
-  - Tip: "Empezá por reducir o renegociar el rubro más grande (vivienda,
+  - Tip: "Empieza por reducir o renegociar el rubro más grande (vivienda,
     transporte, servicios) o por aumentar ingresos. Con ese margen tan
     apretado, cualquier imprevisto se vuelve crisis."
 - **`lowObligatorySpending`** (a favor). *Se muestra si:*
@@ -274,6 +275,86 @@ disparan; en su lugar aplica `obligatoryBelowSubsistence`.
     obligaciones."
   - Tip: "Buen punto de partida para fortalecer el fondo de emergencia y
     dirigir el resto a inversiones diversificadas."
+
+---
+
+## Gastos anuales obligatorios · `obligatoryAnnualItems`
+
+**Mide:** Lista de rubros de gasto obligatorio que se pagan al año (o de
+forma esporádica grande) y que no entran en el slider mensual. Es una
+recolección de datos en dos pasos: primero el usuario marca los rubros
+que aplican, y después declara el monto anual de cada uno
+(`obligatoryAnnualAmounts`).
+
+**Cuándo se muestra:** Siempre, justo después de `obligatoryPct`. El
+usuario puede dejarlo vacío si no tiene gastos anuales (el grid
+siguiente queda saltado por gate `nonEmpty`).
+
+**Tipo de entrada:** multiChips (selección múltiple).
+
+**Pregunta visible:**
+
+> ¿Qué gastos obligatorios pagas en el año (fuera del mes a mes)?
+
+**Indicación auxiliar:** Marca los que apliquen. Son los gastos que no
+llegan todos los meses pero que sí necesitas prever.
+
+**Opciones / configuración:**
+
+| value | label | sublabel |
+|---|---|---|
+| `taxes` | Impuestos | Predial, vehicular, renta, IVA anual |
+| `insurance` | Seguros | Salud, auto, casa, vida |
+| `tuition` | Matrículas | Colegio, universidad, posgrado |
+| `maintenance` | Mantenimientos | Auto, casa, electrodomésticos |
+| `other` | Otros | Trámites, certificaciones, licencias |
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno.
+
+**Puntaje (peso):** 0 — captura informativa, no entra al promedio de la
+sección.
+
+**Diagnósticos y tips:** ninguno por ahora.
+
+---
+
+## Monto anual obligatorio · `obligatoryAnnualAmounts`
+
+**Mide:** Monto en moneda local que el usuario paga al año en cada rubro
+seleccionado en `obligatoryAnnualItems`. Una fila por rubro
+seleccionado, con un input numérico exacto.
+
+**Cuándo se muestra:** Si `obligatoryAnnualItems ≠ ∅` (gate
+`nonEmpty`).
+
+**Tipo de entrada:** grid con celdas `number`.
+
+**Pregunta visible:**
+
+> ¿Cuánto pagas en el año por cada rubro?
+
+**Indicación auxiliar:** Una estimación está bien. Si no sabes con
+exactitud, suma lo que recuerdes de los últimos 12 meses.
+
+**Filas:** generadas con `rowSource: {kind: 'multiSelectLabels',
+storageKey: 'obligatoryAnnualItems'}` — una fila por chip seleccionado
+en el nodo anterior.
+
+**Celda:** `{kind: 'number', exactInput: {min: 0, step: 10000,
+placeholder: 'Monto anual'}}`.
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno (el monto se ingresa en moneda
+local del usuario, sin necesidad de comparación contra SMM).
+
+**Puntaje (peso):** 0 — captura informativa.
+
+**Diagnósticos y tips:** ninguno por ahora. La idea de fondo es que la
+suma anual / 12 sea un complemento al slider mensual; futuras
+iteraciones pueden derivar un % efectivo o insights por categoría.
 
 ---
 
@@ -292,13 +373,14 @@ prorrateados como vacaciones, regalos y suscripciones. Junto con
 
 > ¿Qué porcentaje de tu ingreso se va en gastos discrecionales?
 
-**Indicación auxiliar:** Salidas, hobbies, ropa, comer fuera, viajes.
-Incluí también los gastos anuales (vacaciones, regalos,
-suscripciones) divididos por 12.
+**Indicación auxiliar:** Solo lo que pagas todos los meses: salidas,
+hobbies, ropa, comer fuera, suscripciones mensuales. Los gastos
+anuales (vacaciones, regalos, viajes) se preguntan justo después, en
+`discretionaryAnnualItems` / `discretionaryAnnualAmounts`.
 
 **Opciones / configuración:**
 
-- Rango: 0% a 100%. Paso: 5%. Valor por defecto: 25%.
+- Rango: 0% a 100%. Paso: 1%. Valor por defecto: 25%.
 - Marcas visibles: 0%, 50%, 100%.
 - Unidad: `%`.
 
@@ -331,18 +413,91 @@ que en `obligatoryPct`.
   `discretionaryPct > 45%`.
   - Diagnóstico: "Estás gastando una parte muy alta de tu ingreso en
     lo discrecional."
-  - Tip: "No se trata de cohibirte, sino de saber adónde va. Anotá un
-    mes lo que gastás en lo no esencial; suele sorprender. Ese margen
+  - Tip: "No se trata de cohibirte, sino de saber adónde va. Anota un
+    mes lo que gastas en lo no esencial; suele sorprender. Ese margen
     es el que después permite invertir o construir fondo de
     emergencia."
 - **`discretionaryHoursOfLife`** (info). *Se muestra si:*
   `discretionaryPct > 45%`.
-  - Diagnóstico: "Probá medir tus gastos discrecionales en horas de
+  - Diagnóstico: "Prueba medir tus gastos discrecionales en horas de
     tu vida."
-  - Tip: "Dividí tu ingreso mensual por tus horas trabajadas: ese es
-    tu ingreso por hora. Cuando dudes con un gasto grande, dividilo
+  - Tip: "Divide tu ingreso mensual por tus horas trabajadas: ese es
+    tu ingreso por hora. Cuando dudes con un gasto grande, divídelo
     por esa cifra — te dice cuántas horas de tu vida cuesta. Es un
     filtro más honesto que pensar en dinero."
+
+---
+
+## Gastos anuales discrecionales · `discretionaryAnnualItems`
+
+**Mide:** Lista de rubros de gasto discrecional (no esencial) que se
+pagan al año o en pagos esporádicos grandes, separados del slider
+mensual. Genera filas para `discretionaryAnnualAmounts`.
+
+**Cuándo se muestra:** Siempre, justo después de `discretionaryPct`. El
+usuario puede dejarlo vacío.
+
+**Tipo de entrada:** multiChips (selección múltiple).
+
+**Pregunta visible:**
+
+> ¿Qué gastos discrecionales pagas en el año (fuera del mes a mes)?
+
+**Indicación auxiliar:** Marca los que apliquen. Pagos no esenciales
+que se concentran en momentos específicos del año.
+
+**Opciones / configuración:**
+
+| value | label | sublabel |
+|---|---|---|
+| `vacation` | Vacaciones | Hoteles, vuelos, paseos cortos |
+| `gifts` | Regalos | Cumpleaños, navidad, ocasiones especiales |
+| `subscriptions` | Suscripciones anuales | Streaming, gimnasio, software, revistas |
+| `bigTrips` | Viajes grandes | Viaje internacional, luna de miel, retiros |
+| `events` | Eventos | Bodas, conciertos, fiestas, retiros |
+| `other` | Otros | Compras grandes esporádicas |
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno.
+
+**Puntaje (peso):** 0 — captura informativa.
+
+**Diagnósticos y tips:** ninguno por ahora.
+
+---
+
+## Monto anual discrecional · `discretionaryAnnualAmounts`
+
+**Mide:** Monto en moneda local que el usuario gasta al año en cada
+rubro seleccionado en `discretionaryAnnualItems`. Una fila por rubro
+seleccionado, con input numérico exacto.
+
+**Cuándo se muestra:** Si `discretionaryAnnualItems ≠ ∅` (gate
+`nonEmpty`).
+
+**Tipo de entrada:** grid con celdas `number`.
+
+**Pregunta visible:**
+
+> ¿Cuánto gastas en el año por cada rubro?
+
+**Indicación auxiliar:** Una estimación está bien. Si no sabes con
+exactitud, suma lo que recuerdes de los últimos 12 meses.
+
+**Filas:** generadas con `rowSource: {kind: 'multiSelectLabels',
+storageKey: 'discretionaryAnnualItems'}`.
+
+**Celda:** `{kind: 'number', exactInput: {min: 0, step: 10000,
+placeholder: 'Monto anual'}}`.
+
+**Términos del glosario referenciados:** ninguno.
+
+**Widgets del panel lateral:** ninguno.
+
+**Puntaje (peso):** 0 — captura informativa.
+
+**Diagnósticos y tips:** ninguno por ahora.
 
 ---
 
@@ -358,9 +513,9 @@ predice mejor el cumplimiento del ahorro que el monto ahorrado.
 
 **Pregunta visible:**
 
-> ¿Tenés un sistema para repartir tu ingreso cuando entra?
+> ¿Tienes un sistema para repartir tu ingreso cuando entra?
 
-**Indicación auxiliar:** Hablamos de cómo decidís cuánto va a
+**Indicación auxiliar:** Hablamos de cómo decides cuánto va a
 obligatorios, ahorro, inversión y gusto — no del monto, sino del
 método.
 
@@ -371,7 +526,7 @@ método.
 | `no` | No tengo método | Gasto y veo qué queda al final del mes | 10 |
 | `mental` | Mental | Tengo una idea de cuánto va a cada cosa, pero todo en una sola cuenta | 40 |
 | `accounts` | Cuentas separadas | Una cuenta para gastos, otra para ahorro, otra para inversión | 80 |
-| `automated` | Automatizado | El banco o una app reparte automáticamente cuando llega el ingreso | 100 |
+| `autómated` | Automatizado | El banco o una app reparte automaticamente cuando llega el ingreso | 100 |
 
 **Términos del glosario referenciados:** Sistema de cubetas.
 
@@ -385,17 +540,17 @@ método.
 
 - **`noBudgetSystem`** (a revisar). *Se muestra si:*
   `hasBudgetSystem = no`.
-  - Diagnóstico: "No tenés un sistema para repartir tu ingreso."
-  - Tip: "Lo que sobra al final del mes nunca alcanza. Probá la regla
-    más simple: cuando entra el ingreso, mové primero un porcentaje
+  - Diagnóstico: "No tienes un sistema para repartir tu ingreso."
+  - Tip: "Lo que sobra al final del mes nunca alcanza. Prueba la regla
+    más simple: cuando entra el ingreso, mueve primero un porcentaje
     fijo a ahorro/inversión, y vivir con lo que queda. Mental, en
     cuentas separadas o automatizado — cualquier sistema le gana a no
     tener."
-- **`automatedBudget`** (a favor). *Se muestra si:*
-  `hasBudgetSystem = automated`.
+- **`autómatedBudget`** (a favor). *Se muestra si:*
+  `hasBudgetSystem = autómated`.
   - Diagnóstico: "Tu reparto está automatizado."
   - Tip: "Es la versión más sólida del sistema: el ahorro no depende
-    de tu disciplina mensual. Verificá una vez al año que los
+    de tu disciplina mensual. Verifica una vez al año que los
     porcentajes sigan haciendo sentido para tu ingreso y tus metas."
 
 ---
@@ -440,7 +595,7 @@ la cifra exacta.
 
 **Indicación auxiliar:** Como referencia: malo (te niegan crédito),
 regular (te lo dan con tasas altas), bueno (tasas estándar),
-excelente (mejores tasas y tarjetas premium). Mirá el panel lateral
+excelente (mejores tasas y tarjetas premium). Mira el panel lateral
 (`creditScoreScale`) para ver los rangos numéricos exactos del país
 detectado.
 
@@ -465,6 +620,6 @@ CO, Serasa en BR, etc.). Los datos viven en
 - **`badCreditScore`** (a revisar). *Se muestra si:* `creditScoreBand
   ∈ [malo, regular]`.
   - Diagnóstico: "Tu puntaje crediticio no está en buen rango."
-  - Tip: "Revisá tus deudas activas, paga puntual aunque sean montos
-    chicos, y evitá pedir múltiples créditos en poco tiempo. Subir un
+  - Tip: "Revisa tus deudas activas, paga puntual aunque sean montos
+    chicos, y evita pedir múltiples créditos en poco tiempo. Subir un
     score toma meses, no días."

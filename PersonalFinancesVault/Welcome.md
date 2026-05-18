@@ -8,11 +8,12 @@ un agente entienda la estructura sin ejecutar la app.
 ## Por dónde empezar
 
 1. **Estado y plan actual** → [[Plan de Accion - Roadmap v2]]
-   La hoja de ruta vigente (mayo 2026): cerrar lógica, herramientas
-   internas, capa de gamificación. Refleja tus respuestas a las
-   decisiones de §4.
+   Hoja de ruta vigente (mayo 2026): qué está hecho (ejes A y B
+   cerrados, eje C parcial: identidad mínima + micro-feedback +
+   mobile-first) y qué queda pendiente (onboarding, ruta del quiz,
+   carta exportable).
 2. **Estructura del cuestionario** → [[Cuestionario/00 - Indice|Cuestionario]]
-   Tabla maestra de los 33 nodos + 45 insights + árbol de flujo
+   Tabla maestra de los **37 nodos + 45 insights** + árbol de flujo
    completo. Fuente de verdad: `src/content/diagnosis.ts`.
 3. **Filosofía y reglas** → [[Lineamientos/00 - Indice|Lineamientos]]
    Visión, estructura de nodos, panel lateral, derivaciones,
@@ -31,28 +32,23 @@ PersonalFinancesVault/
 ├── Lineamientos/                       ← filosofía y reglas
 │   ├── 00 - Indice.md
 │   └── 01-07 - <tema>.md
-├── Archivo/                            ← referencia histórica
-│   ├── Indice.md
-│   └── README original.md              ← guía narrativa con "William"
-└── (docs obsoletos marcados explícitamente)
+└── Archivo/                            ← referencia histórica
+    ├── Indice.md                       ← índice del archivo
+    ├── README original.md              ← guía narrativa con William
+    ├── Plan de Accion - Desarrollo v1.md
+    ├── Propuesta - Modelo Ludico v1.md
+    ├── Rollback - Estado minimo.md
+    ├── Propuestas - Cambios desde video Algebra de Riqueza.md
+    └── Plan - Stepper generico.md
 ```
 
-## Documentos histórico-no-vigentes
+## Convención sobre planes y ejecución
 
-Quedan en el vault como contexto para entender de dónde viene el modelo
-actual. Cada uno tiene un banner "OBSOLETO" al inicio:
-
-- [[Plan de Accion - Desarrollo v1]] — plan extenso (pirámides + árbol +
-  misiones IRL + mascota Pataco) que se construyó hasta Fase 6 y luego
-  se hizo rollback. Reemplazado por v2.
-- [[Propuesta - Modelo Ludico v1]] — propuesta original del modelo lúdico
-  con 3 pirámides y William narrador. Inspiró v1, no v2.
-- [[Rollback - Estado minimo]] — documento de la decisión de tirar todo
-  lo construido en v1 y volver al mínimo (solo cuestionario + summary).
-  Es el punto de partida desde el cual se construye v2.
-- [[Propuestas - Cambios desde video Algebra de Riqueza]] — backlog ya
-  **absorbido** (mayo 2026): los 7 nodos, 10 insights y 4 términos de
-  glosario propuestos están implementados en `diagnosis.ts`.
+- Los **planes** en este vault documentan **decisiones y alcance**.
+- La **ejecución por paso** vive en commits (`git log --oneline`), no
+  en bitácoras dentro del vault.
+- Cuando un plan termina su alcance completo, pasa a `Archivo/` con
+  un banner que apunta al sucesor.
 
 ## Regla de oro
 

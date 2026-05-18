@@ -1,6 +1,6 @@
 # Cómo extender
 
-Recetas concretas. Si lo que vas a hacer no encaja en ninguna, leé primero
+Recetas concretas. Si lo que vas a hacer no encaja en ninguna, lee primero
 [[02 - Estructura de los nodos]] y [[03 - Panel lateral]].
 
 ## Agregar una pregunta nueva
@@ -17,7 +17,7 @@ Recetas concretas. Si lo que vas a hacer no encaja en ninguna, leé primero
    listarlo en `glossaryTerms`.
 5. Si el nodo necesita un componente auxiliar a la derecha, listarlo en
    `sidebarWidgets`.
-6. Si el paso necesita una indicación contextual (p. ej. "podés ingresar el
+6. Si el paso necesita una indicación contextual (p. ej. "puedes ingresar el
    valor exacto"), agregar `tips: [...]`.
 7. Si el nodo es numérico y conviene también un valor exacto, agregar
    `exactInput` (en `chips`) o usar `type: 'number'`.
@@ -55,15 +55,17 @@ Recetas concretas. Si lo que vas a hacer no encaja en ninguna, leé primero
 
 1. En `diagnosis.ts`, agregar un nuevo `*Question` a la unión
    `DiagnosisQuestion` con sus campos propios y discriminante `type`.
-2. Agregar la rama de render en `QuestionStep.tsx` (función `renderBody`).
-   El componente del input lo escribís en `src/components/inputs/`.
+2. Agregar la rama de render en `DiagnosisQuestionBody.tsx` (función
+   `renderBody`). El componente del input lo escribes en
+   `src/components/inputs/`.
 3. Agregar la rama en `formatAnswer` y `formatAnswerVerbose`. TypeScript
    marcará lo que falte.
 4. Definir la política de avance del input: si la interacción es un click
-   único y decisivo (como `chips` o `toggle`), el input emite `{commit: true}`
-   en su `onChange` para disparar auto-avance. Si no hay un "fin" claro de la
-   interacción (slider, escritura libre, multi-selección), no pasa el flag y
-   el usuario avanza con el botón Siguiente.
+   único y decisivo (como `chips` o `toggle`), el input llama a
+   `ctx.commit()` (provisto por `StepRenderCtx` del Stepper) para
+   disparar auto-avance. Si no hay un "fin" claro de la interacción
+   (slider, escritura libre, multi-selección), no commitea y el usuario
+   avanza con el botón Siguiente.
 5. Si el tipo cambia el shape de `AnswerValue`, ampliar la unión en
    `diagnosis.ts` y revisar `isAnswerComplete`.
 6. Documentar en [[02 - Estructura de los nodos]].
@@ -80,7 +82,7 @@ Recetas concretas. Si lo que vas a hacer no encaja en ninguna, leé primero
 
 1. En el nodo, agregar `tips: ['…']`.
 2. No hacen falta cambios en código — el sidebar los renderiza
-   automáticamente cuando el nodo es el actual.
+   automaticamente cuando el nodo es el actual.
 
 ## Agregar una regla de derivación
 
@@ -104,7 +106,7 @@ Patrón que se usó para el bloque de deudas e inversiones.
 ## Agregar un país (salario mínimo)
 
 1. En `src/content/minimumWages.ts`, agregar una entrada con `countryName`,
-   `amount`, `currency`, `year`. El símbolo y el formato salen automáticos vía
+   `amount`, `currency`, `year`. El símbolo y el formato salen automaticos vía
    `Intl.NumberFormat`.
 2. Si la zona horaria del país no está en `TIMEZONE_TO_COUNTRY` de
    `src/utils/detectCountry.ts`, agregarla.

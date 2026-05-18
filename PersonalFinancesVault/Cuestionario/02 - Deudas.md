@@ -50,7 +50,7 @@ deuda. **Máximo posible:** 100.
 
 - **`noDebt`** (a favor). *Se muestra si:* `hasDebt = No`.
   - Diagnóstico: "No tienes deudas activas — buena posición de partida."
-  - Tip: "Si tu fondo de emergencia ya cubre 3 meses o más, considerá
+  - Tip: "Si tu fondo de emergencia ya cubre 3 meses o más, considera
     dirigir el excedente del ingreso a inversiones diversificadas en vez
     de dejarlo quieto."
 
@@ -74,11 +74,11 @@ cuota grande.
 
 **Indicación auxiliar:** Suma de todas las cuotas mensuales (tarjetas,
 créditos, hipoteca, vehículo). Si una deuda es a meses sin intereses,
-contá igual la cuota.
+cuenta igual la cuota.
 
 **Opciones / configuración:**
 
-- Rango: 0% a 100%. Paso: 5%. Valor por defecto: 30%.
+- Rango: 0% a 100%. Paso: 1%. Valor por defecto: 30%.
 - Marcas visibles: 0%, 50%, 100%.
 - Unidad: `%`.
 
@@ -102,7 +102,7 @@ estimado y se muestra como monto en moneda local.
   `debtMonthlyPct > 30%`.
   - Diagnóstico: "Más del 30% de tu ingreso se va en cuotas de deuda."
   - Tip: "Con esa presión de cash-flow, cualquier imprevisto se vuelve
-    crisis. Considerá compra de cartera con otra entidad para bajar la
+    crisis. Considera compra de cartera con otra entidad para bajar la
     tasa, abonar al capital de la deuda con peor tasa, o renegociar
     plazos."
 
@@ -122,7 +122,7 @@ promediar artificialmente.
 
 > ¿Cuántas deudas tienes activas?
 
-**Indicación auxiliar:** Si tenés muchas deudas similares, podés
+**Indicación auxiliar:** Si tienes muchas deudas similares, puedes
 agruparlas (p. ej. todas las tarjetas como una sola).
 
 **Opciones / configuración:**
@@ -160,7 +160,7 @@ peor puntaje a mayor cantidad.
 
 - **`tooManyDebts`** (a revisar). *Se muestra si:* `debtCount > 5`.
   - Diagnóstico: "Manejas más de 5 deudas activas."
-  - Tip: "Considerá consolidar las más caras en una sola con tasa menor
+  - Tip: "Considera consolidar las más caras en una sola con tasa menor
     para simplificar pagos y reducir intereses totales."
 
 ---
@@ -183,7 +183,7 @@ chicas hasta vivienda (200+ SMM).
 > ¿De cuánto es cada deuda?
 
 **Indicación auxiliar:** Comparada con el salario mínimo del país, o
-ingresá el monto exacto.
+ingresa el monto exacto.
 
 **Filas:** una por deuda — las filas vienen de `debtCount` con la
 plantilla "Deuda #{n}".
@@ -212,15 +212,15 @@ hipoteca grande convive con tarjetas chicas en el promedio.
 
 - **`oneVeryLargeDebt`** (a revisar). *Se muestra si:* alguna fila
   está en `50to200` o `gt200`.
-  - Diagnóstico: "Tenés al menos una deuda muy grande."
+  - Diagnóstico: "Tienes al menos una deuda muy grande."
   - Tip: "Si es vivienda u otra deuda buena, el riesgo está acotado a
     la cuota mensual y la tasa. Si es consumo, el plan tiene que ser
     bajarla con prioridad — son las deudas que más asfixian."
 - **`manyMediumDebts`** (a revisar). *Se muestra si:* hay al menos 3
   filas en bandas medias (`3to10` o `10to50`).
-  - Diagnóstico: "Acumulás varias deudas de tamaño medio."
+  - Diagnóstico: "Acumulas varias deudas de tamaño medio."
   - Tip: "Aunque cada una sea manejable por separado, el problema
-    suele ser la suma de cuotas. Considerá compra de cartera para
+    suele ser la suma de cuotas. Considera compra de cartera para
     consolidar y bajar la presión mensual."
 
 ---
@@ -242,7 +242,7 @@ chip de banda + valor exacto opcional.
 > ¿Cuál es la tasa de interés de cada deuda?
 
 **Indicación auxiliar:** Aproximadamente. Si no estás seguro, escoge una
-banda o ingresá el valor exacto.
+banda o ingresa el valor exacto.
 
 **Origen de las filas:** Una fila por cada deuda declarada en `debtCount`,
 etiquetadas "Deuda #1", "Deuda #2", etc.
@@ -361,7 +361,7 @@ positivo que una de consumo.
   - Diagnóstico: "Parte de tu deuda está produciendo o conservando
     valor."
   - Tip: "No es la deuda en sí lo que daña — es la que solo financia
-    consumo. Revisá si las tasas son razonables comparadas con el
+    consumo. Revisa si las tasas son razonables comparadas con el
     rendimiento que te dan."
 - **`leverageAgainstAssets`** (info). *Se muestra si:* alguna deuda
   es "Una inversión".

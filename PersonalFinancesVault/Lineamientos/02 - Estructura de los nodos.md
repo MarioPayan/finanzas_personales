@@ -103,23 +103,36 @@ cláusula admite un solo operador:
   cuando el nodo es el actual; al pasar al siguiente, los tips se ocultan.
 - **El `description` es para análisis, no para la UI.**
 - **`storageKey` es estable.** Cambiarlo invalida respuestas guardadas y rompe
-  `dependsOn`/`derivation`/`rowSource` que lo referencian. Si renombrás,
-  hacelo intencional y propagá.
+  `dependsOn`/`derivation`/`rowSource` que lo referencian. Si renombras,
+  hacelo intencional y propaga.
 
 ## Renderizado uniforme
 
-Toda la representación visual de un nodo vive en `QuestionStep.tsx`. Ese
-componente recibe el nodo y se encarga de prompt, hint, body (delegando al
-input correspondiente) y la zona de avance — siempre con el mismo layout.
-Ningún nodo se renderiza por fuera de él. Así se cumple el principio de "una
-sola representación visual" (ver [[01 - Vision y filosofia]]).
+La representación visual de un nodo está partida en dos capas:
+
+1. **Cuerpo del input** — `src/views/Diagnosis/DiagnosisQuestionBody.tsx`.
+   Función pura que recibe el nodo y renderiza el input correspondiente
+   (chips, toggle, slider, number, multiChips, grid) sin chrome.
+2. **Chrome del paso** — el `Stepper` genérico
+   (`src/components/Stepper/`). Envuelve cada paso en una `Card` y delega
+   el header (prompt + hint) a `DefaultHeader` y la navegación
+   (atrás / siguiente) a `DefaultNavigation`. El adaptador
+   `buildDiagnosisSteps.tsx` traduce `DIAGNOSIS_QUESTIONS` + los nodos
+   de resultado (`SECTION_SCORE_NODES`, `SUMMARY_NODE`) a `Step<AnswerValue>[]`
+   con la propiedad `render: ctx => <DiagnosisQuestionBody ... />`.
+
+Así se cumple el principio de "una sola representación visual" sin que
+el Stepper sepa nada de finanzas: cualquier nodo aplica el mismo marco
+porque vive como `Step`, y cualquier input aplica el mismo layout
+porque pasa por `DiagnosisQuestionBody`.
 
 ### Avance del cuestionario
 
 Los inputs decisivos (chip click en `chips`, click en una opción de `toggle`)
-emiten `{commit: true}` en su `onChange` para auto-avanzar tras un breve
-delay. Inputs sin un fin claro de interacción (slider, número exacto tipeado,
-multi-chip, grid) **nunca** auto-avanzan: el usuario presiona Siguiente.
+llaman a `ctx.commit()` para auto-avanzar tras un debounce
+(`autoAdvanceMs`, default 250 ms). Inputs sin un fin claro de interacción
+(slider, número exacto tipeado, multi-chip, grid) **nunca** auto-avanzan:
+el usuario presiona Siguiente.
 
 El botón Siguiente/Terminar se renderiza al pie del paso **solo cuando es
 necesario**. La regla: si toda interacción posible del nodo commitea, el
