@@ -13,13 +13,12 @@
 
 ## Planes y propuestas pasadas
 
-Cada doc tiene un banner "OBSOLETO" o "absorbido" al inicio, con
-puntero al sucesor:
+Cada doc tiene un banner "OBSOLETO", "absorbido" o "cerrado" al
+inicio, con puntero al sucesor o al cierre:
 
 - `Plan de Accion - Desarrollo v1.md` — plan extenso (3 pirámides +
   árbol + misiones IRL + mascota Pataco). Se construyó hasta Fase 6 y
-  luego se hizo rollback. Reemplazado por
-  [[../Plan de Accion - Roadmap v2]].
+  luego se hizo rollback. Reemplazado por Roadmap v2.
 - `Propuesta - Modelo Ludico v1.md` — propuesta original del modelo
   lúdico (5 niveles + stats múltiples + William como guía). Inspiró el
   plan v1.
@@ -33,6 +32,11 @@ puntero al sucesor:
   Stepper genérico de la lógica de diagnosis. **Completado de un
   tirón** (fases A-E todas hechas). Se conserva como referencia de
   diseño del Stepper.
+- `Plan de Accion - Roadmap v2.md` — hoja de ruta vigente en mayo
+  2026. **Cerrada** tras ejecutar todo el alcance comprometido por
+  §4.1; los pendientes residuales eran diferimientos explícitos o
+  nice-to-haves. El proyecto entra a una siguiente fase con vault
+  limpio (sin plan activo).
 
 ## Qué se borró (y dónde recuperarlo)
 

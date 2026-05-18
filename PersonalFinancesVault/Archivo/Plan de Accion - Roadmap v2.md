@@ -1,5 +1,18 @@
 # Plan de Acción — Roadmap v2 (mayo 2026)
 
+> **CERRADO (mayo 2026).** Todo el alcance comprometido por §4.1 quedó
+> ejecutado. Lo que figuraba como pendiente al cierre era:
+> - Diferido explícitamente por decisión de usuario (mascota, dark mode,
+>   carta PNG, ruta visual con personaje, copywriting lúdico)
+> - Nice-to-have ya cubierto por otra herramienta (B4 → B2)
+> - Editorial pendiente de joint design (A3)
+>
+> El proyecto entra en una **siguiente fase** que redefinirá
+> prioridades. Este doc queda como referencia histórica del scope que
+> llevó al estado de la app en mayo 2026 (37 nodos, 45 insights,
+> Stepper genérico, identidad visual mínima, toolbar top-right con
+> config / sugerencias / árbol).
+
 > Roadmap operativo para llevar la app de diagnóstico hacia un quiz
 > **gamificado as fuck**, divertido de responder, con herramientas
 > internas que den claridad total sobre la lógica. El detalle de qué

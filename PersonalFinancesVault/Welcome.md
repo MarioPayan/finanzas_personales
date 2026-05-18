@@ -5,50 +5,47 @@ Vault que documenta la **app de diagnóstico financiero** del repo
 `Cuestionario/00 - Indice` y los lineamientos están escritos para que
 un agente entienda la estructura sin ejecutar la app.
 
+> **Mayo 2026 — sin plan activo.** El Roadmap v2 cerró su alcance y
+> está en `Archivo/`. El proyecto entra en una siguiente fase que
+> redefinirá prioridades; cuando empiece, vivirá como nuevo doc en
+> esta carpeta. Mientras tanto, sólo Cuestionario y Lineamientos
+> son docs vivos.
+
 ## Por dónde empezar
 
-1. **Estado y plan actual** → [[Plan de Accion - Roadmap v2]]
-   Hoja de ruta vigente (mayo 2026): qué está hecho (ejes A y B
-   cerrados, eje C parcial: identidad mínima + micro-feedback +
-   mobile-first) y qué queda pendiente (onboarding, ruta del quiz,
-   carta exportable).
-2. **Estructura del cuestionario** → [[Cuestionario/00 - Indice|Cuestionario]]
+1. **Estructura del cuestionario** → [[Cuestionario/00 - Indice|Cuestionario]]
    Tabla maestra de los **37 nodos + 45 insights** + árbol de flujo
    completo. Fuente de verdad: `src/content/diagnosis.ts`.
-3. **Filosofía y reglas** → [[Lineamientos/00 - Indice|Lineamientos]]
+2. **Filosofía y reglas** → [[Lineamientos/00 - Indice|Lineamientos]]
    Visión, estructura de nodos, panel lateral, derivaciones,
    glosario, receta para extender, perfiles de personaje.
+3. **Histórico** → [[Archivo/Indice|Archivo]]
+   Planes y propuestas cerrados, README narrativo original con
+   William, decisiones de rollback.
 
 ## Cómo está organizado
 
 ```
 PersonalFinancesVault/
-├── Welcome.md                          ← acá estás
-├── Plan de Accion - Roadmap v2.md      ← plan vigente
-├── Cuestionario/                       ← documentación del quiz
-│   ├── 00 - Indice.md                  ← entrada AI-first
-│   ├── 01-04 - <categoria>.md          ← detalle por nodo
+├── Welcome.md                ← acá estás
+├── Cuestionario/             ← documentación del quiz (live)
+│   ├── 00 - Indice.md        ← entrada AI-first
+│   ├── 01-04 - <categoria>.md
 │   └── 99 - Glosario referenciado.md
-├── Lineamientos/                       ← filosofía y reglas
+├── Lineamientos/             ← filosofía y reglas (live)
 │   ├── 00 - Indice.md
 │   └── 01-07 - <tema>.md
-└── Archivo/                            ← referencia histórica
-    ├── Indice.md                       ← índice del archivo
-    ├── README original.md              ← guía narrativa con William
-    ├── Plan de Accion - Desarrollo v1.md
-    ├── Propuesta - Modelo Ludico v1.md
-    ├── Rollback - Estado minimo.md
-    ├── Propuestas - Cambios desde video Algebra de Riqueza.md
-    └── Plan - Stepper generico.md
+└── Archivo/                  ← referencia histórica
+    ├── Indice.md
+    └── README original / planes y propuestas cerrados
 ```
 
 ## Convención sobre planes y ejecución
 
-- Los **planes** en este vault documentan **decisiones y alcance**.
+- Los **planes** documentan **decisiones y alcance**. Cuando cierran,
+  se mueven a `Archivo/` con banner final.
 - La **ejecución por paso** vive en commits (`git log --oneline`), no
   en bitácoras dentro del vault.
-- Cuando un plan termina su alcance completo, pasa a `Archivo/` con
-  un banner que apunta al sucesor.
 
 ## Regla de oro
 
