@@ -25,12 +25,88 @@ import {
 import {collectInsights, type CollectedInsight} from '../../utils/insights'
 import {computeSectionScore} from '../../utils/scoring'
 import {getOverallProfile, getProfileForSection} from '../../content/profiles'
+import {getMonthlyIncome} from '../../utils/calculations'
+import {type MinimumWageEntry} from '../../content/minimumWages'
 
 type SummaryProps = {
   answers: Answers
   smm: number | null
   countryCode: string | null
+  minimumWage: MinimumWageEntry | null
   onRestart: () => void
+}
+
+const formatMoney = (amount: number, currency: string | undefined): string => {
+  try {
+    return new Intl.NumberFormat('es', {
+      style: 'currency',
+      currency: currency ?? 'COP',
+      maximumFractionDigits: 0,
+    }).format(amount)
+  } catch {
+    return `${Math.round(amount).toLocaleString('es')} ${currency ?? ''}`.trim()
+  }
+}
+
+function FireGoalCard({
+  answers,
+  smm,
+  minimumWage,
+}: {
+  answers: Answers
+  smm: number | null
+  minimumWage: MinimumWageEntry | null
+}) {
+  const monthlyIncome = getMonthlyIncome(answers, smm)
+  const obligatoryPct = typeof answers.obligatoryPct === 'number' ? answers.obligatoryPct : null
+  const discretionaryPct =
+    typeof answers.discretionaryPct === 'number' ? answers.discretionaryPct : null
+  if (monthlyIncome === null || obligatoryPct === null || discretionaryPct === null) return null
+  const monthlyExpenses = (monthlyIncome * (obligatoryPct + discretionaryPct)) / 100
+  if (monthlyExpenses <= 0) return null
+  const annualExpenses = monthlyExpenses * 12
+  const classicGoal = annualExpenses * 25
+  const latamGoal = annualExpenses * 28.5
+  const currency = minimumWage?.currency
+  return (
+    <Card elevation={0} sx={{border: 1, borderColor: 'divider'}}>
+      <CardContent sx={{p: {xs: 2.5, md: 4}}}>
+        <Stack spacing={1.5}>
+          <Typography variant='overline' color='text.secondary'>
+            Tu meta FIRE
+          </Typography>
+          <Typography variant='body2' color='text.secondary'>
+            Heurística clásica del 4%: si juntas un capital igual a 25× tus gastos anuales,
+            puedes vivir de los rendimientos. En LatAm conviene ajustar a 28,5× por
+            impuestos y volatilidad cambiaria.
+          </Typography>
+          <Stack direction={{xs: 'column', sm: 'row'}} spacing={2}>
+            <Box sx={{flex: 1}}>
+              <Typography variant='caption' color='text.secondary'>
+                Versión clásica (×25)
+              </Typography>
+              <Typography variant='h6' sx={{fontWeight: 700, fontFamily: 'monospace'}}>
+                {formatMoney(classicGoal, currency)}
+              </Typography>
+            </Box>
+            <Box sx={{flex: 1}}>
+              <Typography variant='caption' color='text.secondary'>
+                Versión LatAm (×28,5)
+              </Typography>
+              <Typography variant='h6' sx={{fontWeight: 700, fontFamily: 'monospace'}}>
+                {formatMoney(latamGoal, currency)}
+              </Typography>
+            </Box>
+          </Stack>
+          <Typography variant='caption' color='text.secondary'>
+            Basado en tu ingreso × tu % de gastos (obligatorios {obligatoryPct}% + discrecionales{' '}
+            {discretionaryPct}% = {(obligatoryPct + discretionaryPct).toFixed(0)}% mensual). Es
+            una guía mental, no un objetivo único — sirve para saber a qué escala juega tu plan.
+          </Typography>
+        </Stack>
+      </CardContent>
+    </Card>
+  )
 }
 
 const colorToken = (sev: InsightSeverity): string =>
@@ -79,6 +155,49 @@ function InsightRow({
   )
 }
 
+const SEVERITY_ORDER: readonly InsightSeverity[] = ['critical', 'warning', 'info', 'positive']
+
+function findNextStep(items: readonly CollectedInsight[]): CollectedInsight | null {
+  for (const sev of SEVERITY_ORDER) {
+    if (sev === 'positive') return null
+    const match = items.find(i => (i.insight.severity ?? 'info') === sev)
+    if (match) return match
+  }
+  return null
+}
+
+type ClosingQuote = {text: string; author: string}
+
+const CLOSING_QUOTES: readonly ClosingQuote[] = [
+  {text: 'Vivir dentro de nuestras posibilidades.', author: 'Sofía Macías'},
+  {
+    text: 'No hace falta ser experto para vivir en paz financiera. Los pasitos antes que las maratones.',
+    author: 'Andrés Gutiérrez',
+  },
+  {
+    text: 'Cómo te comportas con el dinero importa más que lo que sabes de dinero.',
+    author: 'Morgan Housel',
+  },
+  {
+    text: 'Lo medido se gestiona; pero medir todo paraliza. Atiende lo discrecional, deja correr lo fijo.',
+    author: 'Hábito',
+  },
+]
+
+const pickClosingQuote = (categoryHint: DiagnosisCategoryId | null): ClosingQuote => {
+  if (!categoryHint) return CLOSING_QUOTES[0]
+  switch (categoryHint) {
+    case 'base':
+      return CLOSING_QUOTES[0]
+    case 'debt':
+      return CLOSING_QUOTES[1]
+    case 'investment':
+      return CLOSING_QUOTES[2]
+    default:
+      return CLOSING_QUOTES[3]
+  }
+}
+
 function groupByCategory(
   items: readonly CollectedInsight[],
 ): Record<DiagnosisCategoryId, CollectedInsight[]> {
@@ -86,13 +205,20 @@ function groupByCategory(
     base: [],
     debt: [],
     stability: [],
+    protection: [],
     investment: [],
   }
   for (const item of items) out[item.category].push(item)
   return out
 }
 
-export default function Summary({answers, smm, countryCode, onRestart}: SummaryProps) {
+export default function Summary({
+  answers,
+  smm,
+  countryCode,
+  minimumWage,
+  onRestart,
+}: SummaryProps) {
   const theme = useTheme()
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
   const answered = DIAGNOSIS_QUESTIONS.filter(q => answers[q.storageKey] !== undefined)
@@ -100,7 +226,13 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
   const grouped = groupByCategory(insights)
 
   const sectionScores = useMemo(() => {
-    const out: Record<DiagnosisCategoryId, number> = {base: 0, debt: 0, stability: 0, investment: 0}
+    const out: Record<DiagnosisCategoryId, number> = {
+      base: 0,
+      debt: 0,
+      stability: 0,
+      protection: 0,
+      investment: 0,
+    }
     for (const cat of CATEGORY_ORDER) {
       out[cat] = computeSectionScore(cat, answers, smm).score
     }
@@ -108,6 +240,8 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
   }, [answers, smm])
 
   const overall = useMemo(() => getOverallProfile(sectionScores), [sectionScores])
+  const nextStep = useMemo(() => findNextStep(insights), [insights])
+  const closingQuote = useMemo(() => pickClosingQuote(overall.bottleneck ?? null), [overall])
 
   return (
     <Box
@@ -167,7 +301,7 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: {xs: '1fr 1fr', sm: 'repeat(4, 1fr)'},
+            gridTemplateColumns: {xs: '1fr 1fr', sm: 'repeat(5, 1fr)'},
             gap: {xs: 1.5, sm: 2},
           }}>
           {CATEGORY_ORDER.map((catId, i) => {
@@ -218,6 +352,51 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
             )
           })}
         </Box>
+
+        {nextStep && (
+          <motion.div
+            initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 12}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.4, delay: reducedMotion ? 0 : 0.25}}>
+            <Card
+              elevation={0}
+              sx={{
+                border: 2,
+                borderColor: colorToken(nextStep.insight.severity ?? 'info'),
+                bgcolor: 'background.paper',
+              }}>
+              <CardContent sx={{p: {xs: 2.5, md: 4}}}>
+                <Stack spacing={1.5}>
+                  <Stack direction='row' spacing={1} sx={{alignItems: 'center'}}>
+                    <Chip
+                      size='small'
+                      label='Tu próximo paso'
+                      variant='filled'
+                      sx={{
+                        bgcolor: colorToken(nextStep.insight.severity ?? 'info'),
+                        color: 'common.white',
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                      }}
+                    />
+                    <Typography variant='caption' color='text.secondary'>
+                      {CATEGORIES[nextStep.category].label}
+                    </Typography>
+                  </Stack>
+                  <Typography variant='h6' sx={{fontWeight: 700, lineHeight: 1.3}}>
+                    {nextStep.insight.diagnostic}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary' sx={{lineHeight: 1.55}}>
+                    {nextStep.insight.tip}
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        <FireGoalCard answers={answers} smm={smm} minimumWage={minimumWage} />
 
         {/* Insights agrupados con stagger */}
         {insights.length > 0 && (
@@ -280,6 +459,20 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
             </Stack>
           </CardContent>
         </Card>
+
+        <Box sx={{textAlign: 'center', py: 2}}>
+          <Typography
+            variant='body1'
+            sx={{fontStyle: 'italic', color: 'text.secondary', maxWidth: 520, mx: 'auto'}}>
+            "{closingQuote.text}"
+          </Typography>
+          <Typography
+            variant='caption'
+            color='text.secondary'
+            sx={{display: 'block', mt: 0.5, letterSpacing: '0.04em'}}>
+            — {closingQuote.author}
+          </Typography>
+        </Box>
 
         <Box sx={{display: 'flex', justifyContent: 'center', py: 2}}>
           <Button variant='outlined' size='large' onClick={onRestart}>

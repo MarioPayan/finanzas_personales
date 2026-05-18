@@ -26,7 +26,7 @@ import type {StepperState} from '../../components/Stepper'
 type SectionProgress = {
   id: DiagnosisCategoryId
   label: string
-  color: 'primary' | 'warning' | 'info' | 'success'
+  color: 'primary' | 'warning' | 'info' | 'success' | 'secondary'
   pct: number
   isActive: boolean
 }

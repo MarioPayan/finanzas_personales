@@ -23,23 +23,30 @@ export type Answers = Record<string, AnswerValue>
 
 // ---------- Categorías ----------
 
-export type DiagnosisCategoryId = 'base' | 'debt' | 'stability' | 'investment'
+export type DiagnosisCategoryId = 'base' | 'debt' | 'stability' | 'investment' | 'protection'
 
 export type DiagnosisCategory = {
   id: DiagnosisCategoryId
   label: string
   shortLabel: string
-  color: 'primary' | 'warning' | 'info' | 'success'
+  color: 'primary' | 'warning' | 'info' | 'success' | 'secondary'
 }
 
 export const CATEGORIES: Record<DiagnosisCategoryId, DiagnosisCategory> = {
   base: {id: 'base', label: 'Base · Salario y gastos', shortLabel: 'Base', color: 'primary'},
   debt: {id: 'debt', label: 'Deudas', shortLabel: 'Deudas', color: 'warning'},
   stability: {id: 'stability', label: 'Estabilidad', shortLabel: 'Estabilidad', color: 'info'},
+  protection: {id: 'protection', label: 'Protección', shortLabel: 'Protección', color: 'secondary'},
   investment: {id: 'investment', label: 'Inversiones', shortLabel: 'Inversiones', color: 'success'},
 }
 
-export const CATEGORY_ORDER: DiagnosisCategoryId[] = ['base', 'debt', 'stability', 'investment']
+export const CATEGORY_ORDER: DiagnosisCategoryId[] = [
+  'base',
+  'debt',
+  'stability',
+  'protection',
+  'investment',
+]
 
 // ---------- Dependencias ----------
 
@@ -104,6 +111,12 @@ export type SidebarWidgetId =
   | 'minimumWage'
   /** Tabla de rangos del score crediticio del país detectado. */
   | 'creditScoreScale'
+  /** Tasa de usura vigente Colombia (28,17% EA mayo 2026) como ancla. */
+  | 'usuryRate'
+  /** Regla 100/110/120 menos la edad como heurística de % en RV. */
+  | 'ageBasedRiskAllocation'
+  /** Meta FIRE = gastos × 25 (regla del 4%) renderizada en el Summary. */
+  | 'fireGoal'
 
 // ---------- Insights (diagnóstico + tip por nodo) ----------
 
@@ -438,6 +451,57 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     unit: 'años',
   },
   {
+    storageKey: 'hasDependents',
+    title: 'Dependientes económicos',
+    description:
+      'Número de personas que dependen económicamente del usuario (hijos, pareja sin ingreso, padres, hermanos). Es información de contexto: condiciona el tamaño recomendado del fondo de emergencia, la necesidad de seguro de vida, y los gates de la sección Protección.',
+    category: 'base',
+    type: 'number',
+    prompt: '¿Cuántas personas dependen económicamente de ti?',
+    hint: 'Cuenta hijos, pareja sin ingresos, padres u otros familiares que cubrís económicamente.',
+    min: 0,
+    max: 10,
+    step: 1,
+    defaultValue: 0,
+    unit: 'personas',
+  },
+  {
+    storageKey: 'formalEmployment',
+    title: 'Tipo de empleo',
+    description:
+      'Si el usuario es empleado formal, independiente/freelance, mixto, o sin ingresos formales. Es contexto que gatea preguntas posteriores (ARL para independientes, IBC, declaración tributaria) y ajusta recomendaciones de fondo de emergencia (independiente → más meses).',
+    category: 'base',
+    type: 'chips',
+    prompt: '¿Cómo es tu situación laboral actual?',
+    hint: 'Tu fuente principal de ingreso — independiente significa que facturás o vendés por tu cuenta.',
+    options: [
+      {
+        value: 'formal',
+        label: 'Empleado formal',
+        sublabel: 'Contrato laboral, nómina, aportes vía empleador',
+        score: 100,
+      },
+      {
+        value: 'mixed',
+        label: 'Mixto',
+        sublabel: 'Empleo formal + freelance / negocio',
+        score: 90,
+      },
+      {
+        value: 'independent',
+        label: 'Independiente',
+        sublabel: 'Honorarios, freelance, negocio propio',
+        score: 80,
+      },
+      {
+        value: 'unemployed',
+        label: 'Sin ingreso formal',
+        sublabel: 'Estudiante, busca empleo, en transición',
+        score: 30,
+      },
+    ],
+  },
+  {
     storageKey: 'incomeStability',
     title: 'Estabilidad del ingreso',
     description:
@@ -642,7 +706,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'numberAbove', key: 'discretionaryPct', threshold: 45},
         severity: 'warning',
         diagnostic: 'Estás gastando una parte muy alta de tu ingreso en lo discrecional.',
-        tip: 'No se trata de cohibirte, sino de saber adónde va. Anota un mes lo que gastas en lo no esencial; suele sorprender. Ese margen es el que después permite invertir o construir fondo de emergencia.',
+        tip: 'No se trata de cohibirte, sino de saber adónde va. Los "gastos hormiga" se acumulan: en Colombia los top 3 son snacks (~26%), planes de diversión (14%) y cigarrillos (7%) del total discrecional. Anota un mes lo que gastas en lo no esencial; suele sorprender. Ese margen es el que permite invertir o construir fondo de emergencia.',
       },
       {
         id: 'discretionaryHoursOfLife',
@@ -650,6 +714,19 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         severity: 'info',
         diagnostic: 'Prueba medir tus gastos discrecionales en horas de tu vida.',
         tip: 'Divide tu ingreso mensual por tus horas trabajadas: ese es tu ingreso por hora. Cuando dudes con un gasto grande, divídelo por esa cifra — te dice cuántas horas de tu vida cuesta. Es un filtro más honesto que pensar en dinero.',
+      },
+      {
+        id: 'lifestyleInflation',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'incomeAboveSmmTimes', multiplier: 2},
+            {kind: 'numberAbove', key: 'discretionaryPct', threshold: 35},
+          ],
+        },
+        severity: 'info',
+        diagnostic: 'Tu ingreso está por encima del piso pero tu margen es chico.',
+        tip: 'Es el patrón clásico de lifestyle inflation: cada subida de ingreso se traduce en subida proporcional de gasto, no de ahorro. Tu situación se va a sentir igual con $5M o con $10M si no fijas un porcentaje de ahorro automático que crezca contigo. Una regla simple: cuando sube el ingreso, ahorra al menos el 50% del aumento antes de incorporarlo al gasto.',
       },
     ],
   },
@@ -773,7 +850,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'equals', key: 'hasBudgetSystem', value: 'no'},
         severity: 'warning',
         diagnostic: 'No tienes un sistema para repartir tu ingreso.',
-        tip: 'Lo que sobra al final del mes nunca alcanza. Prueba la regla más simple: cuando entra el ingreso, mueve primero un porcentaje fijo a ahorro/inversión, y vivir con lo que queda. Mental, en cuentas separadas o automatizado — cualquier sistema le gana a no tener.',
+        tip: 'En Colombia, 55% de quienes tienen productos financieros no presupuestan; el resultado: lo que sobra al final del mes nunca alcanza. Regla más simple: cuando entra el ingreso, mueve primero un porcentaje fijo a ahorro/inversión, y vive con lo que queda. Mental, en cuentas separadas o automatizado — cualquier sistema le gana a no tener.',
       },
       {
         id: 'automatedBudget',
@@ -781,6 +858,35 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         severity: 'positive',
         diagnostic: 'Tu reparto está automatizado.',
         tip: 'Es la versión más sólida del sistema: el ahorro no depende de tu disciplina mensual. Verifica una vez al año que los porcentajes sigan haciendo sentido para tu ingreso y tus metas.',
+      },
+    ],
+  },
+  {
+    storageKey: 'usesAutomation',
+    title: 'Automatización del ahorro',
+    description:
+      'Si el ahorro o la inversión del usuario corre por débito automático o transferencia programada. La automatización es el hábito más correlacionado con la construcción de patrimonio porque saca a la fuerza de voluntad de la ecuación: lo que se debita antes de gastar, se ahorra; lo que se ahorra "al final del mes", rara vez sobra.',
+    category: 'base',
+    type: 'toggle',
+    prompt: '¿Tu ahorro o inversión sale por débito automático?',
+    hint: 'Por ejemplo: una transferencia programada el día de tu pago, o un débito recurrente que mueve plata a tu cuenta de ahorro o fondo cada mes.',
+    trueLabel: 'Sí',
+    falseLabel: 'No',
+    score: {whenTrue: 100, whenFalse: 40},
+    insights: [
+      {
+        id: 'automationHabit',
+        when: {kind: 'equals', key: 'usesAutomation', value: true},
+        severity: 'positive',
+        diagnostic: 'Tu ahorro está automatizado.',
+        tip: 'Es la práctica que más amplifica el resultado a largo plazo. Mientras tus metas mensuales sean realistas, dejar que el sistema corra solo es suficiente — revisa una vez al año los porcentajes.',
+      },
+      {
+        id: 'noAutomation',
+        when: {kind: 'equals', key: 'usesAutomation', value: false},
+        severity: 'info',
+        diagnostic: 'Tu ahorro depende de decisión manual cada mes.',
+        tip: 'Automatizar el débito el día que entra tu ingreso es una de las palancas más altas: el ahorro deja de competir con todos los gastos del mes. Empieza con un porcentaje chico que no duela y súbelo cada 3-6 meses.',
       },
     ],
   },
@@ -820,7 +926,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'creditScoreBand', values: ['bad', 'regular']},
         severity: 'warning',
         diagnostic: 'Tu puntaje crediticio no está en buen rango.',
-        tip: 'Revisa tus deudas activas, paga puntual aunque sean montos chicos, y evita pedir múltiples créditos en poco tiempo. Subir un score toma meses, no días.',
+        tip: 'Revisa tus deudas activas, paga puntual aunque sean montos chicos, y evita pedir múltiples créditos en poco tiempo. Adicional: 10-15% de los reportes a centrales (Datacrédito / TransUnion) tienen errores. La consulta gratuita mensual te deja detectar y disputar bajadas injustas. Subir un score toma meses, no días.',
       },
     ],
   },
@@ -874,11 +980,37 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     ],
     insights: [
       {
+        id: 'debtPaymentPressureModerate',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'numberAbove', key: 'debtMonthlyPct', threshold: 30},
+            {kind: 'numberAtMost', key: 'debtMonthlyPct', threshold: 40},
+          ],
+        },
+        severity: 'info',
+        diagnostic: 'Tu cuota de deuda está en zona alta (30-40% del ingreso).',
+        tip: 'Todavía no es zona de peligro pero conviene parar de pedir más. Considera abonar al capital de la deuda de peor tasa cada mes que puedas — bajar este porcentaje libera espacio para fondo de emergencia e inversión.',
+      },
+      {
         id: 'debtPaymentPressure',
-        when: {kind: 'numberAbove', key: 'debtMonthlyPct', threshold: 30},
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'numberAbove', key: 'debtMonthlyPct', threshold: 40},
+            {kind: 'numberAtMost', key: 'debtMonthlyPct', threshold: 50},
+          ],
+        },
         severity: 'warning',
-        diagnostic: 'Más del 30% de tu ingreso se va en cuotas de deuda.',
-        tip: 'Con esa presión de cash-flow, cualquier imprevisto se vuelve crisis. Considera compra de cartera con otra entidad para bajar la tasa, abonar al capital de la deuda con peor tasa, o renegociar plazos.',
+        diagnostic: 'Más del 40% de tu ingreso se va en cuotas de deuda — zona peligrosa.',
+        tip: 'Bancos consideran zona peligrosa pasado el 40% (Decreto 0583/2025 incluso limita la cuota hipotecaria a ese tope para hogares). Compra de cartera puede bajar la tasa: en Colombia mayo 2026, Banco Agrario ofrece desde 10,30% EA, Serfinanza 12,55%. Renegociar plazos o consolidar son las palancas naturales aquí.',
+      },
+      {
+        id: 'debtPaymentPressureSevere',
+        when: {kind: 'numberAbove', key: 'debtMonthlyPct', threshold: 50},
+        severity: 'critical',
+        diagnostic: 'Más del 50% de tu ingreso va a deuda — sobreendeudamiento.',
+        tip: 'A este nivel, cualquier imprevisto desencadena mora. Hablar con los bancos para reestructurar antes de caer en default es lo más urgente — los bancos prefieren reestructurar a perder la cartera. Una asesoría financiera profesional (Asobancaria tiene canales gratuitos) puede armar un plan de salida.',
       },
     ],
   },
@@ -910,7 +1042,20 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'numberAbove', key: 'debtCount', threshold: 5},
         severity: 'warning',
         diagnostic: 'Manejas más de 5 deudas activas.',
-        tip: 'Considera consolidar las más caras en una sola con tasa menor para simplificar pagos y reducir intereses totales.',
+        tip: 'Considera consolidar las más caras en una sola con tasa menor para simplificar pagos y reducir intereses totales. En Colombia, compra de cartera con Banco Agrario arranca en 10,30% EA, muy por debajo de las tasas típicas de tarjetas.',
+      },
+      {
+        id: 'consolidationCandidate',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'numberAtLeast', key: 'debtCount', threshold: 3},
+            {kind: 'gridAnyIn', key: 'debtRates', values: ['high', 'veryHigh']},
+          ],
+        },
+        severity: 'info',
+        diagnostic: 'Tienes varias deudas y al menos una con tasa alta — candidato a compra de cartera.',
+        tip: 'Cuando hay 3+ deudas activas y alguna pasa el 25% EA, suele convenir una compra de cartera. Cifras Colombia mayo 2026: Banco Agrario 10,30%, Serfinanza 12,55%, Coopcentral 14% EA. Punto crítico: si extiendes el plazo, los intereses totales pueden subir aunque la cuota mensual baje — la jugada solo funciona si en paralelo recortas gasto.',
       },
     ],
   },
@@ -978,7 +1123,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     type: 'grid',
     prompt: '¿Cuál es la tasa de interés de cada deuda?',
     hint: 'Aproximadamente. Si no estás seguro, escoge una banda o ingresa el valor exacto.',
-    glossaryTerms: ['ea'],
+    glossaryTerms: ['ea', 'tasaUsura', 'nmvVsEa'],
+    sidebarWidgets: ['usuryRate'],
     dependsOn: [
       {storageKey: 'hasDebt', equals: true},
       {storageKey: 'debtCount', greaterThan: 0},
@@ -1031,7 +1177,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'gridAnyIn', key: 'debtRates', values: ['high', 'veryHigh']},
         severity: 'critical',
         diagnostic: 'Al menos una de tus deudas tiene tasa alta o muy alta.',
-        tip: 'Esa es la primera que conviene atacar. Cualquier ahorro o inversión que rinda menos que esa tasa, en la práctica, te está restando dinero.',
+        tip: 'En Colombia mayo 2026 la tasa de usura (tope legal) está en 28,17% EA — cualquier cosa cerca de ese techo conviene refinanciar. Esa es la primera que conviene atacar: cualquier ahorro o inversión que rinda menos que esa tasa, en la práctica, te está restando dinero. Compra de cartera (Banco Agrario desde 10,30% EA) suele rebajar varios puntos.',
       },
     ],
   },
@@ -1078,6 +1224,73 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         severity: 'info',
         diagnostic: 'Tu deuda productiva opera como apalancamiento contra activos.',
         tip: 'Es la misma mecánica que usan los patrimonios grandes: pedir prestado contra activos en vez de venderlos. Conservan el activo, evitan el impuesto a la ganancia, y pagan la tasa. Mientras el activo rinda más que la tasa de la deuda, la estructura suma.',
+      },
+    ],
+  },
+  {
+    storageKey: 'creditCardPaymentBehavior',
+    title: 'Pago de tarjetas de crédito',
+    description:
+      'Comportamiento del usuario con la cuota de su tarjeta de crédito. Pagar solo el mínimo destina casi todo a intereses y deja el capital prácticamente intacto: una deuda de $1M COP al 28% EA pagando mínimo tarda 5+ años y termina costando más del doble. Es el predictor más fuerte de la espiral revolvente.',
+    category: 'debt',
+    type: 'chips',
+    prompt: '¿Cómo pagas la cuota de tu tarjeta de crédito?',
+    hint: 'Tarjetas de crédito específicamente; si no tienes, elige "No tengo tarjeta".',
+    glossaryTerms: ['tasaUsura'],
+    dependsOn: [{storageKey: 'hasDebt', equals: true}],
+    options: [
+      {
+        value: 'payInFull',
+        label: 'Pago el total',
+        sublabel: 'Cancelo el saldo del corte cada mes, no pago intereses',
+        score: 100,
+      },
+      {
+        value: 'payAboveMinimum',
+        label: 'Más del mínimo',
+        sublabel: 'Pago una parte importante pero queda saldo rotando',
+        score: 60,
+      },
+      {
+        value: 'payMinimum',
+        label: 'Solo el mínimo',
+        sublabel: 'Pago la cuota mínima que pide el banco',
+        score: 10,
+      },
+      {
+        value: 'pastDue',
+        label: 'En mora',
+        sublabel: 'No estoy al día con la cuota',
+        score: 0,
+      },
+      {
+        value: 'noCard',
+        label: 'No tengo tarjeta',
+        sublabel: 'No uso tarjeta de crédito',
+        score: 90,
+      },
+    ],
+    insights: [
+      {
+        id: 'minimumPaymentTrap',
+        when: {kind: 'equals', key: 'creditCardPaymentBehavior', value: 'payMinimum'},
+        severity: 'critical',
+        diagnostic: 'Estás pagando solo el mínimo de tu tarjeta.',
+        tip: 'Una deuda de $1M al 28% EA pagando mínimo tarda 5+ años y termina costando más del doble. Esa cuota destina casi todo a intereses, casi nada a capital. Sube el pago aunque sea $100K por mes — cada peso que pasa el mínimo va directo al saldo.',
+      },
+      {
+        id: 'creditCardInDefault',
+        when: {kind: 'equals', key: 'creditCardPaymentBehavior', value: 'pastDue'},
+        severity: 'critical',
+        diagnostic: 'Tu tarjeta está en mora.',
+        tip: 'Antes de la cobranza dura, hablar con el banco para reestructurar o consolidar. La mora reporta a Datacrédito y arruina el score por años. Si el saldo es alto, considera una compra de cartera (Banco Agrario ofrece desde 10,30% EA en mayo 2026).',
+      },
+      {
+        id: 'creditCardPayInFull',
+        when: {kind: 'equals', key: 'creditCardPaymentBehavior', value: 'payInFull'},
+        severity: 'positive',
+        diagnostic: 'Pagas el total de tu tarjeta cada mes.',
+        tip: 'Es la única forma de usar tarjeta sin que te cueste dinero. Mientras mantengas el hábito, la TC es una herramienta neutra que te suma puntos al score, te da beneficios y arma historial.',
       },
     ],
   },
@@ -1178,47 +1391,6 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     ],
   },
   {
-    storageKey: 'hasHealthInsurance',
-    title: 'Seguro de salud',
-    description:
-      'Si el usuario tiene cobertura de salud (pública, privada, o complementaria). Reduce el peor escenario donde una urgencia médica vacía el fondo de emergencia y empuja a deuda. El riesgo de no tenerlo crece con la edad — los insights se condicionan a `age`.',
-    category: 'stability',
-    type: 'toggle',
-    prompt: '¿Tienes cobertura de salud?',
-    hint: 'Cualquiera: pública (EPS, IMSS, SUS, FONASA), privada, o seguro complementario.',
-    trueLabel: 'Sí',
-    falseLabel: 'No',
-    score: {whenTrue: 100, whenFalse: 30},
-    insights: [
-      {
-        id: 'noInsuranceHighRisk',
-        when: {
-          kind: 'all',
-          of: [
-            {kind: 'equals', key: 'hasHealthInsurance', value: false},
-            {kind: 'numberAbove', key: 'age', threshold: 40},
-          ],
-        },
-        severity: 'critical',
-        diagnostic: 'No tienes seguro de salud y por tu edad el riesgo es alto.',
-        tip: 'Una urgencia médica sin cobertura puede vaciar tu fondo de emergencia y endeudarte mucho. Un plan básico — público si está disponible, privado complementario si no — debería ser prioridad.',
-      },
-      {
-        id: 'noInsuranceModerateRisk',
-        when: {
-          kind: 'all',
-          of: [
-            {kind: 'equals', key: 'hasHealthInsurance', value: false},
-            {kind: 'numberAtMost', key: 'age', threshold: 40},
-          ],
-        },
-        severity: 'warning',
-        diagnostic: 'No tienes seguro de salud.',
-        tip: 'Aunque tu probabilidad anual de evento médico sea baja, un accidente puede pasarle a cualquiera. Aunque sea un plan público o un seguro de accidentes mínimo cubre lo peor.',
-      },
-    ],
-  },
-  {
     storageKey: 'jobHorizon',
     title: 'Horizonte laboral',
     description:
@@ -1289,7 +1461,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'financialStressLevel', values: ['frequent', 'constant']},
         severity: 'critical',
         diagnostic: 'Estás cargando estrés financiero sostenido.',
-        tip: 'La presión financiera prolongada sube presión arterial, deteriora el sueño y empeora decisiones. Arreglar el cash-flow no es solo financiero, también es salud — empieza por el rubro más doloroso (deuda cara, gasto fijo grande) y atácalo aunque sea con un primer paso chico.',
+        tip: 'La presión financiera prolongada sube presión arterial, deteriora el sueño y empeora decisiones — ~45% de adultos pierden sueño por estrés financiero y mal sueño correlaciona con compras compulsivas y decisiones impulsivas (la cadena se retroalimenta). Arreglar el cash-flow no es solo financiero, también es salud — empieza por el rubro más doloroso (deuda cara, gasto fijo grande) y atácalo aunque sea con un primer paso chico.',
       },
     ],
   },
@@ -1352,6 +1524,290 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     ],
   },
   {
+    storageKey: 'coupleFinancialStructure',
+    title: 'Estructura financiera de la pareja',
+    description:
+      'Cómo se reparten los gastos entre los dos: 50/50, proporcional al ingreso, pool conjunto, o separado. Con ingresos asimétricos, 50/50 suele generar resentimiento; estructuras híbridas (pool para compartidos + individual para autonomía) muestran menor caída de satisfacción en los primeros años (estudio Northwestern 2023).',
+    category: 'stability',
+    type: 'chips',
+    prompt: '¿Cómo dividen los gastos en pareja?',
+    dependsOn: [{storageKey: 'inRelationship', equals: true}],
+    options: [
+      {
+        value: 'fifty',
+        label: '50/50',
+        sublabel: 'Cada uno aporta la mitad sin importar el ingreso',
+        score: 50,
+      },
+      {
+        value: 'proportional',
+        label: 'Proporcional al ingreso',
+        sublabel: 'Cada uno aporta el mismo % de su ingreso al pool',
+        score: 90,
+      },
+      {
+        value: 'pool',
+        label: 'Pool conjunto',
+        sublabel: 'Todo entra a una cuenta común, ambos retiran',
+        score: 80,
+      },
+      {
+        value: 'hybrid',
+        label: 'Híbrido',
+        sublabel: 'Conjunta para compartidos + individuales para autonomía',
+        score: 100,
+      },
+      {
+        value: 'separate',
+        label: 'Totalmente separado',
+        sublabel: 'Cada uno con su plata, sin gastos compartidos formales',
+        score: 40,
+      },
+    ],
+    insights: [
+      {
+        id: 'unequalSplit5050',
+        when: {kind: 'equals', key: 'coupleFinancialStructure', value: 'fifty'},
+        severity: 'info',
+        diagnostic: 'Reparten los gastos 50/50.',
+        tip: 'Es la estructura más simple pero la que más conflicto genera con ingresos asimétricos: el de menor ingreso queda con menos margen real. Si los ingresos son distintos, vale considerar pasar a proporcional o híbrida.',
+      },
+    ],
+  },
+  {
+    storageKey: 'talksAboutMoneyWithPartner',
+    title: 'Frecuencia de conversación sobre dinero',
+    description:
+      'Cuán seguido la pareja conversa sobre dinero. Predictor #1 de conflicto cuando es nulo. Estudios muestran que parejas que pelean por dinero tienen +49% de probabilidad de divorcio; las que conversan periódicamente sin conflicto reportan mayor satisfacción.',
+    category: 'stability',
+    type: 'chips',
+    prompt: '¿Con qué frecuencia hablan de dinero?',
+    dependsOn: [{storageKey: 'inRelationship', equals: true}],
+    options: [
+      {
+        value: 'never',
+        label: 'Casi nunca',
+        sublabel: 'Cada uno con lo suyo; no es un tema',
+        score: 20,
+      },
+      {
+        value: 'only-crisis',
+        label: 'Solo en crisis',
+        sublabel: 'Cuando aparece un problema',
+        score: 30,
+      },
+      {
+        value: 'monthly',
+        label: 'Cada mes',
+        sublabel: 'Conversación rutinaria al cierre del mes',
+        score: 90,
+      },
+      {
+        value: 'on-income',
+        label: 'Cada vez que entra ingreso',
+        sublabel: 'Revisión activa con cada cobro',
+        score: 100,
+      },
+    ],
+    insights: [
+      {
+        id: 'silentMoneyCouple',
+        when: {kind: 'in', key: 'talksAboutMoneyWithPartner', values: ['never', 'only-crisis']},
+        severity: 'warning',
+        diagnostic: 'No hay una conversación recurrente sobre dinero con tu pareja.',
+        tip: 'Estudios muestran que las parejas que pelean por dinero tienen casi 50% más probabilidad de divorcio. Una conversación corta una vez al mes — entradas, salidas, una meta — desactiva ese ruido sin hacer del dinero un tema central.',
+      },
+    ],
+  },
+  // ---------- Sección: Protección ----------
+  {
+    storageKey: 'ownsHome',
+    title: 'Situación de vivienda',
+    description:
+      'Cómo el usuario habita su vivienda. Habilita gates para deducciones (hipoteca), seguro de hogar, y ajusta el contexto de fondo de emergencia. Las opciones cubren los casos típicos LatAm: propia con hipoteca activa, propia paga, arrendada, familiar (vivir en casa de padres / sin pagar renta), y otra.',
+    category: 'protection',
+    type: 'chips',
+    prompt: '¿Cómo es tu vivienda actual?',
+    options: [
+      {
+        value: 'mortgaged',
+        label: 'Propia con hipoteca',
+        sublabel: 'Crédito hipotecario activo',
+        score: 80,
+      },
+      {
+        value: 'owned',
+        label: 'Propia sin hipoteca',
+        sublabel: 'Pagada completamente',
+        score: 100,
+      },
+      {
+        value: 'rented',
+        label: 'Arrendada',
+        sublabel: 'Pago renta mensual',
+        score: 60,
+      },
+      {
+        value: 'family',
+        label: 'Familiar / sin pagar',
+        sublabel: 'Vivo con familia, no pago vivienda',
+        score: 50,
+      },
+      {
+        value: 'other',
+        label: 'Otra',
+        sublabel: 'Arriendo informal, vivienda compartida, etc.',
+        score: 40,
+      },
+    ],
+  },
+  {
+    storageKey: 'hasARL',
+    title: 'Cobertura de riesgos laborales (ARL)',
+    description:
+      'Si el usuario independiente tiene ARL activa. La ARL es seguro de riesgos laborales obligatorio para empleados formales (cubierto por el empleador) e independientes con contrato de prestación de servicios mayor a un mes. Sin ARL, un accidente de trabajo deja al independiente sin red.',
+    category: 'protection',
+    type: 'toggle',
+    prompt: '¿Estás afiliado a una ARL?',
+    hint: 'ARL = Administradora de Riesgos Laborales. Si eres empleado formal, generalmente la paga tu empleador. Si eres independiente, la tienes que activar tú.',
+    glossaryTerms: ['arl'],
+    dependsOn: [{storageKey: 'formalEmployment', in: ['independent', 'mixed']}],
+    trueLabel: 'Sí',
+    falseLabel: 'No',
+    score: {whenTrue: 100, whenFalse: 20},
+    insights: [
+      {
+        id: 'noARLIndependent',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'equals', key: 'hasARL', value: false},
+            {kind: 'in', key: 'formalEmployment', values: ['independent', 'mixed']},
+          ],
+        },
+        severity: 'critical',
+        diagnostic: 'Eres independiente y no estás afiliado a ARL.',
+        tip: 'Un accidente de trabajo te deja completamente expuesto — gastos médicos altos sin cobertura, sin indemnización por incapacidad temporal. La tarifa está entre 0,5% y 7% del IBC según clase de riesgo y es deducible. Activarla cuesta poco y tapa un agujero grande.',
+      },
+    ],
+  },
+  {
+    storageKey: 'hasLifeInsurance',
+    title: 'Seguro de vida',
+    description:
+      'Si el usuario tiene seguro de vida con suma asegurada acorde a su situación. Solo tiene sentido cuando hay dependientes económicos o deudas grandes (hipoteca). Sin dependientes y sin deuda, es generalmente innecesario.',
+    category: 'protection',
+    type: 'toggle',
+    prompt: '¿Tienes seguro de vida?',
+    hint: 'No el seguro funerario chico, sino uno que cubra a quien depende económicamente de ti si falleces.',
+    dependsOn: [{storageKey: 'hasDependents', greaterThan: 0}],
+    trueLabel: 'Sí',
+    falseLabel: 'No',
+    score: {whenTrue: 100, whenFalse: 20},
+    insights: [
+      {
+        id: 'noLifeInsuranceWithDependents',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'equals', key: 'hasLifeInsurance', value: false},
+            {kind: 'numberAtLeast', key: 'hasDependents', threshold: 1},
+          ],
+        },
+        severity: 'critical',
+        diagnostic: 'Tienes dependientes económicos y no tienes seguro de vida.',
+        tip: 'Si faltas, los que dependen de ti quedan sin red. Una suma asegurada de 5 a 10 veces tu ingreso anual cubre el ajuste; pólizas a plazo (no whole-life) son baratas para edades jóvenes. Es de las inversiones de mejor relación costo/protección.',
+      },
+    ],
+  },
+  {
+    storageKey: 'hasHealthCoverage',
+    title: 'Cobertura de salud',
+    description:
+      'Qué nivel de cobertura de salud tiene el usuario. La EPS (Colombia) o equivalente regional es el piso obligatorio; planes complementarios y medicina prepagada amplían acceso a redes privadas y reducen tiempos. Esta pregunta reemplaza al anterior `hasHealthInsurance` (toggle) con más granularidad.',
+    category: 'protection',
+    type: 'chips',
+    prompt: '¿Qué cobertura de salud tienes?',
+    hint: 'En Colombia: EPS es el piso legal; complementario amplía red dentro de tu EPS; prepagada es 100% privada.',
+    options: [
+      {
+        value: 'none',
+        label: 'Sin cobertura',
+        sublabel: 'No estoy afiliado a ningún sistema',
+        score: 0,
+      },
+      {
+        value: 'public',
+        label: 'Solo público / EPS',
+        sublabel: 'Lo mínimo legal',
+        score: 60,
+      },
+      {
+        value: 'complementary',
+        label: 'Plan complementario',
+        sublabel: 'EPS + amplía red de la misma EPS',
+        score: 85,
+      },
+      {
+        value: 'prepaid',
+        label: 'Medicina prepagada',
+        sublabel: '100% privada, sin pasar por médico general',
+        score: 100,
+      },
+    ],
+    insights: [
+      {
+        id: 'noHealthCoverage',
+        when: {kind: 'equals', key: 'hasHealthCoverage', value: 'none'},
+        severity: 'critical',
+        diagnostic: 'No tienes ninguna cobertura de salud.',
+        tip: 'Es lo primero que conviene resolver, antes que cualquier otra movida financiera. Un evento de salud sin cobertura puede arruinar años de progreso. En Colombia la EPS pública o subsidiada cubre el piso legal; en otros países, IMSS / Fonasa / EsSalud equivalentes.',
+      },
+      {
+        id: 'minimumHealthCoverageOlder',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'equals', key: 'hasHealthCoverage', value: 'public'},
+            {kind: 'numberAtLeast', key: 'age', threshold: 40},
+          ],
+        },
+        severity: 'warning',
+        diagnostic: 'Solo tienes EPS y ya pasaste los 40.',
+        tip: 'La probabilidad de eventos serios sube con la edad. Un plan complementario suma red sin un gasto enorme — buena relación costo/beneficio para esta etapa de vida.',
+      },
+    ],
+  },
+  {
+    storageKey: 'hasHomeInsurance',
+    title: 'Seguro de hogar',
+    description:
+      'Si el usuario tiene seguro de hogar (incendio, terremoto, contenido, hurto). Es obligatorio si hay hipoteca activa (el banco lo exige). Para propiedad sin hipoteca es voluntario pero altamente recomendado en zonas sísmicas (Colombia: Cafetera, Nariño, Bogotá).',
+    category: 'protection',
+    type: 'toggle',
+    prompt: '¿Tu vivienda tiene seguro?',
+    hint: 'Cubre incendio, terremoto, daños por agua, hurto. En Colombia es zona sísmica activa — el seguro tiene mejor relación costo/protección que en otros países.',
+    dependsOn: [{storageKey: 'ownsHome', in: ['mortgaged', 'owned']}],
+    trueLabel: 'Sí',
+    falseLabel: 'No',
+    score: {whenTrue: 100, whenFalse: 30},
+    insights: [
+      {
+        id: 'noHomeInsuranceOwned',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'equals', key: 'hasHomeInsurance', value: false},
+            {kind: 'equals', key: 'ownsHome', value: 'owned'},
+          ],
+        },
+        severity: 'warning',
+        diagnostic: 'Tu vivienda es propia y no tiene seguro.',
+        tip: 'Un siniestro grave (incendio, terremoto) puede destruir años de patrimonio. Asegurar al 100% del valor de reposición — el infraseguro hace que la indemnización se pague a prorrata. Costo típico anual: 0,2-0,5% del valor del inmueble.',
+      },
+    ],
+  },
+  {
     storageKey: 'yearsInvesting',
     title: 'Años invirtiendo',
     description:
@@ -1384,7 +1840,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         },
         severity: 'warning',
         diagnostic: 'Eres joven y todavía no estás capturando interés compuesto.',
-        tip: 'Cada año invertido a los 20 vale más que diez años invertidos a los 40, gracias al interés compuesto. Empezar tarde con más dinero pierde contra empezar temprano con poca. No hace falta saber mucho: un fondo indexado básico ya activa el reloj.',
+        tip: 'Cada año invertido a los 20 vale más que diez años invertidos a los 40, gracias al interés compuesto. Atajo mental: la "regla del 72" — años para duplicar capital = 72 / tasa%. Al 10% se duplica en 7,2 años; empezar a los 25 te da 5+ duplicaciones antes de los 65. No hace falta saber mucho: un fondo indexado básico ya activa el reloj.',
       },
       {
         // Vivía en `invests`; lo movemos acá porque `invests` se omite cuando
@@ -1526,6 +1982,19 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     score: {whenTrue: 100, whenFalse: 30},
     insights: [
       {
+        id: 'investingBeforeEmergency',
+        when: {
+          kind: 'all',
+          of: [
+            {kind: 'equals', key: 'invests', value: true},
+            {kind: 'in', key: 'emergencyMonths', values: ['none', 'lt1']},
+          ],
+        },
+        severity: 'warning',
+        diagnostic: 'Estás invirtiendo antes de tener fondo de emergencia.',
+        tip: 'Si surge un imprevisto, vas a tener que vender la inversión, probablemente en mal momento (cuando todo cae al mismo tiempo). Antes de aumentar exposición de inversión, completa al menos 1-3 meses de gastos en cuenta líquida — ese es el costo de oportunidad real de invertir sin colchón.',
+      },
+      {
         id: 'investingActively',
         when: {kind: 'equals', key: 'invests', value: true},
         severity: 'positive',
@@ -1562,7 +2031,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'tradingFrequency', values: ['weekly', 'daily']},
         severity: 'warning',
         diagnostic: 'Estás tradeando con mucha frecuencia.',
-        tip: 'La evidencia es consistente: en promedio, quien tradea seguido rinde menos que quien compra y mantiene, después de comisiones e impuestos. Si tu rentabilidad neta no le está ganando a un fondo indexado, conviene reducir la frecuencia y dejar que el tiempo trabaje.',
+        tip: 'La evidencia es consistente y pesada: estudios sobre day traders muestran que >80% pierde dinero en su primer año, y solo ~2% es rentable de forma sostenida. En promedio, quien tradea seguido rinde menos que quien compra y mantiene, después de comisiones e impuestos. Si tu rentabilidad neta no le está ganando a un fondo indexado, conviene reducir la frecuencia y dejar que el tiempo trabaje. (Y si te enteraste de un activo por TikTok, ya es tarde.)',
       },
     ],
   },
@@ -1586,7 +2055,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'equals', key: 'usesIndexFunds', value: false},
         severity: 'info',
         diagnostic: 'Tu portafolio no incluye fondos indexados.',
-        tip: 'En plazos de 20 años, alrededor del 94% de los gestores activos profesionales no le gana a un índice básico tipo S&P 500. Para la mayoría de inversores particulares, un fondo indexado de base — y construir alrededor — es la apuesta con mejor relación esfuerzo/resultado.',
+        tip: 'El estudio SPIVA de S&P para LatAm 2025 mostró que ~75% de fondos activos no superaron su benchmark a 1 año, y 100% perdieron a 10 años en varias categorías. En plazos de 20 años, ~94% de los gestores profesionales globales no le gana a un índice básico tipo S&P 500. Comisión razonable de un ETF indexado: <0,2%; FIC activo típico Colombia: 1-2% — la diferencia compuesta destruye rendimiento a largo plazo. Un indexado básico (VOO, IVV, VWRA) de base es la apuesta con mejor relación esfuerzo/resultado.',
       },
     ],
   },
@@ -1599,6 +2068,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     type: 'chips',
     prompt: '¿Cuál es tu perfil de inversionista?',
     hint: 'Conservador: prefieres rentabilidad baja pero segura. Moderado: balance entre rendimiento y riesgo. Agresivo: aceptas volatilidad y posibles pérdidas a cambio de mayor rentabilidad esperada.',
+    sidebarWidgets: ['ageBasedRiskAllocation'],
     dependsOn: [{storageKey: 'invests', equals: true}],
     options: [
       {value: 'conservative', label: 'Conservador', score: 80},
@@ -1729,7 +2199,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'multiCountAtMost', key: 'investmentVehicles', count: 1},
         severity: 'warning',
         diagnostic: 'Estás invirtiendo en un solo vehículo.',
-        tip: 'Diversifica entre instrumentos con riesgos distintos. Un mal año en un único vehículo no debería poder destruir tu plan completo.',
+        tip: 'La concentración en un único activo es el error #1 según múltiples fuentes: un evento idiosincrático arruina el portafolio entero. Diversifica entre instrumentos con riesgos distintos (renta fija + renta variable + dólar / ETF global). Un mal año en un único vehículo no debería poder destruir tu plan completo.',
       },
       {
         id: 'cryptoOnly',
@@ -1743,6 +2213,29 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         severity: 'critical',
         diagnostic: 'Tu única inversión es cripto.',
         tip: 'Cripto es una clase de activo de alta volatilidad. Conviene combinarla con instrumentos más estables (renta fija, fondos diversificados) para que un crash no se lleve todo.',
+      },
+    ],
+  },
+  {
+    storageKey: 'currencyDiversification',
+    title: 'Diversificación por moneda',
+    description:
+      'Si parte del ahorro o inversión está en USD u otra moneda fuerte. En países con devaluación estructural (Argentina, Venezuela) es crítico; en otros (Colombia, México, Chile) es cobertura cambiaria que complementa el portafolio local. Fintech como Littio, Wise, Global66 lo hicieron accesible sin mínimos.',
+    category: 'investment',
+    type: 'toggle',
+    prompt: '¿Tienes parte de tu ahorro o inversión en USD u otra moneda fuerte?',
+    hint: 'Cuentas en dólares (Littio, Wise, Global66), bonos en USD, ETFs internacionales — cualquier cosa que no se mueva al ritmo de tu moneda local.',
+    dependsOn: [{storageKey: 'invests', equals: true}],
+    trueLabel: 'Sí',
+    falseLabel: 'No',
+    score: {whenTrue: 100, whenFalse: 50},
+    insights: [
+      {
+        id: 'noCurrencyDiversification',
+        when: {kind: 'equals', key: 'currencyDiversification', value: false},
+        severity: 'info',
+        diagnostic: 'Todo tu ahorro/inversión está en moneda local.',
+        tip: 'Si tu moneda local se devalúa, pierdes poder adquisitivo internacional aunque el monto en pesos suba. Mantener 10-30% en USD vía cuentas fintech (Littio, Wise) o ETFs es cobertura sencilla y de bajo costo.',
       },
     ],
   },

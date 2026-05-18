@@ -1,5 +1,6 @@
 import {
   Box,
+  Chip,
   Drawer,
   IconButton,
   Popover,
@@ -10,7 +11,11 @@ import {
 } from '@mui/material'
 import {X as CloseIcon} from '@phosphor-icons/react'
 import type {ReactNode} from 'react'
-import {DIAGNOSIS_QUESTIONS} from '../../content/diagnosis'
+import {
+  DIAGNOSIS_QUESTIONS,
+  type Answers,
+  type SidebarWidgetId,
+} from '../../content/diagnosis'
 import {findCreditScoreBands} from '../../content/creditScoreBands'
 
 /**
@@ -34,14 +39,21 @@ type Props = {
   onClose: () => void
   currentStorageKey: string | null
   countryCode: string | null
+  answers: Answers
 }
+
+const WIDGETS_WITH_RENDERER: ReadonlyArray<SidebarWidgetId> = [
+  'creditScoreScale',
+  'usuryRate',
+  'ageBasedRiskAllocation',
+]
 
 export const hasHelpContent = (currentStorageKey: string | null): boolean => {
   if (!currentStorageKey) return false
   const q = DIAGNOSIS_QUESTIONS.find(q => q.storageKey === currentStorageKey)
   if (!q) return false
   if (q.tips && q.tips.length > 0) return true
-  if (q.sidebarWidgets?.includes('creditScoreScale')) return true
+  if (q.sidebarWidgets?.some(w => WIDGETS_WITH_RENDERER.includes(w))) return true
   return false
 }
 
@@ -123,18 +135,68 @@ const CreditScoreScale = ({countryCode}: {countryCode: string | null}) => {
   )
 }
 
+const UsuryRateWidget = () => (
+  <Stack spacing={0.75}>
+    <Typography variant='body2' color='text.secondary'>
+      Tope legal de interés en Colombia (mayo 2026) para crédito de consumo:
+    </Typography>
+    <Chip
+      label='28,17% EA'
+      color='error'
+      variant='outlined'
+      size='small'
+      sx={{alignSelf: 'flex-start', fontFamily: 'monospace'}}
+    />
+    <Typography variant='caption' color='text.secondary'>
+      Cualquier tasa cerca de ese tope vale la pena renegociar o consolidar. Banco
+      Agrario ofrece compra de cartera desde 10,30% EA.
+    </Typography>
+  </Stack>
+)
+
+const AgeBasedRiskAllocationWidget = ({age}: {age: number | null}) => {
+  if (age === null || age <= 0) {
+    return (
+      <Typography variant='caption' color='text.secondary'>
+        Ingresa tu edad para ver el rango sugerido de renta variable.
+      </Typography>
+    )
+  }
+  const conservative = Math.max(0, 100 - age)
+  const moderate = Math.max(0, 110 - age)
+  const aggressive = Math.max(0, 120 - age)
+  return (
+    <Stack spacing={0.75}>
+      <Typography variant='body2' color='text.secondary'>
+        Heurística "100 / 110 / 120 menos tu edad" para % en renta variable.
+      </Typography>
+      <Stack direction='row' spacing={1} sx={{flexWrap: 'wrap', gap: 1}}>
+        <Chip label={`Conservador ~${conservative}%`} size='small' variant='outlined' />
+        <Chip label={`Moderado ~${moderate}%`} size='small' color='primary' variant='outlined' />
+        <Chip label={`Agresivo ~${aggressive}%`} size='small' variant='outlined' />
+      </Stack>
+      <Typography variant='caption' color='text.secondary'>
+        El resto va a renta fija o liquidez. La versión moderna usa 110/120 por mayor
+        esperanza de vida.
+      </Typography>
+    </Stack>
+  )
+}
+
 const HelpContent = ({
   currentStorageKey,
   countryCode,
+  answers,
 }: {
   currentStorageKey: string | null
   countryCode: string | null
+  answers: Answers
 }) => {
   if (!currentStorageKey) return null
   const q = DIAGNOSIS_QUESTIONS.find(q => q.storageKey === currentStorageKey)
   if (!q) return null
   const tips = q.tips ?? []
-  const showCreditScale = q.sidebarWidgets?.includes('creditScoreScale') ?? false
+  const widgets = new Set(q.sidebarWidgets ?? [])
 
   const sections: ReactNode[] = []
   if (tips.length > 0) {
@@ -147,7 +209,28 @@ const HelpContent = ({
       </Box>,
     )
   }
-  if (showCreditScale) {
+  if (widgets.has('usuryRate')) {
+    sections.push(
+      <Box key='usury-rate'>
+        <Typography variant='overline' color='text.secondary' sx={{display: 'block', mb: 1}}>
+          Tasa de usura
+        </Typography>
+        <UsuryRateWidget />
+      </Box>,
+    )
+  }
+  if (widgets.has('ageBasedRiskAllocation')) {
+    const age = typeof answers.age === 'number' ? answers.age : null
+    sections.push(
+      <Box key='age-allocation'>
+        <Typography variant='overline' color='text.secondary' sx={{display: 'block', mb: 1}}>
+          Renta variable según tu edad
+        </Typography>
+        <AgeBasedRiskAllocationWidget age={age} />
+      </Box>,
+    )
+  }
+  if (widgets.has('creditScoreScale')) {
     sections.push(
       <Box key='credit-scale'>
         <Typography variant='overline' color='text.secondary' sx={{display: 'block', mb: 1}}>
@@ -167,6 +250,7 @@ export function DiagnosisHelpPopover({
   onClose,
   currentStorageKey,
   countryCode,
+  answers,
 }: Props) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -198,7 +282,11 @@ export function DiagnosisHelpPopover({
           </IconButton>
         </Stack>
         <Box sx={{overflowY: 'auto'}}>
-          <HelpContent currentStorageKey={currentStorageKey} countryCode={countryCode} />
+          <HelpContent
+          currentStorageKey={currentStorageKey}
+          countryCode={countryCode}
+          answers={answers}
+        />
         </Box>
       </Drawer>
     )
@@ -224,7 +312,11 @@ export function DiagnosisHelpPopover({
           },
         },
       }}>
-      <HelpContent currentStorageKey={currentStorageKey} countryCode={countryCode} />
+      <HelpContent
+        currentStorageKey={currentStorageKey}
+        countryCode={countryCode}
+        answers={answers}
+      />
     </Popover>
   )
 }

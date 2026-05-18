@@ -45,6 +45,7 @@ export function buildDiagnosisSteps(opts: {
     base: [],
     debt: [],
     stability: [],
+    protection: [],
     investment: [],
   }
   for (const q of DIAGNOSIS_QUESTIONS) {
@@ -140,6 +141,7 @@ function buildSummaryStep(
         answers={ctx.answers as Answers}
         smm={minimumWage?.amount ?? null}
         countryCode={countryCode}
+        minimumWage={minimumWage}
         onRestart={onRestart}
       />
     ),

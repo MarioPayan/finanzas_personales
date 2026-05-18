@@ -194,6 +194,58 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
       },
     },
   ],
+  protection: [
+    {
+      min: 0,
+      max: 20,
+      profile: {
+        id: 'protection-bare',
+        label: 'Sin cobertura',
+        description:
+          'No tienes seguros básicos ni red de protección. Un accidente, una enfermedad seria o un incendio te dejarían en quiebra. Empezar por lo obligatorio (salud, ARL si eres independiente) cambia tu exposición de raíz.',
+      },
+    },
+    {
+      min: 20,
+      max: 40,
+      profile: {
+        id: 'protection-partial',
+        label: 'Cobertura parcial',
+        description:
+          'Tienes lo mínimo legal pero no lo que tu situación pide. Si hay dependientes o deuda grande, falta seguro de vida; si tienes vivienda, falta seguro de hogar. Cubrir esos huecos es barato y de alto impacto.',
+      },
+    },
+    {
+      min: 40,
+      max: 60,
+      profile: {
+        id: 'protection-basic',
+        label: 'Bien cubierto en lo esencial',
+        description:
+          'Lo esencial está. La pregunta ahora es si pagas más de lo necesario o si hay riesgos específicos (salud avanzada, profesión riesgosa) sin cubrir. Una revisión anual te ahorra plata o te quita un susto.',
+      },
+    },
+    {
+      min: 60,
+      max: 80,
+      profile: {
+        id: 'protection-strong',
+        label: 'Bien protegido',
+        description:
+          'Tu red de seguros está pensada para tu situación. Cubres los riesgos grandes sin pagar de más. El refinamiento ahora es revisar coberturas si cambia algo (matrimonio, hijos, casa nueva).',
+      },
+    },
+    {
+      min: 80,
+      max: 100.01,
+      profile: {
+        id: 'protection-fortress',
+        label: 'Protección completa',
+        description:
+          'Tu cobertura es excepcional y proporcional a tu situación. Tomar riesgos en inversión es seguro porque el resto está blindado. Solo cuida no estar sobre-asegurado (pagando por riesgos que ya no aplican).',
+      },
+    },
+  ],
   investment: [
     {
       min: 0,
@@ -296,7 +348,7 @@ export const getOverallProfile = (
         id: 'overall-balanced',
         label: 'Equilibrado',
         description:
-          'Las cuatro áreas — base, deuda, estabilidad e inversión — están en buen estado. No hay un único cuello de botella; el siguiente paso es elegir qué área quieres llevar de "muy bien" a "excelente".',
+          'Las cinco áreas — base, deuda, estabilidad, protección e inversión — están en buen estado. No hay un único cuello de botella; el siguiente paso es elegir qué área quieres llevar de "muy bien" a "excelente".',
       },
       reason: 'well-rounded',
     }

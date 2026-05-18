@@ -121,6 +121,7 @@ export default function Diagnosis() {
                 onClose={() => setHelpAnchor(null)}
                 currentStorageKey={currentKey}
                 countryCode={countryCode}
+                answers={state.answers}
               />
             </>
           )

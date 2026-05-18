@@ -140,6 +140,7 @@ function buildInsightInventory(): InsightInventory {
     base: empty(),
     debt: empty(),
     stability: empty(),
+    protection: empty(),
     investment: empty(),
   }
   for (const q of DIAGNOSIS_QUESTIONS) {

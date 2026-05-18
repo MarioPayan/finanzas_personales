@@ -90,6 +90,7 @@ const CATEGORY_COLOR: Record<DiagnosisCategoryId, string> = {
   base: '#1976d2',
   debt: '#ed6c02',
   stability: '#0288d1',
+  protection: '#9c27b0',
   investment: '#2e7d32',
 }
 

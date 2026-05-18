@@ -107,3 +107,70 @@ mental, en cuentas separadas, o automatizado por el banco. Predice mejor
 el cumplimiento de ahorro que el monto guardado.
 
 Aparece en: [[01 - Base (salario y gastos)#Sistema de cubetas · `hasBudgetSystem`]].
+
+### Regla del 72
+
+Atajo mental: años para duplicar el dinero = 72 / tasa%. Al 6% tarda 12
+años; al 10%, 7,2 años. Sirve para comparar vehículos sin calculadora.
+
+Aparece en: [[04 - Inversiones#Años invirtiendo · `yearsInvesting`]].
+
+### DCA (Dollar Cost Averaging)
+
+Aportar un monto fijo en intervalos regulares (semanal, quincenal,
+mensual). Evita tratar de adivinar el mejor momento; promedia el precio
+en el tiempo. La estrategia más efectiva para no-traders.
+
+Citado en tips de `invests` y `investmentAmounts`.
+
+### FIRE / Regla del 4%
+
+Financial Independence, Retire Early. Heurística clásica: si juntas un
+capital igual a 25× tus gastos anuales (regla del 4%), puedes vivir de
+los rendimientos. En Latinoamérica conviene ajustar a 28,5× (3,5%) por
+impuestos y volatilidad cambiaria.
+
+Citado en el widget global del Summary.
+
+### EA vs NMV
+
+EA = Tasa Efectiva Anual (incluye capitalización). NMV = Tasa Nominal
+Mensual Vencida (cuota mensual sin componerse). Una tasa "1,5% NMV"
+suena baja pero equivale a ~19,6% EA. Siempre comparar en EA.
+
+Aparece en: [[02 - Deudas#Tasa de cada deuda · `debtRates`]].
+
+### Tasa de usura
+
+Tope legal de interés en Colombia, fijado por la Superintendencia
+Financiera. Para consumo en mayo 2026: 28,17% EA. Sirve como benchmark:
+cualquier tasa cerca de la usura conviene refinanciar.
+
+Aparece en: [[02 - Deudas#Tasa de cada deuda · `debtRates`]],
+[[02 - Deudas#Pago de tarjetas de crédito · `creditCardPaymentBehavior`]].
+
+### Fogafín
+
+Fondo de Garantías de Instituciones Financieras de Colombia. Garantiza
+tus depósitos en bancos y CDTs hasta 50 millones de pesos por entidad.
+Es lo que hace que el CDT sea de bajo riesgo real.
+
+Citado en contexto de CDTs.
+
+### Compra de cartera
+
+Operación donde un banco "compra" tus deudas con otras entidades y las
+consolida en un único crédito, generalmente a tasa más baja y plazo
+más largo. Útil con varias deudas activas y tasas altas; cuidado con
+extender el plazo sin reducir gasto. En Colombia mayo 2026: Banco
+Agrario desde 10,30% EA.
+
+Citado en insights `toxicRates`, `tooManyDebts` y `consolidationCandidate`.
+
+### ARL
+
+Administradora de Riesgos Laborales. Seguro que cubre accidentes y
+enfermedades de origen laboral. Obligatoria para empleados formales e
+independientes con contrato de servicios mayor a un mes en Colombia.
+
+Aparece en: [[05 - Proteccion#Cobertura de riesgos laborales (ARL) · `hasARL`]].

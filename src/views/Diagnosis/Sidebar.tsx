@@ -26,6 +26,7 @@ const QUESTIONS_BY_CATEGORY: Record<DiagnosisCategoryId, DiagnosisQuestion[]> = 
   base: [],
   debt: [],
   stability: [],
+  protection: [],
   investment: [],
 }
 for (const q of DIAGNOSIS_QUESTIONS) {
