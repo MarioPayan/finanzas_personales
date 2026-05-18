@@ -43,7 +43,7 @@ type Props = {
   /** Cambio sin commit (slider, number, multiChips: el usuario sigue ajustando). */
   setAnswer: (value: AnswerValue) => void
   /** Cambio con auto-advance (chip único, toggle: interacción decisiva). */
-  commit: (value: AnswerValue) => void
+  commit: (value: AnswerValue, opts?: {delayMs?: number}) => void
 }
 
 const prepareChipsForRender = (

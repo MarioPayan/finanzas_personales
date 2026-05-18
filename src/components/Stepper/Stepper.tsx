@@ -228,7 +228,7 @@ function renderStepBody<TAnswer>(
     answer: state.answers[step.id],
     answers: state.answers,
     setAnswer: (v: TAnswer) => actions.setAnswer(step.id, v),
-    commit: (v?: TAnswer) => actions.commit(v),
+    commit: (v, opts) => actions.commit(v, opts),
   })
 }
 
