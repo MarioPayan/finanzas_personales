@@ -130,11 +130,7 @@ export default function DebugDetail({question}: {question: DiagnosisQuestion}) {
 }
 
 const KeyChip = ({k}: {k: string}) => (
-  <Chip
-    size='small'
-    label={k}
-    sx={{fontFamily: 'monospace', height: 22, fontSize: 12}}
-  />
+  <Chip size='small' label={k} sx={{fontFamily: 'monospace', height: 22, fontSize: 12}} />
 )
 
 const Mono = ({children}: {children: ReactNode}) => (
@@ -149,8 +145,7 @@ function Section({title, children}: {title: string; children: ReactNode}) {
       <Typography
         variant='overline'
         color='text.secondary'
-        sx={{lineHeight: 1.5, display: 'block'}}
-      >
+        sx={{lineHeight: 1.5, display: 'block'}}>
         {title}
       </Typography>
       <Box sx={{mt: 0.5}}>{children}</Box>
@@ -201,8 +196,7 @@ function ApplicabilityView({question}: {question: DiagnosisQuestion}) {
 function DependsOnLine({clause}: {clause: DependencyClause}) {
   let op: ReactNode = '?'
   if (clause.equals !== undefined) op = <Mono>== {formatScalar(clause.equals)}</Mono>
-  else if (clause.in)
-    op = <Mono>∈ [{clause.in.map(formatScalar).join(', ')}]</Mono>
+  else if (clause.in) op = <Mono>∈ [{clause.in.map(formatScalar).join(', ')}]</Mono>
   else if (clause.greaterThan !== undefined) op = <Mono>&gt; {clause.greaterThan}</Mono>
   else if (clause.nonEmpty) op = <Mono>is non-empty</Mono>
   return (
@@ -276,9 +270,7 @@ function SliderConfig({q}: {q: SliderQuestion}) {
       </Typography>
       {q.marks && (
         <Typography variant='body2'>
-          <Mono>
-            marks: {q.marks.map(m => `${m.value}=${JSON.stringify(m.label)}`).join(', ')}
-          </Mono>
+          <Mono>marks: {q.marks.map(m => `${m.value}=${JSON.stringify(m.label)}`).join(', ')}</Mono>
         </Typography>
       )}
     </Stack>
@@ -300,7 +292,8 @@ function NumberConfig({q}: {q: NumberQuestion}) {
   return (
     <Typography variant='body2'>
       <Mono>
-        min={q.min ?? '−∞'}, max={q.max ?? '+∞'}, step={q.step ?? 1}, default={q.defaultValue ?? '—'}
+        min={q.min ?? '−∞'}, max={q.max ?? '+∞'}, step={q.step ?? 1}, default=
+        {q.defaultValue ?? '—'}
         {q.unit && `, unit=${JSON.stringify(q.unit)}`}
         {q.placeholder && `, placeholder=${JSON.stringify(q.placeholder)}`}
       </Mono>
@@ -484,9 +477,17 @@ function InsightView({insight}: {insight: Insight}) {
     <Card variant='outlined' sx={{borderLeft: '4px solid', borderLeftColor: color}}>
       <CardContent>
         <Stack spacing={1.5}>
-          <Stack direction='row' spacing={1} sx={{alignItems: 'center', flexWrap: 'wrap', gap: 0.5}}>
+          <Stack
+            direction='row'
+            spacing={1}
+            sx={{alignItems: 'center', flexWrap: 'wrap', gap: 0.5}}>
             <Chip label={insight.id} size='small' sx={{fontFamily: 'monospace', fontWeight: 600}} />
-            <Chip label={severity} size='small' variant='outlined' sx={{color, borderColor: color}} />
+            <Chip
+              label={severity}
+              size='small'
+              variant='outlined'
+              sx={{color, borderColor: color}}
+            />
           </Stack>
           <Box>
             <Typography variant='caption' color='text.secondary'>
@@ -512,8 +513,7 @@ function InsightView({insight}: {insight: Insight}) {
                 borderRadius: 1,
                 border: '1px dashed',
                 borderColor: 'divider',
-              }}
-            >
+              }}>
               <ConditionView condition={insight.when} />
             </Box>
           </Box>
@@ -540,14 +540,12 @@ function ConditionView({condition}: {condition: InsightCondition}) {
     return (
       <Box>
         <Typography
-          sx={{fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: 'primary.main'}}
-        >
+          sx={{fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: 'primary.main'}}>
           {condition.kind}
         </Typography>
         <Stack
           spacing={0.5}
-          sx={{ml: 2, mt: 0.5, borderLeft: '2px solid', borderColor: 'divider', pl: 2}}
-        >
+          sx={{ml: 2, mt: 0.5, borderLeft: '2px solid', borderColor: 'divider', pl: 2}}>
           {condition.of.map((c, i) => (
             <ConditionView key={i} condition={c} />
           ))}
@@ -559,8 +557,7 @@ function ConditionView({condition}: {condition: InsightCondition}) {
     return (
       <Box>
         <Typography
-          sx={{fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: 'warning.main'}}
-        >
+          sx={{fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: 'warning.main'}}>
           not
         </Typography>
         <Box sx={{ml: 2, mt: 0.5, borderLeft: '2px solid', borderColor: 'divider', pl: 2}}>

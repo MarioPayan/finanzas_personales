@@ -22,11 +22,7 @@ export default function DebugDetailSummary({node}: {node: SummaryNode}) {
   return (
     <Stack spacing={2}>
       <Stack direction='row' spacing={1} sx={{alignItems: 'center', flexWrap: 'wrap', gap: 0.5}}>
-        <Chip
-          label={node.kind}
-          size='small'
-          sx={{fontFamily: 'monospace', fontWeight: 600}}
-        />
+        <Chip label={node.kind} size='small' sx={{fontFamily: 'monospace', fontWeight: 600}} />
       </Stack>
 
       <Typography variant='h6' component='h2'>
@@ -40,14 +36,10 @@ export default function DebugDetailSummary({node}: {node: SummaryNode}) {
       <Divider />
 
       {node.components.map((component, i) => (
-        <Section
-          key={component.id}
-          title={`${i + 1} · ${component.title}`}
-        >
+        <Section key={component.id} title={`${i + 1} · ${component.title}`}>
           {component.userHeading && (
             <Typography variant='caption' color='text.secondary' sx={{display: 'block', mb: 0.5}}>
-              Encabezado al usuario:{' '}
-              <Mono>"{component.userHeading}"</Mono>
+              Encabezado al usuario: <Mono>"{component.userHeading}"</Mono>
             </Typography>
           )}
           <Typography variant='body2'>{component.description}</Typography>
@@ -57,8 +49,7 @@ export default function DebugDetailSummary({node}: {node: SummaryNode}) {
       <Section title='Orden y agrupación'>
         <Stack spacing={0.75}>
           <Typography variant='body2'>
-            <strong>Orden global por severidad</strong> (declarado en{' '}
-            <Mono>severityOrder</Mono>):
+            <strong>Orden global por severidad</strong> (declarado en <Mono>severityOrder</Mono>):
           </Typography>
           <Stack direction='row' spacing={1} sx={{alignItems: 'center', flexWrap: 'wrap'}}>
             {node.severityOrder.map((sev, i, arr) => (
@@ -73,19 +64,17 @@ export default function DebugDetailSummary({node}: {node: SummaryNode}) {
             ))}
           </Stack>
           <Typography variant='body2' sx={{mt: 1}}>
-            <strong>Render:</strong> después del orden global, los insights
-            se agrupan por categoría siguiendo{' '}
-            <Mono>CATEGORY_ORDER</Mono>: <em>{CATEGORY_ORDER.join(' → ')}</em>.
+            <strong>Render:</strong> después del orden global, los insights se agrupan por categoría
+            siguiendo <Mono>CATEGORY_ORDER</Mono>: <em>{CATEGORY_ORDER.join(' → ')}</em>.
           </Typography>
         </Stack>
       </Section>
 
       <Section title='Inventario de insights por categoría / severidad'>
         <Typography variant='body2' color='text.secondary' sx={{mb: 1}}>
-          Cuántos insights existen declarados en{' '}
-          <Mono>DIAGNOSIS_QUESTIONS</Mono>. Un insight cuenta acá si está
-          declarado, independientemente de si su <Mono>when</Mono> se cumple
-          para algún usuario.
+          Cuántos insights existen declarados en <Mono>DIAGNOSIS_QUESTIONS</Mono>. Un insight cuenta
+          acá si está declarado, independientemente de si su <Mono>when</Mono> se cumple para algún
+          usuario.
         </Typography>
         <InsightInventoryTable inventory={inventory} severities={[...node.severityOrder]} />
       </Section>
@@ -105,8 +94,7 @@ function Section({title, children}: {title: string; children: ReactNode}) {
       <Typography
         variant='overline'
         color='text.secondary'
-        sx={{lineHeight: 1.5, display: 'block'}}
-      >
+        sx={{lineHeight: 1.5, display: 'block'}}>
         {title}
       </Typography>
       <Box sx={{mt: 0.5}}>{children}</Box>
@@ -114,13 +102,7 @@ function Section({title, children}: {title: string; children: ReactNode}) {
   )
 }
 
-function SeverityPill({
-  severity,
-  node,
-}: {
-  severity: InsightSeverity
-  node: SummaryNode
-}) {
+function SeverityPill({severity, node}: {severity: InsightSeverity; node: SummaryNode}) {
   const meta = node.severityLabels[severity]
   const color = `${meta.color}.main`
   return (
@@ -134,14 +116,11 @@ function SeverityPill({
         borderRadius: 0.75,
         border: '1px solid',
         borderColor: color,
-      }}
-    >
+      }}>
       <Typography sx={{color, fontSize: 11, fontWeight: 700, fontFamily: 'monospace'}}>
         {severity}
       </Typography>
-      <Typography sx={{color: 'text.secondary', fontSize: 11}}>
-        · {meta.label}
-      </Typography>
+      <Typography sx={{color: 'text.secondary', fontSize: 11}}>· {meta.label}</Typography>
     </Box>
   )
 }
@@ -191,8 +170,7 @@ function InsightInventoryTable({
         borderColor: 'divider',
         borderRadius: 1,
         overflow: 'hidden',
-      }}
-    >
+      }}>
       <HeadCell>Categoría</HeadCell>
       {severities.map(sev => (
         <HeadCell key={sev} align='right'>
@@ -227,8 +205,7 @@ function HeadCell({children, align}: {children: ReactNode; align?: 'right'}) {
         borderBottom: '1px solid',
         borderColor: 'divider',
         textAlign: align ?? 'left',
-      }}
-    >
+      }}>
       <Typography
         variant='caption'
         sx={{
@@ -237,23 +214,14 @@ function HeadCell({children, align}: {children: ReactNode; align?: 'right'}) {
           color: 'text.secondary',
           textTransform: 'uppercase',
           letterSpacing: 0.4,
-        }}
-      >
+        }}>
         {children}
       </Typography>
     </Box>
   )
 }
 
-function RowCells({
-  label,
-  values,
-  total,
-}: {
-  label: string
-  values: number[]
-  total: number
-}) {
+function RowCells({label, values, total}: {label: string; values: number[]; total: number}) {
   return (
     <>
       <Cell>
@@ -275,15 +243,7 @@ function RowCells({
   )
 }
 
-function Cell({
-  children,
-  align,
-  dim,
-}: {
-  children: ReactNode
-  align?: 'right'
-  dim?: boolean
-}) {
+function Cell({children, align, dim}: {children: ReactNode; align?: 'right'; dim?: boolean}) {
   return (
     <Box
       sx={{
@@ -293,8 +253,7 @@ function Cell({
         borderColor: 'divider',
         textAlign: align ?? 'left',
         opacity: dim ? 0.4 : 1,
-      }}
-    >
+      }}>
       {children}
     </Box>
   )

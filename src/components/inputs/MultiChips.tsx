@@ -1,4 +1,5 @@
-import {Box, Chip, Stack, Typography} from '@mui/material'
+import {Box, Card, CardActionArea, Stack, Typography, alpha, useMediaQuery} from '@mui/material'
+import {motion} from 'framer-motion'
 import type {ChipOption} from '../../content/diagnosis'
 
 type MultiChipsProps = {
@@ -9,35 +10,36 @@ type MultiChipsProps = {
 }
 
 /**
- * Selección múltiple. Visualmente se distingue de `ChipGroup` (selección
- * única) con un checkbox al lado del label — una pista clara de que
- * varias opciones se pueden activar a la vez.
+ * Selección múltiple — tarjetas verticales apiladas con checkbox.
+ *
+ * Mismo lenguaje visual que `ChipGroup` (tarjetas full-width tipo
+ * quiz), pero un checkbox a la derecha indica que se pueden marcar
+ * varias opciones a la vez. No hay auto-advance: el usuario decide
+ * cuándo terminar de marcar y avanza con el botón "Siguiente".
  */
 function CheckboxIndicator({selected}: {selected: boolean}) {
   return (
     <Box
       aria-hidden
       sx={{
-        width: 16,
-        height: 16,
-        borderRadius: 0.5,
-        border: '1.5px solid',
-        borderColor: selected ? 'primary.contrastText' : 'text.secondary',
-        bgcolor: selected ? 'primary.contrastText' : 'transparent',
+        width: 22,
+        height: 22,
+        borderRadius: 0.75,
+        border: '2px solid',
+        borderColor: selected ? 'primary.main' : 'text.disabled',
+        bgcolor: selected ? 'primary.main' : 'transparent',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
         transition: 'all 0.15s ease',
-      }}
-    >
+      }}>
       {selected && (
         <Box
           component='svg'
           viewBox='0 0 16 16'
-          sx={{width: 12, height: 12, color: 'primary.main'}}
-          aria-hidden
-        >
+          sx={{width: 16, height: 16, color: 'primary.contrastText'}}
+          aria-hidden>
           <path
             d='M3 8.5 L6.5 12 L13 4.5'
             fill='none'
@@ -53,58 +55,86 @@ function CheckboxIndicator({selected}: {selected: boolean}) {
 }
 
 export default function MultiChips({options, value, onChange, ariaLabel}: MultiChipsProps) {
-  const toggle = (optionValue: string) => {
-    if (value.includes(optionValue)) {
-      onChange(value.filter(v => v !== optionValue))
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+
+  // Valores de opciones marcadas como `clearOthers` (típicamente "Ninguno"):
+  // son mutuamente exclusivas con el resto.
+  const exclusiveValues = options
+    .filter(o => o.clearOthers)
+    .map(o => o.value)
+
+  const toggle = (option: ChipOption) => {
+    const isExclusive = !!option.clearOthers
+    const alreadySelected = value.includes(option.value)
+
+    if (isExclusive) {
+      // Click en "Ninguno": si ya estaba marcado, lo quita (deja vacío);
+      // si no, lo deja como única selección.
+      onChange(alreadySelected ? [] : [option.value])
+      return
+    }
+
+    // Click en una opción normal: quita las exclusivas y agrega/quita esta.
+    const withoutExclusives = value.filter(v => !exclusiveValues.includes(v))
+    if (alreadySelected) {
+      onChange(withoutExclusives.filter(v => v !== option.value))
     } else {
-      onChange([...value, optionValue])
+      onChange([...withoutExclusives, option.value])
     }
   }
 
   return (
     <Stack
-      direction='row'
-      spacing={1.5}
-      sx={{flexWrap: 'wrap', justifyContent: 'center', rowGap: 1.5}}
+      spacing={1.25}
+      sx={{width: '100%', maxWidth: 560, mx: 'auto'}}
       role='group'
       aria-label={ariaLabel}>
       {options.map(option => {
         const selected = value.includes(option.value)
-        const inner = (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              pl: 0.25,
-              pr: 0.5,
-            }}
-          >
-            <CheckboxIndicator selected={selected} />
-            <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-              <Typography variant='body1' sx={{fontWeight: selected ? 600 : 500, lineHeight: 1.2}}>
-                {option.label}
-              </Typography>
-              {option.sublabel && (
-                <Typography variant='caption' color='text.secondary' component='span'>
-                  {option.sublabel}
-                </Typography>
-              )}
-            </Box>
-          </Box>
-        )
         return (
-          <Chip
+          <motion.div
             key={option.value}
-            label={inner}
-            clickable
-            color={selected ? 'primary' : 'default'}
-            variant={selected ? 'filled' : 'outlined'}
-            onClick={() => toggle(option.value)}
-            role='checkbox'
-            aria-checked={selected}
-            sx={{height: 'auto', py: 1, px: 1.5, '& .MuiChip-label': {py: 0.5}}}
-          />
+            whileTap={reducedMotion ? undefined : {scale: 0.98}}
+            transition={{duration: 0.15, ease: 'easeOut'}}>
+            <Card
+              variant='outlined'
+              sx={{
+                borderWidth: 2,
+                borderColor: selected ? 'primary.main' : 'divider',
+                bgcolor: selected
+                  ? theme => alpha(theme.palette.primary.main, 0.08)
+                  : 'background.paper',
+                transition: 'border-color 0.15s, background-color 0.15s',
+                '&:hover': {
+                  borderColor: selected ? 'primary.main' : 'text.secondary',
+                },
+              }}>
+              <CardActionArea
+                onClick={() => toggle(option)}
+                role='checkbox'
+                aria-checked={selected}
+                sx={{px: 2, py: 1.5}}>
+                <Stack direction='row' spacing={2} sx={{alignItems: 'center'}}>
+                  <Box sx={{flex: 1, minWidth: 0}}>
+                    <Typography
+                      variant='body1'
+                      sx={{fontWeight: selected ? 700 : 600, lineHeight: 1.3}}>
+                      {option.label}
+                    </Typography>
+                    {option.sublabel && (
+                      <Typography
+                        variant='body2'
+                        color='text.secondary'
+                        sx={{mt: 0.25, lineHeight: 1.3}}>
+                        {option.sublabel}
+                      </Typography>
+                    )}
+                  </Box>
+                  <CheckboxIndicator selected={selected} />
+                </Stack>
+              </CardActionArea>
+            </Card>
+          </motion.div>
         )
       })}
     </Stack>

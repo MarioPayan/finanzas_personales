@@ -1,12 +1,14 @@
-import {Box, Chip, Stack, Typography} from '@mui/material'
+import {Stack, Typography} from '@mui/material'
 import type {StepperState} from '../types'
 
 /**
- * Header default: tag de categoría arriba (pequeño y discreto), prompt
- * grande con jerarquía marcada, hint chico en gris debajo. Solo se
- * renderiza si el paso declara `header`.
+ * Header default: prompt grande con jerarquía marcada y hint chico en
+ * gris debajo. Solo se renderiza si el paso declara `header`.
  *
- * El tag se renderiza como Chip outlined para no competir con el prompt.
+ * Notamente NO se renderiza el tag/categoría: el progreso superior ya
+ * muestra en qué bloque se está, así que un chip de categoría dentro
+ * de la tarjeta sería redundante. `tagColor` sigue usándose afuera
+ * (Stepper.tsx) para teñir la barra de acento de la tarjeta.
  */
 export function DefaultHeader({state}: {state: StepperState<unknown>}) {
   const step = state.currentStep
@@ -14,17 +16,6 @@ export function DefaultHeader({state}: {state: StepperState<unknown>}) {
 
   return (
     <Stack spacing={1.5} sx={{width: '100%', textAlign: 'left'}}>
-      {step.tag && (
-        <Box>
-          <Chip
-            size='small'
-            label={step.tag}
-            color={step.tagColor ?? 'default'}
-            variant='outlined'
-            sx={{fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase'}}
-          />
-        </Box>
-      )}
       <Typography
         variant='h4'
         component='h1'

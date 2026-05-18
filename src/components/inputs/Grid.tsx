@@ -1,6 +1,8 @@
 import {Fragment} from 'react'
 import {Box, Radio, Stack, Tooltip, Typography, useMediaQuery, useTheme} from '@mui/material'
 import type {GridCell, GridQuestion, GridRow} from '../../content/diagnosis'
+import type {MinimumWageEntry} from '../../content/minimumWages'
+import {formatMoney} from '../../utils/calculations'
 import ChipGroup from './ChipGroup'
 import NumberInput from './NumberInput'
 
@@ -12,6 +14,9 @@ type GridProps = {
   value: GridValue
   onChange: (rowIndex: number, cellValue: string | number) => void
   derivedSublabels?: Record<string, string>
+  /** Salario mínimo del país detectado. Sólo se usa para resolver
+   * `cell.exactInput.suggestionsSmm` en celdas de tipo `number`. */
+  minimumWage?: MinimumWageEntry | null
 }
 
 /**
@@ -27,7 +32,14 @@ type GridProps = {
  *   por fila). El tabular se vuelve estrecho y poco usable en pantallas
  *   chicas.
  */
-export default function Grid({question, rows, value, onChange, derivedSublabels}: GridProps) {
+export default function Grid({
+  question,
+  rows,
+  value,
+  onChange,
+  derivedSublabels,
+  minimumWage,
+}: GridProps) {
   const theme = useTheme()
   const tabular = useMediaQuery(theme.breakpoints.up('md'))
 
@@ -39,6 +51,7 @@ export default function Grid({question, rows, value, onChange, derivedSublabels}
         value={value}
         onChange={onChange}
         cell={question.cell}
+        minimumWage={minimumWage ?? null}
       />
     )
   }
@@ -52,6 +65,7 @@ export default function Grid({question, rows, value, onChange, derivedSublabels}
         onChange={onChange}
         derivedSublabels={derivedSublabels}
         cell={question.cell}
+        minimumWage={minimumWage ?? null}
       />
     )
   }
@@ -64,6 +78,7 @@ export default function Grid({question, rows, value, onChange, derivedSublabels}
       onChange={onChange}
       derivedSublabels={derivedSublabels}
       cell={question.cell}
+      minimumWage={minimumWage ?? null}
     />
   )
 }
@@ -78,9 +93,18 @@ type ChipsLayoutProps = {
   onChange: (rowIndex: number, cellValue: string | number) => void
   derivedSublabels?: Record<string, string>
   cell: ChipsCell
+  minimumWage: MinimumWageEntry | null
 }
 
-function ChipsTabular({question, rows, value, onChange, derivedSublabels, cell}: ChipsLayoutProps) {
+function ChipsTabular({
+  question,
+  rows,
+  value,
+  onChange,
+  derivedSublabels,
+  cell,
+  minimumWage,
+}: ChipsLayoutProps) {
   const {options, exactInput} = cell
   const gridTemplateColumns = `auto repeat(${options.length}, minmax(72px, 1fr))${
     exactInput ? ' minmax(120px, 140px)' : ''
@@ -192,6 +216,7 @@ function ChipsTabular({question, rows, value, onChange, derivedSublabels, cell}:
                   placeholder={exactInput.placeholder}
                   ariaLabel={`${row.label} — exacto`}
                   fullWidth
+                  currency={exactInput.isMoney ? minimumWage?.currency : undefined}
                 />
               </Box>
             )}
@@ -202,7 +227,16 @@ function ChipsTabular({question, rows, value, onChange, derivedSublabels, cell}:
   )
 }
 
-function ChipsStacked({question, rows, value, onChange, derivedSublabels, cell}: ChipsLayoutProps) {
+function ChipsStacked({
+  question,
+  rows,
+  value,
+  onChange,
+  derivedSublabels,
+  cell,
+  minimumWage,
+}: ChipsLayoutProps) {
+  const exactInputCurrency = cell.exactInput?.isMoney ? minimumWage?.currency : undefined
   return (
     <Stack spacing={3} sx={{width: '100%', alignItems: 'stretch'}}>
       {rows.map((row, i) => {
@@ -219,6 +253,7 @@ function ChipsStacked({question, rows, value, onChange, derivedSublabels, cell}:
               ariaLabel={`${question.prompt} — ${row.label}`}
               derivedSublabels={derivedSublabels}
               exactInput={cell.exactInput}
+              exactInputCurrency={exactInputCurrency}
             />
           </Box>
         )
@@ -233,16 +268,30 @@ type NumberLayoutProps = {
   value: GridValue
   onChange: (rowIndex: number, cellValue: string | number) => void
   cell: NumberCell
+  minimumWage: MinimumWageEntry | null
 }
 
-function NumberStacked({question, rows, value, onChange, cell}: NumberLayoutProps) {
+const resolveSmmSuggestions = (
+  multipliers: readonly number[] | undefined,
+  minimumWage: MinimumWageEntry | null,
+): readonly {value: number; label: string}[] | undefined => {
+  if (!multipliers || multipliers.length === 0 || !minimumWage) return undefined
+  return multipliers.map(m => ({
+    value: Math.round(m * minimumWage.amount),
+    label: formatMoney(m * minimumWage.amount, minimumWage.currency),
+  }))
+}
+
+function NumberStacked({question, rows, value, onChange, cell, minimumWage}: NumberLayoutProps) {
+  const suggestions = resolveSmmSuggestions(cell.exactInput.suggestionsSmm, minimumWage)
+  const currency = cell.exactInput.isMoney ? minimumWage?.currency : undefined
   return (
     <Stack spacing={2} sx={{width: '100%', alignItems: 'stretch', maxWidth: 480, mx: 'auto'}}>
       {rows.map((row, i) => {
         const cellValue = value[i] ?? null
         return (
-          <Stack key={i} direction='row' spacing={2} sx={{alignItems: 'center'}}>
-            <Typography variant='subtitle2' sx={{fontWeight: 600, minWidth: 120}}>
+          <Stack key={i} spacing={0.75} sx={{alignItems: 'stretch'}}>
+            <Typography variant='subtitle2' sx={{fontWeight: 600}}>
               {row.label}
             </Typography>
             <NumberInput
@@ -257,6 +306,8 @@ function NumberStacked({question, rows, value, onChange, cell}: NumberLayoutProp
               placeholder={cell.exactInput.placeholder}
               ariaLabel={`${question.prompt} — ${row.label}`}
               fullWidth
+              suggestions={suggestions}
+              currency={currency}
             />
           </Stack>
         )

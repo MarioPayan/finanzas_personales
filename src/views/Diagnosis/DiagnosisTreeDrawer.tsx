@@ -50,12 +50,7 @@ const TreeGlyph = () => (
 
 const CloseGlyph = () => (
   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <path
-      d='M6 6l12 12M18 6L6 18'
-      stroke='currentColor'
-      strokeWidth='2'
-      strokeLinecap='round'
-    />
+    <path d='M6 6l12 12M18 6L6 18' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
   </svg>
 )
 
@@ -98,7 +93,8 @@ export function DiagnosisTreeDrawer({answers, currentStorageKey}: Props) {
         slotProps={{
           paper: {
             sx: {
-              width: {xs: '100%', sm: 380, md: 420},
+              width: {xs: '70%', sm: 380, md: 420},
+              maxWidth: '90vw',
               p: {xs: 2, md: 3},
             },
           },

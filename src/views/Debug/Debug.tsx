@@ -53,8 +53,7 @@ export default function Debug() {
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
-          sx={{borderBottom: 1, borderColor: 'divider'}}
-        >
+          sx={{borderBottom: 1, borderColor: 'divider'}}>
           <Tab value='flow' label='Flujo de nodos' />
           <Tab value='validator' label='Validador' />
           <Tab value='simulator' label='Simulador' />
@@ -79,14 +78,9 @@ export default function Debug() {
         onClose={() => setSelectedKey(null)}
         slotProps={{
           paper: {sx: {width: {xs: '100%', sm: 520}, p: 3}},
-        }}
-      >
+        }}>
         <Stack direction='row' sx={{justifyContent: 'flex-end', mb: 1}}>
-          <IconButton
-            size='small'
-            aria-label='Cerrar'
-            onClick={() => setSelectedKey(null)}
-          >
+          <IconButton size='small' aria-label='Cerrar' onClick={() => setSelectedKey(null)}>
             <Box
               component='span'
               sx={{
@@ -94,8 +88,7 @@ export default function Debug() {
                 fontSize: 16,
                 lineHeight: 1,
                 color: 'text.secondary',
-              }}
-            >
+              }}>
               ×
             </Box>
           </IconButton>

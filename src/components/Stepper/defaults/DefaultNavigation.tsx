@@ -29,6 +29,15 @@ export function DefaultNavigation({
   if (hideOnInterstitial && currentStep?.kind === 'interstitial') return null
 
   const canAdvance = currentStep ? currentStep.isComplete(state.answers) : false
+  // Pasos cuyo input ya dispara `commit()` por sí solo (chips de
+  // selección única, toggle) ocultan el botón "Siguiente": el click en
+  // la opción avanza, mostrar el CTA sería ruido. Sólo dejamos "Atrás"
+  // para que el usuario pueda revisar la pregunta anterior si la
+  // contestó por accidente.
+  const hideAdvance = !!currentStep?.hideAdvance
+  // Si no hay primer paso ni botón "Siguiente", el footer queda vacío;
+  // mejor no renderizarlo.
+  if (hideAdvance && isFirst) return null
 
   if (isMobile) {
     return (
@@ -63,14 +72,16 @@ export function DefaultNavigation({
             }}>
             ← Atrás
           </Button>
-          <Button
-            variant='contained'
-            size='large'
-            onClick={actions.goNext}
-            disabled={!canAdvance}
-            sx={{flex: 1, maxWidth: 220, minHeight: 48, fontWeight: 700}}>
-            {isLast ? 'Ver resultado' : 'Siguiente →'}
-          </Button>
+          {!hideAdvance && (
+            <Button
+              variant='contained'
+              size='large'
+              onClick={actions.goNext}
+              disabled={!canAdvance}
+              sx={{flex: 1, maxWidth: 220, minHeight: 48, fontWeight: 700}}>
+              {isLast ? 'Ver resultado' : 'Siguiente →'}
+            </Button>
+          )}
         </Stack>
       </Box>
     )
@@ -89,14 +100,16 @@ export function DefaultNavigation({
         sx={{visibility: isFirst ? 'hidden' : 'visible', minWidth: 100}}>
         ← Atrás
       </Button>
-      <Button
-        variant='contained'
-        size='large'
-        onClick={actions.goNext}
-        disabled={!canAdvance}
-        sx={{minWidth: 140}}>
-        {isLast ? 'Ver resultado' : 'Siguiente →'}
-      </Button>
+      {!hideAdvance && (
+        <Button
+          variant='contained'
+          size='large'
+          onClick={actions.goNext}
+          disabled={!canAdvance}
+          sx={{minWidth: 140}}>
+          {isLast ? 'Ver resultado' : 'Siguiente →'}
+        </Button>
+      )}
     </Stack>
   )
 }

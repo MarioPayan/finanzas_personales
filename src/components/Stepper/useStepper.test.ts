@@ -73,11 +73,7 @@ describe('useStepper · navegación básica', () => {
 
 describe('useStepper · aplicabilidad y skip', () => {
   it('omite pasos no aplicables del flujo visible', () => {
-    const steps = [
-      makeStep('a'),
-      makeStep('b', {isApplicable: a => a.a === 'show'}),
-      makeStep('c'),
-    ]
+    const steps = [makeStep('a'), makeStep('b', {isApplicable: a => a.a === 'show'}), makeStep('c')]
     const {result} = renderHook(() => useStepper<Answer>({steps}))
     expect(result.current.state.visibleSteps.map(s => s.id)).toEqual(['a', 'c'])
     act(() => result.current.actions.setAnswer('a', 'show'))
@@ -85,11 +81,7 @@ describe('useStepper · aplicabilidad y skip', () => {
   })
 
   it('si el paso actual deja de ser aplicable, salta al siguiente posterior aplicable', () => {
-    const steps = [
-      makeStep('a'),
-      makeStep('b', {isApplicable: a => a.a === 'show'}),
-      makeStep('c'),
-    ]
+    const steps = [makeStep('a'), makeStep('b', {isApplicable: a => a.a === 'show'}), makeStep('c')]
     const {result} = renderHook(() => useStepper<Answer>({steps}))
     act(() => result.current.actions.setAnswer('a', 'show'))
     act(() => result.current.actions.goNext())
@@ -100,11 +92,7 @@ describe('useStepper · aplicabilidad y skip', () => {
   })
 
   it('progress cuenta pasos no aplicables como resueltos', () => {
-    const steps = [
-      makeStep('a'),
-      makeStep('b', {isApplicable: a => a.a === 'show'}),
-      makeStep('c'),
-    ]
+    const steps = [makeStep('a'), makeStep('b', {isApplicable: a => a.a === 'show'}), makeStep('c')]
     const {result} = renderHook(() => useStepper<Answer>({steps}))
     expect(result.current.state.totalCount).toBe(3)
     // a sin responder, b no aplicable, c sin responder → 1 resuelto
@@ -117,9 +105,7 @@ describe('useStepper · commit y auto-advance', () => {
   it('commit setea respuesta y avanza tras autoAdvanceMs', async () => {
     vi.useFakeTimers()
     const steps = [makeStep('a'), makeStep('b')]
-    const {result} = renderHook(() =>
-      useStepper<Answer>({steps, autoAdvanceMs: 200}),
-    )
+    const {result} = renderHook(() => useStepper<Answer>({steps, autoAdvanceMs: 200}))
     act(() => result.current.actions.commit('foo'))
     expect(result.current.state.answers.a).toBe('foo')
     expect(result.current.state.currentStep?.id).toBe('a')
@@ -133,9 +119,7 @@ describe('useStepper · commit y auto-advance', () => {
   it('commit sin completar no avanza', () => {
     vi.useFakeTimers()
     const steps = [makeStep('a', {isComplete: () => false}), makeStep('b')]
-    const {result} = renderHook(() =>
-      useStepper<Answer>({steps, autoAdvanceMs: 200}),
-    )
+    const {result} = renderHook(() => useStepper<Answer>({steps, autoAdvanceMs: 200}))
     act(() => result.current.actions.commit('foo'))
     act(() => {
       vi.advanceTimersByTime(500)
@@ -147,9 +131,7 @@ describe('useStepper · commit y auto-advance', () => {
   it('navegar manualmente cancela un auto-advance pendiente', () => {
     vi.useFakeTimers()
     const steps = [makeStep('a'), makeStep('b'), makeStep('c')]
-    const {result} = renderHook(() =>
-      useStepper<Answer>({steps, autoAdvanceMs: 1000}),
-    )
+    const {result} = renderHook(() => useStepper<Answer>({steps, autoAdvanceMs: 1000}))
     act(() => result.current.actions.commit('foo'))
     // Avance al siguiente paso manualmente antes del timer
     act(() => result.current.actions.goNext())

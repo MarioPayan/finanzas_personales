@@ -1,7 +1,4 @@
-import {
-  type DependencyClause,
-  type DiagnosisQuestion,
-} from '../../content/diagnosis'
+import {type DependencyClause, type DiagnosisQuestion} from '../../content/diagnosis'
 import {extractReferencedKeys} from '../../utils/insights'
 
 export type EdgeKind = 'flow' | 'skip' | 'derivation' | 'rowSource' | 'insight'
@@ -21,10 +18,7 @@ export const EDGE_LEGEND: Record<EdgeKind, string> = {
   insight: 'Insight (analiza respuesta)',
 }
 
-const formatDependencyLabel = (
-  clause: DependencyClause,
-  gate: DiagnosisQuestion,
-): string => {
+const formatDependencyLabel = (clause: DependencyClause, gate: DiagnosisQuestion): string => {
   if (clause.equals !== undefined) {
     if (gate.type === 'toggle')
       return clause.equals === true ? (gate.trueLabel ?? 'Sí') : (gate.falseLabel ?? 'No')
@@ -44,10 +38,7 @@ const formatDependencyLabel = (
   return ''
 }
 
-const negationLabel = (
-  clause: DependencyClause,
-  gate: DiagnosisQuestion,
-): string => {
+const negationLabel = (clause: DependencyClause, gate: DiagnosisQuestion): string => {
   if (clause.equals !== undefined) {
     if (gate.type === 'toggle')
       return clause.equals === true ? (gate.falseLabel ?? 'No') : (gate.trueLabel ?? 'Sí')
@@ -80,9 +71,7 @@ export const buildEdges = (questions: readonly DiagnosisQuestion[]): RawEdge[] =
     if (gate.type !== 'toggle' && gate.type !== 'chips') continue
     const gateIdx = idxOf(gateKey)
     if (gateIdx < 0) continue
-    const firstDependent = questions.find(q =>
-      q.dependsOn?.some(c => c.storageKey === gateKey),
-    )
+    const firstDependent = questions.find(q => q.dependsOn?.some(c => c.storageKey === gateKey))
     const clauseOnGate = firstDependent?.dependsOn?.find(c => c.storageKey === gateKey)
     if (!clauseOnGate) continue
     let nonDepIdx = -1

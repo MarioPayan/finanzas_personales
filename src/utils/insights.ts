@@ -61,8 +61,7 @@ const getObligatoryAmount = (ctx: EvalContext): number | null => {
   return (income * pct) / 100
 }
 
-const asNumber = (v: AnswerValue | undefined): number | null =>
-  typeof v === 'number' ? v : null
+const asNumber = (v: AnswerValue | undefined): number | null => (typeof v === 'number' ? v : null)
 
 const asArray = (v: AnswerValue | undefined): readonly (string | number | null)[] | null =>
   Array.isArray(v) ? v : null
@@ -263,7 +262,5 @@ export const collectInsights = (
       }
     }
   }
-  return result.sort(
-    (a, b) => severityRank(a.insight.severity) - severityRank(b.insight.severity),
-  )
+  return result.sort((a, b) => severityRank(a.insight.severity) - severityRank(b.insight.severity))
 }

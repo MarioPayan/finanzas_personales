@@ -72,9 +72,7 @@ describe('Perfiles canónicos · invariantes', () => {
   it('todos los perfiles tienen al menos un score de sección > 0', () => {
     for (const profile of CANONICAL_PROFILES) {
       const smm = MINIMUM_WAGES[profile.countryCode]?.amount ?? null
-      const scores = CATEGORY_ORDER.map(
-        cat => computeSectionScore(cat, profile.answers, smm).score,
-      )
+      const scores = CATEGORY_ORDER.map(cat => computeSectionScore(cat, profile.answers, smm).score)
       expect(scores.some(s => s > 0)).toBe(true)
     }
   })

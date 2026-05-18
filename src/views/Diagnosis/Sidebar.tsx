@@ -1,38 +1,21 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material'
+import {Box, Card, CardContent, Chip, Stack, Typography} from '@mui/material'
 import {
   CATEGORIES,
   CATEGORY_ORDER,
   DIAGNOSIS_QUESTIONS,
   formatAnswer,
-  type AnswerValue,
   type Answers,
   type DiagnosisCategoryId,
   type DiagnosisQuestion,
   type SidebarWidgetId,
 } from '../../content/diagnosis'
 import {findCreditScoreBands} from '../../content/creditScoreBands'
-import {getGlossaryEntries, type GlossaryEntry} from '../../content/glossary'
 import {formatMinimumWage, type MinimumWageEntry} from '../../content/minimumWages'
 
 type SidebarProps = {
-  answers: Answers
   currentStorageKey: string | null
   minimumWage: MinimumWageEntry | null
   countryCode: string | null
-  /** Setea una respuesta sin avanzar al siguiente paso. Lo usa el editor
-   * global del salario que vive en este sidebar. */
-  onAnswer: (storageKey: string, value: AnswerValue) => void
 }
 
 // ---------- Índices precomputados ----------
@@ -58,72 +41,26 @@ for (const q of DIAGNOSIS_QUESTIONS) {
   if (!q.dependsOn) QUESTIONS_BY_CATEGORY[q.category].push(q)
 }
 
-// ---------- Helpers de "preguntas activas" ----------
+// ---------- Helpers de "pregunta actual" ----------
 
-const isActive = (q: DiagnosisQuestion, answers: Answers, currentStorageKey: string | null) =>
-  answers[q.storageKey] !== undefined || q.storageKey === currentStorageKey
-
-const getActiveWidgets = (
-  answers: Answers,
-  currentStorageKey: string | null,
-): Set<SidebarWidgetId> => {
+/**
+ * Glosario y widgets del sidebar solo aplican al nodo actualmente en
+ * pantalla. La filosofía es que cada nodo declare en su propia definición
+ * (`glossaryTerms`, `sidebarWidgets`) qué información necesita; no se
+ * acumulan ayudas de preguntas anteriores.
+ */
+const getCurrentWidgets = (currentStorageKey: string | null): Set<SidebarWidgetId> => {
   const widgets = new Set<SidebarWidgetId>()
-  for (const q of DIAGNOSIS_QUESTIONS) {
-    if (!isActive(q, answers, currentStorageKey) || !q.sidebarWidgets) continue
-    for (const w of q.sidebarWidgets) widgets.add(w)
-  }
+  if (!currentStorageKey) return widgets
+  const current = DIAGNOSIS_QUESTIONS.find(q => q.storageKey === currentStorageKey)
+  if (!current?.sidebarWidgets) return widgets
+  for (const w of current.sidebarWidgets) widgets.add(w)
   return widgets
 }
 
-// ---------- Glosario: filtro por aparición literal ----------
-
-const DIACRITICS_RE = /[\u0300-\u036f]/g
-const normalize = (s: string): string => s.toLowerCase().normalize('NFD').replace(DIACRITICS_RE, '')
-
-const collectChipsText = (
-  options: readonly {label: string; sublabel?: string; examples?: readonly string[]}[],
-): string[] => {
-  const parts: string[] = []
-  for (const o of options) {
-    parts.push(o.label)
-    if (o.sublabel) parts.push(o.sublabel)
-    if (o.examples) parts.push(...o.examples)
-  }
-  return parts
-}
-
-const getQuestionText = (q: DiagnosisQuestion): string => {
-  const parts: string[] = [q.prompt, q.title, q.description]
-  if (q.hint) parts.push(q.hint)
-  if (q.tips) parts.push(...q.tips)
-  if (q.type === 'chips' || q.type === 'multiChips') {
-    parts.push(...collectChipsText(q.options))
-  } else if (q.type === 'toggle') {
-    if (q.trueLabel) parts.push(q.trueLabel)
-    if (q.falseLabel) parts.push(q.falseLabel)
-  } else if (q.type === 'grid' && q.cell.kind === 'chips') {
-    parts.push(...collectChipsText(q.cell.options))
-  }
-  return parts.join(' ')
-}
-
-const getActiveGlossary = (answers: Answers, currentStorageKey: string | null): GlossaryEntry[] => {
-  const activeQuestions: DiagnosisQuestion[] = []
-  const ids: string[] = []
-  const seen = new Set<string>()
-  for (const q of DIAGNOSIS_QUESTIONS) {
-    if (!isActive(q, answers, currentStorageKey)) continue
-    activeQuestions.push(q)
-    if (!q.glossaryTerms) continue
-    for (const id of q.glossaryTerms) {
-      if (seen.has(id)) continue
-      seen.add(id)
-      ids.push(id)
-    }
-  }
-  const haystack = normalize(activeQuestions.map(getQuestionText).join(' '))
-  return getGlossaryEntries(ids).filter(e => haystack.includes(normalize(e.term)))
-}
+// El glosario contextual ahora vive dentro del cuerpo de la pregunta
+// (DiagnosisQuestionBody), no en el sidebar. La logica de matching
+// vive en src/utils/glossaryMatching.ts y la reusan los consumidores.
 
 // ---------- Panel: Árbol de decisiones ----------
 
@@ -251,7 +188,13 @@ const renderCategoryHeader = (id: DiagnosisCategoryId) => {
   )
 }
 
-export const TreePanel = ({answers, currentStorageKey}: {answers: Answers; currentStorageKey: string | null}) => (
+export const TreePanel = ({
+  answers,
+  currentStorageKey,
+}: {
+  answers: Answers
+  currentStorageKey: string | null
+}) => (
   <Card variant='outlined'>
     <CardContent>
       <Stack spacing={1}>
@@ -279,39 +222,6 @@ export const TreePanel = ({answers, currentStorageKey}: {answers: Answers; curre
     </CardContent>
   </Card>
 )
-
-// ---------- Panel: Glosario ----------
-
-const GlossaryPanel = ({answers, currentStorageKey}: {answers: Answers; currentStorageKey: string | null}) => {
-  const glossary = getActiveGlossary(answers, currentStorageKey)
-  if (glossary.length === 0) return null
-  return (
-    <Card variant='outlined'>
-      <CardContent>
-        <Stack spacing={1.5}>
-          <Typography variant='overline' color='text.secondary'>
-            Glosario
-          </Typography>
-          <List disablePadding sx={{'& li + li': {mt: 1.5}}}>
-            {glossary.map((entry, idx) => (
-              <Box key={entry.id}>
-                {idx > 0 && <Divider sx={{mb: 1.5}} />}
-                <ListItem disableGutters sx={{display: 'block', p: 0}}>
-                  <Typography variant='subtitle2' sx={{fontWeight: 700}}>
-                    {entry.term}
-                  </Typography>
-                  <Typography variant='body2' color='text.secondary'>
-                    {entry.definition}
-                  </Typography>
-                </ListItem>
-              </Box>
-            ))}
-          </List>
-        </Stack>
-      </CardContent>
-    </Card>
-  )
-}
 
 // ---------- Panel: Tips contextuales del nodo actual ----------
 
@@ -361,87 +271,10 @@ const MinimumWagePanel = ({minimumWage}: {minimumWage: MinimumWageEntry}) => (
           variant='outlined'
           sx={{alignSelf: 'flex-start'}}
         />
-        <Typography variant='caption' color='text.disabled'>
-          Referencia para tus cálculos.
-        </Typography>
       </Stack>
     </CardContent>
   </Card>
 )
-
-// ---------- Panel: Editor del salario (siempre visible si está respondido) ----------
-
-const INCOME_BAND_NODE = DIAGNOSIS_QUESTIONS.find(q => q.storageKey === 'incomeBand')
-
-const IncomeEditorPanel = ({
-  answers,
-  minimumWage,
-  onAnswer,
-}: {
-  answers: Answers
-  minimumWage: MinimumWageEntry | null
-  onAnswer: (storageKey: string, value: AnswerValue) => void
-}) => {
-  if (!INCOME_BAND_NODE || INCOME_BAND_NODE.type !== 'chips') return null
-  const value = answers['incomeBand']
-  const exactValue = typeof value === 'number' ? value : null
-
-  return (
-    <Card variant='outlined'>
-      <CardContent>
-        <Stack spacing={1.25}>
-          <Typography variant='overline' color='text.secondary'>
-            Salario · editar
-          </Typography>
-          <Typography variant='caption' color='text.secondary'>
-            Podés modificarlo en cualquier paso del cuestionario; las
-            preguntas siguientes se recalculan.
-          </Typography>
-          <Stack direction='row' spacing={0.5} sx={{flexWrap: 'wrap', gap: 0.5}}>
-            {INCOME_BAND_NODE.options.map(opt => (
-              <Chip
-                key={opt.value}
-                label={opt.label}
-                size='small'
-                clickable
-                color={value === opt.value ? 'primary' : 'default'}
-                variant={value === opt.value ? 'filled' : 'outlined'}
-                onClick={() => onAnswer('incomeBand', opt.value)}
-                sx={{fontSize: 11, height: 24}}
-              />
-            ))}
-          </Stack>
-          {INCOME_BAND_NODE.exactInput && (
-            <TextField
-              size='small'
-              type='number'
-              placeholder={
-                minimumWage
-                  ? `Valor exacto en ${minimumWage.currency}`
-                  : 'Valor exacto'
-              }
-              value={exactValue ?? ''}
-              onChange={e => {
-                const raw = e.target.value
-                if (raw === '') return
-                const n = Number(raw)
-                if (!Number.isNaN(n)) onAnswer('incomeBand', n)
-              }}
-              slotProps={{
-                htmlInput: {
-                  min: INCOME_BAND_NODE.exactInput.min,
-                  max: INCOME_BAND_NODE.exactInput.max,
-                  step: INCOME_BAND_NODE.exactInput.step,
-                  inputMode: 'numeric',
-                },
-              }}
-            />
-          )}
-        </Stack>
-      </CardContent>
-    </Card>
-  )
-}
 
 // ---------- Panel: Rangos del score crediticio (por país) ----------
 
@@ -470,8 +303,8 @@ const CreditScoreScalePanel = ({countryCode}: {countryCode: string | null}) => {
               Rangos del score
             </Typography>
             <Typography variant='caption' color='text.secondary'>
-              No hay tabla de referencia para tu país. Las bandas son
-              auto-reportadas (malo / regular / bueno / excelente).
+              No hay tabla de referencia para tu país. Las bandas son auto-reportadas (malo /
+              regular / bueno / excelente).
             </Typography>
           </Stack>
         </CardContent>
@@ -493,12 +326,7 @@ const CreditScoreScalePanel = ({countryCode}: {countryCode: string | null}) => {
             {(['bad', 'regular', 'good', 'excellent'] as const).map(band => {
               const r = bands.ranges[band]
               return (
-                <Stack
-                  key={band}
-                  direction='row'
-                  spacing={1}
-                  sx={{alignItems: 'center'}}
-                >
+                <Stack key={band} direction='row' spacing={1} sx={{alignItems: 'center'}}>
                   <Box
                     sx={{
                       width: 4,
@@ -513,8 +341,7 @@ const CreditScoreScalePanel = ({countryCode}: {countryCode: string | null}) => {
                   </Typography>
                   <Typography
                     variant='body2'
-                    sx={{fontFamily: 'monospace', color: 'text.secondary'}}
-                  >
+                    sx={{fontFamily: 'monospace', color: 'text.secondary'}}>
                     {r.min}–{r.max}
                   </Typography>
                 </Stack>
@@ -530,33 +357,20 @@ const CreditScoreScalePanel = ({countryCode}: {countryCode: string | null}) => {
 // ---------- Sidebar ----------
 
 export default function Sidebar({
-  answers,
   currentStorageKey,
   minimumWage,
   countryCode,
-  onAnswer,
 }: SidebarProps) {
-  const widgets = getActiveWidgets(answers, currentStorageKey)
+  const widgets = getCurrentWidgets(currentStorageKey)
   const currentQuestion = currentStorageKey
     ? DIAGNOSIS_QUESTIONS.find(q => q.storageKey === currentStorageKey)
     : null
   const tips = currentQuestion?.tips
-  const incomeAnswered = answers['incomeBand'] !== undefined
   return (
     <Stack spacing={2} sx={{position: 'sticky', top: 16}}>
-      {incomeAnswered && (
-        <IncomeEditorPanel
-          answers={answers}
-          minimumWage={minimumWage}
-          onAnswer={onAnswer}
-        />
-      )}
-      <GlossaryPanel answers={answers} currentStorageKey={currentStorageKey} />
       {tips && tips.length > 0 && <TipsPanel tips={tips} />}
       {widgets.has('minimumWage') && minimumWage && <MinimumWagePanel minimumWage={minimumWage} />}
-      {widgets.has('creditScoreScale') && (
-        <CreditScoreScalePanel countryCode={countryCode} />
-      )}
+      {widgets.has('creditScoreScale') && <CreditScoreScalePanel countryCode={countryCode} />}
     </Stack>
   )
 }

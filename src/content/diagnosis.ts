@@ -49,11 +49,28 @@ export type DependencyClause = {
   in?: readonly ScalarAnswer[]
   greaterThan?: number
   nonEmpty?: boolean
+  /**
+   * Valores que se ignoran al evaluar `nonEmpty` sobre un arreglo
+   * (típicamente multiChips). Sirve para opciones tipo "Ninguno" cuyo
+   * valor está presente en el array pero semánticamente significa
+   * "ninguna opción aplica". Ej: `nonEmpty: true, nonEmptyExcept: ['none']`
+   * matchea sólo si hay al menos una opción seleccionada que no sea
+   * `'none'`.
+   */
+  nonEmptyExcept?: readonly ScalarAnswer[]
 }
 
 const matchesClause = (clause: DependencyClause, value: AnswerValue | undefined): boolean => {
   if (value === undefined) return false
-  if (clause.nonEmpty) return Array.isArray(value) && value.some(v => v !== null && v !== undefined)
+  if (clause.nonEmpty) {
+    if (!Array.isArray(value)) return false
+    const ignored = clause.nonEmptyExcept
+    return value.some(v => {
+      if (v === null || v === undefined) return false
+      if (ignored && ignored.includes(v as ScalarAnswer)) return false
+      return true
+    })
+  }
   if (clause.greaterThan !== undefined)
     return typeof value === 'number' && value > clause.greaterThan
   if (clause.equals !== undefined) return value === clause.equals
@@ -171,6 +188,22 @@ export type ExactInput = {
   step?: number
   unit?: string
   placeholder?: string
+  /**
+   * Multiplicadores del SMM que se renderizan como pills clickeables
+   * arriba del input. Cada pill setea el valor exacto correspondiente
+   * (`multiplicador × SMM`) en moneda local. Sirve para reducir
+   * fricción en campos de dinero. No usar para edades, conteos u
+   * otros valores no monetarios.
+   */
+  suggestionsSmm?: readonly number[]
+  /**
+   * Si `true`, el input se renderiza como currency: muestra el valor
+   * con separador de miles y símbolo de la moneda local del país
+   * detectado. La currency concreta la resuelve el render contra
+   * `minimumWage.currency`. Sólo encender en campos de dinero (montos,
+   * ingresos, deudas); no usar para porcentajes, meses, ni tasas.
+   */
+  isMoney?: boolean
 }
 
 export type OptionBracket = {
@@ -200,6 +233,13 @@ export type ChipOption = {
    * Default 0.
    */
   score?: number
+  /**
+   * Sólo aplica a `multiChips`. Si está marcada, esta opción es mutuamente
+   * exclusiva con las demás: al seleccionarla se vacían las otras, y al
+   * seleccionar otra opción se quita ésta. Pensada para opciones tipo
+   * "Ninguno" / "No aplica" en inventarios opcionales.
+   */
+  clearOthers?: boolean
 }
 
 // ---------- Filas de un grid ----------
@@ -317,12 +357,12 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'base',
     type: 'chips',
     prompt: '¿Cuánto ganas al mes, más o menos?',
-    hint: 'En múltiplos del salario mínimo de tu país, o ingresá el valor exacto.',
+    hint: 'En múltiplos del salario mínimo de tu país, o ingresa el valor exacto.',
     glossaryTerms: ['smm'],
     sidebarWidgets: ['minimumWage'],
     derivation: {kind: 'multiplyMinimumWage', inputs: []},
     tips: [
-      'Un valor exacto te dará un diagnóstico más fino que la banda. La banda sirve si no recordás la cifra exacta.',
+      'Un valor exacto te dará un diagnóstico más fino que la banda. La banda sirve si no recuerdas la cifra exacta.',
     ],
     options: [
       {value: 'lt1', label: 'Menos de 1 SMM', bracket: {max: 1}, score: 30},
@@ -331,7 +371,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       {value: '4to8', label: '4 a 8 SMM', bracket: {min: 4, max: 8}, score: 90},
       {value: 'gt8', label: 'Más de 8 SMM', bracket: {min: 8}, score: 100},
     ],
-    exactInput: {min: 0, step: 1000, placeholder: 'Valor exacto'},
+    exactInput: {min: 0, step: 1000, placeholder: 'Valor exacto', isMoney: true},
     insights: [
       {
         id: 'incomeBelowMinimum',
@@ -372,14 +412,14 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'incomeAboveCountryAverageTimes', multiplier: 1.5},
         severity: 'positive',
         diagnostic: 'Tu salario está por encima de la media nacional.',
-        tip: 'Tenés margen real para construir fondo de emergencia y destinar a inversión sin recortar calidad de vida.',
+        tip: 'Tienes margen real para construir fondo de emergencia y destinar a inversión sin recortar calidad de vida.',
       },
       {
         id: 'incomeHigh',
         when: {kind: 'incomeAboveSmmTimes', multiplier: 8},
         severity: 'info',
         diagnostic: 'Tu ingreso está claramente por encima del promedio.',
-        tip: 'Asegurate de que la mayor parte esté trabajando para vos: revisá diversificación y rendimiento de tus inversiones. Un ingreso alto sin inversión es ahorro estancado.',
+        tip: 'Asegúrate de que la mayor parte esté trabajando para ti: revisa diversificación y rendimiento de tus inversiones. Un ingreso alto sin inversión es ahorro estancado.',
       },
     ],
   },
@@ -434,12 +474,11 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'base',
     type: 'slider',
     prompt: '¿Qué porcentaje de tu ingreso se va en gastos obligatorios?',
-    hint: 'Comida, vivienda, transporte, servicios. Lo que no podrías dejar de pagar este mes. Incluí también los gastos anuales (impuestos, matrículas, seguros) divididos por 12.',
-    glossaryTerms: ['gastosObligatorios'],
+    hint: 'Solo lo que pagas todos los meses: comida, vivienda, transporte, servicios, salud. Los gastos anuales (impuestos, matrículas, seguros) se preguntan justo después.',
     derivation: {kind: 'shareOfMonthlyIncome', inputs: ['incomeBand']},
     min: 0,
     max: 100,
-    step: 5,
+    step: 1,
     defaultValue: 50,
     unit: '%',
     marks: [
@@ -465,7 +504,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'obligatoryAbsoluteBelowSmmTimes', multiplier: 0.4},
         severity: 'info',
         diagnostic: 'Tu gasto absoluto en obligatorios está por debajo del mínimo de subsistencia.',
-        tip: 'Probablemente tengas apoyos externos (vivienda familiar, subsidios) o no estés contando todo. Revisá si tu cifra incluye realmente comida, vivienda, transporte y servicios.',
+        tip: 'Probablemente tengas apoyos externos (vivienda familiar, subsidios) o no estés contando todo. Revisa si tu cifra incluye realmente comida, vivienda, transporte y servicios.',
       },
       {
         id: 'highObligatorySpending',
@@ -480,7 +519,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         },
         severity: 'warning',
         diagnostic: 'Más del 70% de tu ingreso se va en gastos obligatorios.',
-        tip: 'Empezá por reducir o renegociar el rubro más grande (vivienda, transporte, servicios) o por aumentar ingresos. Con ese margen tan apretado, cualquier imprevisto se vuelve crisis.',
+        tip: 'Empieza por reducir o renegociar el rubro más grande (vivienda, transporte, servicios) o por aumentar ingresos. Con ese margen tan apretado, cualquier imprevisto se vuelve crisis.',
       },
       {
         id: 'lowObligatorySpending',
@@ -498,6 +537,79 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     ],
   },
   {
+    storageKey: 'obligatoryAnnualItems',
+    title: 'Tipos de gastos anuales obligatorios',
+    description:
+      'Lista de rubros que el usuario tiene como gasto obligatorio anual o esporádico, separados del mes a mes. Cada item seleccionado genera una fila en `obligatoryAnnualAmounts` para capturar el monto. Sirve para que el usuario visualice estos gastos sin necesidad de prorratearlos mentalmente en el slider mensual.',
+    category: 'base',
+    type: 'multiChips',
+    prompt: '¿Qué gastos obligatorios pagas en el año (fuera del mes a mes)?',
+    hint: 'Marca los que apliquen. Son los gastos que no llegan todos los meses pero que sí necesitas prever.',
+    options: [
+      {
+        value: 'taxes',
+        label: 'Impuestos',
+        sublabel: 'Predial, vehicular, renta, IVA anual',
+        score: 0,
+      },
+      {
+        value: 'insurance',
+        label: 'Seguros',
+        sublabel: 'Salud, auto, casa, vida',
+        score: 0,
+      },
+      {
+        value: 'tuition',
+        label: 'Matrículas',
+        sublabel: 'Colegio, universidad, posgrado',
+        score: 0,
+      },
+      {
+        value: 'maintenance',
+        label: 'Mantenimientos',
+        sublabel: 'Auto, casa, electrodomésticos',
+        score: 0,
+      },
+      {
+        value: 'other',
+        label: 'Otros',
+        sublabel: 'Trámites, certificaciones, licencias',
+        score: 0,
+      },
+      {
+        value: 'none',
+        label: 'Ninguno',
+        sublabel: 'No tengo gastos anuales obligatorios',
+        score: 0,
+        clearOthers: true,
+      },
+    ],
+  },
+  {
+    storageKey: 'obligatoryAnnualAmounts',
+    title: 'Monto anual por rubro obligatorio',
+    description:
+      'Monto que el usuario paga al año en cada rubro obligatorio anual seleccionado. Es información complementaria al slider de `obligatoryPct` (que mide solo el gasto mensual recurrente). No entra al scoring; sirve para que el usuario tenga visibilidad del total real y para futuras derivaciones de gasto efectivo.',
+    category: 'base',
+    type: 'grid',
+    prompt: '¿Cuánto pagas en el año por cada rubro?',
+    hint: 'Una estimación está bien. Si no sabes con exactitud, suma lo que recuerdes de los últimos 12 meses.',
+    dependsOn: [
+      {storageKey: 'obligatoryAnnualItems', nonEmpty: true, nonEmptyExcept: ['none']},
+    ],
+    rowSource: {kind: 'multiSelectLabels', storageKey: 'obligatoryAnnualItems'},
+    cell: {
+      kind: 'number',
+      exactInput: {
+        min: 0,
+        step: 10000,
+        placeholder: 'Monto anual',
+        suggestionsSmm: [0.5, 1, 2, 5, 10],
+        isMoney: true,
+      },
+    },
+  },
+  {
     storageKey: 'discretionaryPct',
     title: 'Gastos discrecionales',
     description:
@@ -505,11 +617,11 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'base',
     type: 'slider',
     prompt: '¿Qué porcentaje de tu ingreso se va en gastos discrecionales?',
-    hint: 'Salidas, hobbies, ropa, comer fuera, viajes. Incluí también los gastos anuales (vacaciones, regalos, suscripciones) divididos por 12.',
+    hint: 'Solo lo que pagas todos los meses: salidas, hobbies, ropa, comer fuera, suscripciones mensuales. Los gastos anuales (vacaciones, regalos, viajes) se preguntan justo después.',
     derivation: {kind: 'shareOfMonthlyIncome', inputs: ['incomeBand']},
     min: 0,
     max: 100,
-    step: 5,
+    step: 1,
     defaultValue: 25,
     unit: '%',
     marks: [
@@ -530,16 +642,95 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'numberAbove', key: 'discretionaryPct', threshold: 45},
         severity: 'warning',
         diagnostic: 'Estás gastando una parte muy alta de tu ingreso en lo discrecional.',
-        tip: 'No se trata de cohibirte, sino de saber adónde va. Anotá un mes lo que gastás en lo no esencial; suele sorprender. Ese margen es el que después permite invertir o construir fondo de emergencia.',
+        tip: 'No se trata de cohibirte, sino de saber adónde va. Anota un mes lo que gastas en lo no esencial; suele sorprender. Ese margen es el que después permite invertir o construir fondo de emergencia.',
       },
       {
         id: 'discretionaryHoursOfLife',
         when: {kind: 'numberAbove', key: 'discretionaryPct', threshold: 45},
         severity: 'info',
-        diagnostic: 'Probá medir tus gastos discrecionales en horas de tu vida.',
-        tip: 'Dividí tu ingreso mensual por tus horas trabajadas: ese es tu ingreso por hora. Cuando dudes con un gasto grande, dividilo por esa cifra — te dice cuántas horas de tu vida cuesta. Es un filtro más honesto que pensar en dinero.',
+        diagnostic: 'Prueba medir tus gastos discrecionales en horas de tu vida.',
+        tip: 'Divide tu ingreso mensual por tus horas trabajadas: ese es tu ingreso por hora. Cuando dudes con un gasto grande, divídelo por esa cifra — te dice cuántas horas de tu vida cuesta. Es un filtro más honesto que pensar en dinero.',
       },
     ],
+  },
+  {
+    storageKey: 'discretionaryAnnualItems',
+    title: 'Tipos de gastos anuales discrecionales',
+    description:
+      'Lista de rubros no esenciales que el usuario gasta de forma anual o esporádica grande, separados del mes a mes. Cada item seleccionado genera una fila en `discretionaryAnnualAmounts`. Captura el gasto discrecional que pasa fuera del slider mensual (vacaciones, regalos, viajes).',
+    category: 'base',
+    type: 'multiChips',
+    prompt: '¿Qué gastos discrecionales pagas en el año (fuera del mes a mes)?',
+    hint: 'Marca los que apliquen. Pagos no esenciales que se concentran en momentos específicos del año.',
+    options: [
+      {
+        value: 'vacation',
+        label: 'Vacaciones',
+        sublabel: 'Hoteles, vuelos, paseos cortos',
+        score: 0,
+      },
+      {
+        value: 'gifts',
+        label: 'Regalos',
+        sublabel: 'Cumpleaños, navidad, ocasiones especiales',
+        score: 0,
+      },
+      {
+        value: 'subscriptions',
+        label: 'Suscripciones anuales',
+        sublabel: 'Streaming, gimnasio, software, revistas',
+        score: 0,
+      },
+      {
+        value: 'bigTrips',
+        label: 'Viajes grandes',
+        sublabel: 'Viaje internacional, luna de miel, retiros',
+        score: 0,
+      },
+      {
+        value: 'events',
+        label: 'Eventos',
+        sublabel: 'Bodas, conciertos, fiestas, retiros',
+        score: 0,
+      },
+      {
+        value: 'other',
+        label: 'Otros',
+        sublabel: 'Compras grandes esporádicas',
+        score: 0,
+      },
+      {
+        value: 'none',
+        label: 'Ninguno',
+        sublabel: 'No tengo gastos anuales discrecionales',
+        score: 0,
+        clearOthers: true,
+      },
+    ],
+  },
+  {
+    storageKey: 'discretionaryAnnualAmounts',
+    title: 'Monto anual por rubro discrecional',
+    description:
+      'Monto que el usuario gasta al año en cada rubro discrecional anual seleccionado. Complementa al slider de `discretionaryPct` (que mide solo el gasto mensual recurrente). No entra al scoring; sirve para que el usuario tenga visibilidad del total real y para futuras derivaciones de gasto efectivo.',
+    category: 'base',
+    type: 'grid',
+    prompt: '¿Cuánto gastas en el año por cada rubro?',
+    hint: 'Una estimación está bien. Si no sabes con exactitud, suma lo que recuerdes de los últimos 12 meses.',
+    dependsOn: [
+      {storageKey: 'discretionaryAnnualItems', nonEmpty: true, nonEmptyExcept: ['none']},
+    ],
+    rowSource: {kind: 'multiSelectLabels', storageKey: 'discretionaryAnnualItems'},
+    cell: {
+      kind: 'number',
+      exactInput: {
+        min: 0,
+        step: 10000,
+        placeholder: 'Monto anual',
+        suggestionsSmm: [0.5, 1, 2, 5, 10],
+        isMoney: true,
+      },
+    },
   },
   {
     storageKey: 'hasBudgetSystem',
@@ -548,9 +739,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       'Cómo el usuario distribuye su ingreso entrante: en cabeza, en cuentas separadas, o automatizado por el banco. El "sistema de cubetas" predice mejor el cumplimiento del ahorro que el monto ahorrado.',
     category: 'base',
     type: 'chips',
-    prompt: '¿Tenés un sistema para repartir tu ingreso cuando entra?',
-    hint: 'Hablamos de cómo decidís cuánto va a obligatorios, ahorro, inversión y gusto — no del monto, sino del método.',
-    glossaryTerms: ['sistemaCubetas'],
+    prompt: '¿Tienes un sistema para repartir tu ingreso cuando entra?',
+    hint: 'Hablamos de cómo decides cuánto va a obligatorios, ahorro, inversión y gusto — no del monto, sino del método.',
     options: [
       {
         value: 'no',
@@ -582,15 +772,15 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         id: 'noBudgetSystem',
         when: {kind: 'equals', key: 'hasBudgetSystem', value: 'no'},
         severity: 'warning',
-        diagnostic: 'No tenés un sistema para repartir tu ingreso.',
-        tip: 'Lo que sobra al final del mes nunca alcanza. Probá la regla más simple: cuando entra el ingreso, mové primero un porcentaje fijo a ahorro/inversión, y vivir con lo que queda. Mental, en cuentas separadas o automatizado — cualquier sistema le gana a no tener.',
+        diagnostic: 'No tienes un sistema para repartir tu ingreso.',
+        tip: 'Lo que sobra al final del mes nunca alcanza. Prueba la regla más simple: cuando entra el ingreso, mueve primero un porcentaje fijo a ahorro/inversión, y vivir con lo que queda. Mental, en cuentas separadas o automatizado — cualquier sistema le gana a no tener.',
       },
       {
         id: 'automatedBudget',
         when: {kind: 'equals', key: 'hasBudgetSystem', value: 'automated'},
         severity: 'positive',
         diagnostic: 'Tu reparto está automatizado.',
-        tip: 'Es la versión más sólida del sistema: el ahorro no depende de tu disciplina mensual. Verificá una vez al año que los porcentajes sigan haciendo sentido para tu ingreso y tus metas.',
+        tip: 'Es la versión más sólida del sistema: el ahorro no depende de tu disciplina mensual. Verifica una vez al año que los porcentajes sigan haciendo sentido para tu ingreso y tus metas.',
       },
     ],
   },
@@ -630,7 +820,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'creditScoreBand', values: ['bad', 'regular']},
         severity: 'warning',
         diagnostic: 'Tu puntaje crediticio no está en buen rango.',
-        tip: 'Revisá tus deudas activas, paga puntual aunque sean montos chicos, y evitá pedir múltiples créditos en poco tiempo. Subir un score toma meses, no días.',
+        tip: 'Revisa tus deudas activas, paga puntual aunque sean montos chicos, y evita pedir múltiples créditos en poco tiempo. Subir un score toma meses, no días.',
       },
     ],
   },
@@ -651,7 +841,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'equals', key: 'hasDebt', value: false},
         severity: 'positive',
         diagnostic: 'No tienes deudas activas — buena posición de partida.',
-        tip: 'Si tu fondo de emergencia ya cubre 3 meses o más, considerá dirigir el excedente del ingreso a inversiones diversificadas en vez de dejarlo quieto.',
+        tip: 'Si tu fondo de emergencia ya cubre 3 meses o más, considera dirigir el excedente del ingreso a inversiones diversificadas en vez de dejarlo quieto.',
       },
     ],
   },
@@ -663,12 +853,12 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'debt',
     type: 'slider',
     prompt: '¿Qué porcentaje de tu ingreso se va en cuotas mensuales de tus deudas?',
-    hint: 'Suma de todas las cuotas mensuales (tarjetas, créditos, hipoteca, vehículo). Si una deuda es a meses sin intereses, contá igual la cuota.',
+    hint: 'Suma de todas las cuotas mensuales (tarjetas, créditos, hipoteca, vehículo). Si una deuda es a meses sin intereses, cuenta igual la cuota.',
     dependsOn: [{storageKey: 'hasDebt', equals: true}],
     derivation: {kind: 'shareOfMonthlyIncome', inputs: ['incomeBand']},
     min: 0,
     max: 100,
-    step: 5,
+    step: 1,
     defaultValue: 30,
     unit: '%',
     marks: [
@@ -688,7 +878,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'numberAbove', key: 'debtMonthlyPct', threshold: 30},
         severity: 'warning',
         diagnostic: 'Más del 30% de tu ingreso se va en cuotas de deuda.',
-        tip: 'Con esa presión de cash-flow, cualquier imprevisto se vuelve crisis. Considerá compra de cartera con otra entidad para bajar la tasa, abonar al capital de la deuda con peor tasa, o renegociar plazos.',
+        tip: 'Con esa presión de cash-flow, cualquier imprevisto se vuelve crisis. Considera compra de cartera con otra entidad para bajar la tasa, abonar al capital de la deuda con peor tasa, o renegociar plazos.',
       },
     ],
   },
@@ -700,7 +890,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'debt',
     type: 'number',
     prompt: '¿Cuántas deudas tienes activas?',
-    hint: 'Si tenés muchas deudas similares, podés agruparlas (p. ej. todas las tarjetas como una sola).',
+    hint: 'Si tienes muchas deudas similares, puedes agruparlas (p. ej. todas las tarjetas como una sola).',
     dependsOn: [{storageKey: 'hasDebt', equals: true}],
     min: 1,
     max: 20,
@@ -720,7 +910,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'numberAbove', key: 'debtCount', threshold: 5},
         severity: 'warning',
         diagnostic: 'Manejas más de 5 deudas activas.',
-        tip: 'Considerá consolidar las más caras en una sola con tasa menor para simplificar pagos y reducir intereses totales.',
+        tip: 'Considera consolidar las más caras en una sola con tasa menor para simplificar pagos y reducir intereses totales.',
       },
     ],
   },
@@ -732,7 +922,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'debt',
     type: 'grid',
     prompt: '¿De cuánto es cada deuda?',
-    hint: 'Comparada con el salario mínimo del país, o ingresá el monto exacto.',
+    hint: 'Comparada con el salario mínimo del país, o ingresa el monto exacto.',
     dependsOn: [
       {storageKey: 'hasDebt', equals: true},
       {storageKey: 'debtCount', greaterThan: 0},
@@ -747,24 +937,35 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         {value: '3to10', label: '3 a 10 SMM', bracket: {min: 3, max: 10}, score: 60},
         {value: '10to50', label: '10 a 50 SMM', bracket: {min: 10, max: 50}, score: 40},
         {value: '50to200', label: '50 a 200 SMM', bracket: {min: 50, max: 200}, score: 20},
-        {value: 'gt200', label: 'Más de 200 SMM', sublabel: 'Vivienda u otra deuda muy grande', bracket: {min: 200}, score: 5},
+        {
+          value: 'gt200',
+          label: 'Más de 200 SMM',
+          sublabel: 'Vivienda u otra deuda muy grande',
+          bracket: {min: 200},
+          score: 5,
+        },
       ],
-      exactInput: {min: 0, step: 10000, placeholder: 'Monto exacto'},
+      exactInput: {min: 0, step: 10000, placeholder: 'Monto exacto', isMoney: true},
     },
     insights: [
       {
         id: 'oneVeryLargeDebt',
         when: {kind: 'gridAnyIn', key: 'debtAmounts', values: ['50to200', 'gt200']},
         severity: 'warning',
-        diagnostic: 'Tenés al menos una deuda muy grande.',
+        diagnostic: 'Tienes al menos una deuda muy grande.',
         tip: 'Si es vivienda u otra deuda buena, el riesgo está acotado a la cuota mensual y la tasa. Si es consumo, el plan tiene que ser bajarla con prioridad — son las deudas que más asfixian.',
       },
       {
         id: 'manyMediumDebts',
-        when: {kind: 'gridCountInAtLeast', key: 'debtAmounts', values: ['3to10', '10to50'], count: 3},
+        when: {
+          kind: 'gridCountInAtLeast',
+          key: 'debtAmounts',
+          values: ['3to10', '10to50'],
+          count: 3,
+        },
         severity: 'warning',
-        diagnostic: 'Acumulás varias deudas de tamaño medio.',
-        tip: 'Aunque cada una sea manejable por separado, el problema suele ser la suma de cuotas. Considerá compra de cartera para consolidar y bajar la presión mensual.',
+        diagnostic: 'Acumulas varias deudas de tamaño medio.',
+        tip: 'Aunque cada una sea manejable por separado, el problema suele ser la suma de cuotas. Considera compra de cartera para consolidar y bajar la presión mensual.',
       },
     ],
   },
@@ -776,7 +977,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'debt',
     type: 'grid',
     prompt: '¿Cuál es la tasa de interés de cada deuda?',
-    hint: 'Aproximadamente. Si no estás seguro, escoge una banda o ingresá el valor exacto.',
+    hint: 'Aproximadamente. Si no estás seguro, escoge una banda o ingresa el valor exacto.',
     glossaryTerms: ['ea'],
     dependsOn: [
       {storageKey: 'hasDebt', equals: true},
@@ -869,7 +1070,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'gridAnyIn', key: 'debtKinds', values: ['investment', 'savings']},
         severity: 'positive',
         diagnostic: 'Parte de tu deuda está produciendo o conservando valor.',
-        tip: 'No es la deuda en sí lo que daña — es la que solo financia consumo. Revisá si las tasas son razonables comparadas con el rendimiento que te dan.',
+        tip: 'No es la deuda en sí lo que daña — es la que solo financia consumo. Revisa si las tasas son razonables comparadas con el rendimiento que te dan.',
       },
       {
         id: 'leverageAgainstAssets',
@@ -888,7 +1089,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'stability',
     type: 'chips',
     prompt: '¿Cuántos meses de gastos tienes guardados como fondo de emergencia?',
-    hint: 'Aproximadamente, o ingresá la cantidad exacta de meses.',
+    hint: 'Aproximadamente, o ingresa la cantidad exacta de meses.',
     glossaryTerms: ['fondoEmergencia'],
     derivation: {kind: 'multiplyMonthlyExpenses', inputs: ['incomeBand', 'obligatoryPct']},
     options: [
@@ -913,7 +1114,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'emergencyMonths', values: ['none', 'lt1']},
         severity: 'warning',
         diagnostic: 'Tu fondo de emergencia es inexistente o muy chico.',
-        tip: 'Empezá por una meta chica que sí puedas cumplir: 1 mes de gastos obligatorios en cuenta líquida. Las metas grandes que no se cumplen producen abandono; las chicas que se cumplen producen hábito. Cuando llegues a 1 mes, redefiní el siguiente objetivo a 3 meses.',
+        tip: 'Empieza por una meta chica que sí puedas cumplir: 1 mes de gastos obligatorios en cuenta líquida. Las metas grandes que no se cumplen producen abandono; las chicas que se cumplen producen hábito. Cuando llegues a 1 mes, redefine el siguiente objetivo a 3 meses.',
       },
       {
         id: 'strongEmergencyFund',
@@ -932,10 +1133,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'stability',
     type: 'chips',
     prompt: '¿Qué tan rápido podrías disponer de tu fondo si lo necesitaras hoy?',
-    hint: 'Pensalo como: si esta noche se me daña el auto y necesito el dinero, ¿cuándo lo tengo en mi mano?',
-    dependsOn: [
-      {storageKey: 'emergencyMonths', in: ['1to3', '3to6', '6to12', 'gt12']},
-    ],
+    hint: 'Piénsalo como: si esta noche se me daña el auto y necesito el dinero, ¿cuándo lo tengo en mi mano?',
+    dependsOn: [{storageKey: 'emergencyMonths', in: ['1to3', '3to6', '6to12', 'gt12']}],
     options: [
       {
         value: 'minutes',
@@ -974,7 +1173,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'emergencyAccessSpeed', values: ['weeks', 'months']},
         severity: 'warning',
         diagnostic: 'Tu fondo no es realmente líquido — tarda demasiado en estar disponible.',
-        tip: 'El propósito del fondo es cubrir lo inesperado. Si tarda semanas o meses, la emergencia ya pasó. Una cuenta de ahorros o un fondo a la vista cumplen mejor ese rol; podés mantener el resto a más plazo.',
+        tip: 'El propósito del fondo es cubrir lo inesperado. Si tarda semanas o meses, la emergencia ya pasó. Una cuenta de ahorros o un fondo a la vista cumplen mejor ese rol; puedes mantener el resto a más plazo.',
       },
     ],
   },
@@ -1001,7 +1200,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
           ],
         },
         severity: 'critical',
-        diagnostic: 'No tenés seguro de salud y por tu edad el riesgo es alto.',
+        diagnostic: 'No tienes seguro de salud y por tu edad el riesgo es alto.',
         tip: 'Una urgencia médica sin cobertura puede vaciar tu fondo de emergencia y endeudarte mucho. Un plan básico — público si está disponible, privado complementario si no — debería ser prioridad.',
       },
       {
@@ -1014,7 +1213,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
           ],
         },
         severity: 'warning',
-        diagnostic: 'No tenés seguro de salud.',
+        diagnostic: 'No tienes seguro de salud.',
         tip: 'Aunque tu probabilidad anual de evento médico sea baja, un accidente puede pasarle a cualquiera. Aunque sea un plan público o un seguro de accidentes mínimo cubre lo peor.',
       },
     ],
@@ -1059,8 +1258,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         id: 'noSecondIncomeShortHorizon',
         when: {kind: 'in', key: 'secondIncomeStream', values: ['no', 'no-interest']},
         severity: 'warning',
-        diagnostic: 'Tu horizonte laboral es corto y no tenés otra fuente en marcha.',
-        tip: 'No es urgente, pero conviene empezar a pensarlo. Una segunda fuente toma años en madurar; si esperás a necesitarla ya es tarde.',
+        diagnostic: 'Tu horizonte laboral es corto y no tienes otra fuente en marcha.',
+        tip: 'No es urgente, pero conviene empezar a pensarlo. Una segunda fuente toma años en madurar; si esperas a necesitarla ya es tarde.',
       },
     ],
   },
@@ -1071,11 +1270,16 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       'Cuán seguido el usuario percibe ansiedad o malestar por la situación financiera. Es una variable subjetiva que no aparece en ninguna otra pregunta y que el video de Galloway identifica como factor de daño a la salud. Va al final de Estabilidad porque acumula el efecto de todo lo anterior.',
     category: 'stability',
     type: 'chips',
-    prompt: '¿Con qué frecuencia sentís estrés financiero?',
+    prompt: '¿Con qué frecuencia sientes estrés financiero?',
     hint: 'Ansiedad cuando se acerca fin de mes, evitar abrir cuentas, dormir mal por dinero — esas señales.',
     options: [
-      {value: 'none', label: 'Casi nunca', sublabel: 'La plata no me quita el sueño', score: 100},
-      {value: 'sometimes', label: 'A veces', sublabel: 'En meses puntuales o ante imprevistos', score: 70},
+      {value: 'none', label: 'Casi nunca', sublabel: 'El dinero no me quita el sueño', score: 100},
+      {
+        value: 'sometimes',
+        label: 'A veces',
+        sublabel: 'En meses puntuales o ante imprevistos',
+        score: 70,
+      },
       {value: 'frequent', label: 'Seguido', sublabel: 'Varias veces al mes', score: 30},
       {value: 'constant', label: 'Constante', sublabel: 'Lo cargo casi todos los días', score: 10},
     ],
@@ -1085,7 +1289,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'in', key: 'financialStressLevel', values: ['frequent', 'constant']},
         severity: 'critical',
         diagnostic: 'Estás cargando estrés financiero sostenido.',
-        tip: 'La presión financiera prolongada sube presión arterial, deteriora el sueño y empeora decisiones. Arreglar el cash-flow no es solo financiero, también es salud — empezá por el rubro más doloroso (deuda cara, gasto fijo grande) y atacalo aunque sea con un primer paso chico.',
+        tip: 'La presión financiera prolongada sube presión arterial, deteriora el sueño y empeora decisiones. Arreglar el cash-flow no es solo financiero, también es salud — empieza por el rubro más doloroso (deuda cara, gasto fijo grande) y atácalo aunque sea con un primer paso chico.',
       },
     ],
   },
@@ -1096,8 +1300,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       'Si el usuario comparte decisiones económicas con una pareja. Es el gate que decide si se pregunta por la alineación financiera del hogar. No puntúa por sí solo — es informativo.',
     category: 'stability',
     type: 'toggle',
-    prompt: '¿Compartís decisiones económicas con una pareja?',
-    hint: 'Conviviendo o no, casados o no — lo que importa es si las decisiones de plata grandes las negociás con alguien más.',
+    prompt: '¿Tienes una pareja con quien compartes decisiones económicas?',
+    hint: 'Conviviendo o no, casados o no — lo que importa es si las decisiones económicas grandes las negocias con alguien más. Si no tienes pareja o las decisiones son solo tuyas, responde No.',
     trueLabel: 'Sí',
     falseLabel: 'No',
   },
@@ -1115,7 +1319,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       {
         value: 'never-talk',
         label: 'No hablamos del tema',
-        sublabel: 'Cada uno con su plata, sin coordinación',
+        sublabel: 'Cada uno con su dinero, sin coordinación',
         score: 10,
       },
       {
@@ -1142,8 +1346,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         id: 'householdFinancialMisalignment',
         when: {kind: 'in', key: 'householdFinancialAlignment', values: ['never-talk', 'disagree']},
         severity: 'warning',
-        diagnostic: 'No hay un canal aceitado para hablar de plata con tu pareja.',
-        tip: 'La falta de conversación financiera es el predictor más fuerte de conflicto serio en una pareja, antes que el monto ahorrado. Probá la conversación más simple: una vez al mes, 20 minutos, repasar lo que entró, lo que salió y un objetivo a 90 días.',
+        diagnostic: 'No hay un canal aceitado para hablar de dinero con tu pareja.',
+        tip: 'La falta de conversación financiera es el predictor más fuerte de conflicto serio en una pareja, antes que el monto ahorrado. Prueba la conversación más simple: una vez al mes, 20 minutos, repasar lo que entró, lo que salió y un objetivo a 90 días.',
       },
     ],
   },
@@ -1154,14 +1358,18 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       'Cuánto tiempo lleva el usuario invirtiendo, contado desde la primera inversión real. No depende de `invests`: capta el caso "joven que no invierte" para activar el insight de interés compuesto. La opción "Nunca" puntúa bajo aunque el usuario no se considere inversor.',
     category: 'investment',
     type: 'chips',
-    prompt: '¿Hace cuánto invertís plata?',
+    prompt: '¿Hace cuánto inviertes?',
     hint: 'Desde la primera inversión real que sigue activa o de la que aprendiste algo. Cuentas de ahorro genéricas no cuentan.',
-    glossaryTerms: ['interesCompuesto'],
     options: [
       {value: 'never', label: 'Nunca invertí', score: 10},
       {value: 'lt1', label: 'Menos de 1 año', sublabel: 'Estoy arrancando', score: 40},
       {value: '1to3', label: '1 a 3 años', sublabel: 'Empezando a ver resultados', score: 70},
-      {value: '3to10', label: '3 a 10 años', sublabel: 'Ya pasé al menos un ciclo de mercado', score: 90},
+      {
+        value: '3to10',
+        label: '3 a 10 años',
+        sublabel: 'Ya pasé al menos un ciclo de mercado',
+        score: 90,
+      },
       {value: 'gt10', label: 'Más de 10 años', sublabel: 'Inversor experimentado', score: 100},
     ],
     insights: [
@@ -1175,8 +1383,48 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
           ],
         },
         severity: 'warning',
-        diagnostic: 'Sos joven y todavía no estás capturando interés compuesto.',
-        tip: 'Cada año invertido a los 20 vale más que diez años invertidos a los 40, gracias al interés compuesto. Empezar tarde con más plata pierde contra empezar temprano con poca. No hace falta saber mucho: un fondo indexado básico ya activa el reloj.',
+        diagnostic: 'Eres joven y todavía no estás capturando interés compuesto.',
+        tip: 'Cada año invertido a los 20 vale más que diez años invertidos a los 40, gracias al interés compuesto. Empezar tarde con más dinero pierde contra empezar temprano con poca. No hace falta saber mucho: un fondo indexado básico ya activa el reloj.',
+      },
+      {
+        // Vivía en `invests`; lo movemos acá porque `invests` se omite cuando
+        // el usuario ya dijo "Nunca invertí" en `yearsInvesting`, y entonces
+        // sus insights nunca se evaluarían. Acá disparamos tanto para
+        // `yearsInvesting = never` como para el caso clásico `invests = false`.
+        id: 'notInvestingButReady',
+        when: {
+          kind: 'all',
+          of: [
+            {
+              kind: 'any',
+              of: [
+                {kind: 'equals', key: 'yearsInvesting', value: 'never'},
+                {kind: 'equals', key: 'invests', value: false},
+              ],
+            },
+            {kind: 'in', key: 'emergencyMonths', values: ['1to3', '3to6', '6to12', 'gt12']},
+            {
+              kind: 'any',
+              of: [
+                {kind: 'equals', key: 'hasDebt', value: false},
+                // No hay deudas grandes (todas en bandas ≤10 SMM): equivalente al
+                // antiguo `debtMagnitude ∈ [small, medium]` ahora que el monto se
+                // pide por deuda en `debtAmounts`.
+                {
+                  kind: 'not',
+                  of: {
+                    kind: 'gridAnyIn',
+                    key: 'debtAmounts',
+                    values: ['10to50', '50to200', 'gt200'],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        severity: 'info',
+        diagnostic: 'No estás invirtiendo, pero tu situación lo permitiría.',
+        tip: 'Con un fondo de emergencia razonable y sin deuda grande, tienes margen para empezar con instrumentos seguros (CDT, fondos de inversión) e ir escalando a medida que ganes confianza.',
       },
     ],
   },
@@ -1216,7 +1464,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'equals', key: 'professionalEducationInvestment', value: 'no'},
         severity: 'info',
         diagnostic: 'No estás invirtiendo en formación de tu rubro.',
-        tip: 'Tu mejor activo sos vos mismo. Cualquier mejora en tu trabajo se compone — sube el ingreso, abre puertas, da margen para todo lo demás. No tiene por qué ser caro: empezar con contenido gratuito ya cuenta.',
+        tip: 'Tu mejor activo eres tú mismo. Cualquier mejora en tu trabajo se compone — sube el ingreso, abre puertas, da margen para todo lo demás. No tiene por qué ser caro: empezar con contenido gratuito ya cuenta.',
       },
     ],
   },
@@ -1256,7 +1504,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'equals', key: 'financialEducationInvestment', value: 'no'},
         severity: 'info',
         diagnostic: 'No estás invirtiendo en tu educación financiera.',
-        tip: 'No es necesario gastar dinero — un par de podcasts o libros gratuitos te dan lo básico. Lo importante es saber qué estás haciendo antes de mover plata, no aprenderlo cuando ya cometiste el error.',
+        tip: 'No es necesario gastar dinero — un par de podcasts o libros gratuitos te dan lo básico. Lo importante es saber qué estás haciendo antes de mover dinero, no aprenderlo cuando ya cometiste el error.',
       },
     ],
   },
@@ -1264,50 +1512,25 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     storageKey: 'invests',
     title: 'Hábito de inversión',
     description:
-      'Puerta de entrada al bloque de inversiones financieras. Si el usuario no invierte, las preguntas siguientes que dependen de este gate se omiten — pero las de educación (antes de este nodo) ya se preguntaron, porque la inversión en uno mismo aplica con o sin inversión financiera.',
+      'Puerta de entrada al bloque de inversiones financieras. Si el usuario no invierte, las preguntas siguientes que dependen de este gate se omiten — pero las de educación (antes de este nodo) ya se preguntaron, porque la inversión en uno mismo aplica con o sin inversión financiera. Se omite si `yearsInvesting = never` (la respuesta "Nunca invertí" ya implica que no invierte).',
     category: 'investment',
     type: 'toggle',
     prompt: '¿Inviertes parte de tu ingreso?',
+    // Se omite cuando el usuario ya dijo "Nunca invertí" en yearsInvesting:
+    // sería redundante. Las preguntas posteriores siguen gateadas por
+    // `invests = true`, y como `invests` queda undefined en ese flujo,
+    // todas se saltan correctamente.
+    dependsOn: [{storageKey: 'yearsInvesting', in: ['lt1', '1to3', '3to10', 'gt10']}],
     trueLabel: 'Sí',
     falseLabel: 'No',
     score: {whenTrue: 100, whenFalse: 30},
     insights: [
       {
-        id: 'notInvestingButReady',
-        when: {
-          kind: 'all',
-          of: [
-            {kind: 'equals', key: 'invests', value: false},
-            {kind: 'in', key: 'emergencyMonths', values: ['1to3', '3to6', '6to12', 'gt12']},
-            {
-              kind: 'any',
-              of: [
-                {kind: 'equals', key: 'hasDebt', value: false},
-                // No hay deudas grandes (todas en bandas ≤10 SMM): equivalente al
-                // antiguo `debtMagnitude ∈ [small, medium]` ahora que el monto se
-                // pide por deuda en `debtAmounts`.
-                {
-                  kind: 'not',
-                  of: {
-                    kind: 'gridAnyIn',
-                    key: 'debtAmounts',
-                    values: ['10to50', '50to200', 'gt200'],
-                  },
-                },
-              ],
-            },
-          ],
-        },
-        severity: 'info',
-        diagnostic: 'No estás invirtiendo, pero tu situación lo permitiría.',
-        tip: 'Con un fondo de emergencia razonable y sin deuda grande, tenés margen para empezar con instrumentos seguros (CDT, fondos de inversión) e ir escalando a medida que ganes confianza.',
-      },
-      {
         id: 'investingActively',
         when: {kind: 'equals', key: 'invests', value: true},
         severity: 'positive',
         diagnostic: 'Estás invirtiendo, lo cual indica un hábito financiero saludable.',
-        tip: 'Asegurate de que las tasas de tus deudas no superen el rendimiento de tus inversiones — si lo superan, pagar deuda es matemáticamente la mejor inversión.',
+        tip: 'Asegúrate de que las tasas de tus deudas no superen el rendimiento de tus inversiones — si lo superan, pagar deuda es matemáticamente la mejor inversión.',
       },
     ],
   },
@@ -1318,8 +1541,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       'Cuán seguido el usuario compra o vende sus inversiones. El backlog del video lo identifica como predictor robusto: tradear frecuentemente correlaciona con peor rendimiento que comprar y mantener. Capta day-trading aunque el usuario no lo declare como tal.',
     category: 'investment',
     type: 'chips',
-    prompt: '¿Con qué frecuencia comprás o vendés tus inversiones?',
-    hint: 'No cuenta el aporte mensual a un fondo; cuenta cuándo decidís entrar o salir de una posición.',
+    prompt: '¿Con qué frecuencia compras o vendes tus inversiones?',
+    hint: 'No cuenta el aporte mensual a un fondo; cuenta cuándo decides entrar o salir de una posición.',
     dependsOn: [{storageKey: 'invests', equals: true}],
     options: [
       {
@@ -1350,7 +1573,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
       'Si el usuario usa fondos indexados o ETFs en su portafolio. El backlog del video lo cita como atajo de bajo costo que históricamente le gana a la mayoría de gestores activos en el largo plazo.',
     category: 'investment',
     type: 'toggle',
-    prompt: '¿Usás fondos indexados o ETFs en tu portafolio?',
+    prompt: '¿Usas fondos indexados o ETFs en tu portafolio?',
     hint: 'Replican un índice (S&P 500, MSCI World, etc.) a bajo costo, en vez de elegir activos uno por uno.',
     glossaryTerms: ['fondoIndexado'],
     dependsOn: [{storageKey: 'invests', equals: true}],
@@ -1375,7 +1598,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'investment',
     type: 'chips',
     prompt: '¿Cuál es tu perfil de inversionista?',
-    hint: 'Conservador: preferís rentabilidad baja pero segura. Moderado: balance entre rendimiento y riesgo. Agresivo: aceptás volatilidad y posibles pérdidas a cambio de mayor rentabilidad esperada.',
+    hint: 'Conservador: prefieres rentabilidad baja pero segura. Moderado: balance entre rendimiento y riesgo. Agresivo: aceptas volatilidad y posibles pérdidas a cambio de mayor rentabilidad esperada.',
     dependsOn: [{storageKey: 'invests', equals: true}],
     options: [
       {value: 'conservative', label: 'Conservador', score: 80},
@@ -1421,8 +1644,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         id: 'riskProfileUnknown',
         when: {kind: 'equals', key: 'riskProfile', value: 'unknown'},
         severity: 'info',
-        diagnostic: 'No tenés claro tu perfil de inversionista.',
-        tip: 'Definirlo es uno de los pasos más útiles: te dice qué instrumentos tienen sentido para vos y cuáles no, y te evita entrar en una inversión que no podés sostener cuando empiece a moverse.',
+        diagnostic: 'No tienes claro tu perfil de inversionista.',
+        tip: 'Definirlo es uno de los pasos más útiles: te dice qué instrumentos tienen sentido para ti y cuáles no, y te evita entrar en una inversión que no puedes sostener cuando empiece a moverse.',
       },
     ],
   },
@@ -1489,7 +1712,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     type: 'multiChips',
     prompt: '¿En cuáles de estos mecanismos inviertes?',
     hint: 'Selecciona todos los que apliquen.',
-    glossaryTerms: ['cdt', 'diversificacion'],
+    glossaryTerms: ['cdt'],
     dependsOn: [{storageKey: 'invests', equals: true}],
     options: [
       {value: 'cdt', label: 'CDT', score: 10},
@@ -1506,7 +1729,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'multiCountAtMost', key: 'investmentVehicles', count: 1},
         severity: 'warning',
         diagnostic: 'Estás invirtiendo en un solo vehículo.',
-        tip: 'Diversificá entre instrumentos con riesgos distintos. Un mal año en un único vehículo no debería poder destruir tu plan completo.',
+        tip: 'Diversifica entre instrumentos con riesgos distintos. Un mal año en un único vehículo no debería poder destruir tu plan completo.',
       },
       {
         id: 'cryptoOnly',
@@ -1546,7 +1769,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         {value: '2to4', label: '2 a 4 SMM', bracket: {min: 2, max: 4}, score: 70},
         {value: 'gt4', label: 'Más de 4 SMM', bracket: {min: 4}, score: 100},
       ],
-      exactInput: {min: 0, step: 1000, placeholder: 'Monto exacto'},
+      exactInput: {min: 0, step: 1000, placeholder: 'Monto exacto', isMoney: true},
     },
     insights: [
       {
@@ -1554,7 +1777,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'gridEveryIn', key: 'investmentAmounts', values: ['lt1']},
         severity: 'info',
         diagnostic: 'Tus posiciones individuales son menores a 1 SMM.',
-        tip: 'Es razonable empezar pequeño para aprender, pero es el capital significativo el que mueve la aguja en el largo plazo. Apuntá a escalar a medida que ganás confianza con cada vehículo.',
+        tip: 'Es razonable empezar pequeño para aprender, pero es el capital significativo el que mueve la aguja en el largo plazo. Apunta a escalar a medida que ganas confianza con cada vehículo.',
       },
     ],
   },
@@ -1566,7 +1789,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
     category: 'investment',
     type: 'grid',
     prompt: '¿Cuál es el rendimiento anual de cada uno?',
-    hint: 'Si no estás seguro, ingresá tu mejor estimación (en % EA).',
+    hint: 'Si no estás seguro, ingresa tu mejor estimación (en % EA).',
     glossaryTerms: ['ea'],
     dependsOn: [
       {storageKey: 'invests', equals: true},
@@ -1579,10 +1802,26 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         {value: 'negative', label: 'Negativo', sublabel: 'Estoy perdiendo', score: 0},
         {value: 'lt3', label: '0% a 3%', sublabel: 'Apenas inflación', score: 25},
         {value: '3to7', label: '3% a 7%', sublabel: 'Cuenta de ahorros, CDT', score: 55},
-        {value: '7to15', label: '7% a 15%', sublabel: 'Renta fija con riesgo, fondos diversificados', score: 90},
-        {value: 'gt15', label: 'Más de 15%', sublabel: 'Rentabilidad alta — verificá riesgo', score: 100},
+        {
+          value: '7to15',
+          label: '7% a 15%',
+          sublabel: 'Renta fija con riesgo, fondos diversificados',
+          score: 90,
+        },
+        {
+          value: 'gt15',
+          label: 'Más de 15%',
+          sublabel: 'Rentabilidad alta — verifica riesgo',
+          score: 100,
+        },
       ],
-      exactInput: {min: -100, max: 1000, step: 0.1, unit: '% EA', placeholder: 'Rendimiento exacto'},
+      exactInput: {
+        min: -100,
+        max: 1000,
+        step: 0.1,
+        unit: '% EA',
+        placeholder: 'Rendimiento exacto',
+      },
       exactScore: [
         {max: 0, score: 0},
         {min: 0, max: 3, score: 25},
@@ -1597,7 +1836,7 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
         when: {kind: 'gridAnyIn', key: 'investmentYields', values: ['negative', 'lt3']},
         severity: 'warning',
         diagnostic: 'Al menos uno de tus vehículos rinde por debajo de la inflación.',
-        tip: 'Si la inflación local supera ese rendimiento, ese vehículo te está haciendo perder poder adquisitivo. Revisá si conviene rotarlo a algo más productivo.',
+        tip: 'Si la inflación local supera ese rendimiento, ese vehículo te está haciendo perder poder adquisitivo. Revisa si conviene rotarlo a algo más productivo.',
       },
       {
         id: 'unsustainableHighYield',
@@ -1609,8 +1848,8 @@ export const DIAGNOSIS_QUESTIONS: readonly DiagnosisQuestion[] = [
           ],
         },
         severity: 'warning',
-        diagnostic: 'Tenés al menos un vehículo con rendimientos muy altos.',
-        tip: 'Rendimientos consistentemente altos casi siempre esconden riesgo no contabilizado o sesgo de supervivencia (ves al ganador, no a los que perdieron). Antes de duplicar la apuesta, verificá el track record en años malos — si nunca lo viste perder, todavía no lo conocés.',
+        diagnostic: 'Tienes al menos un vehículo con rendimientos muy altos.',
+        tip: 'Rendimientos consistentemente altos casi siempre esconden riesgo no contabilizado o sesgo de supervivencia (ves al ganador, no a los que perdieron). Antes de duplicar la apuesta, verifica el track record en años malos — si nunca lo viste perder, todavía no lo conoces.',
       },
     ],
   },
@@ -1690,6 +1929,19 @@ export const cleanOrphanAnswers = (answers: Answers): Answers => {
 
 export const isAnswerComplete = (q: DiagnosisQuestion, answers: Answers): boolean => {
   const value = answers[q.storageKey]
+  // Inputs con `defaultValue` arrancan con un valor visible y mostrado
+  // al usuario (slider, number): cuentan como respondidos aunque el
+  // usuario no haya tocado el control. Las interacciones del usuario
+  // setean `value` y caen en las ramas posteriores. `DefaultValuePersist`
+  // (DiagnosisQuestionBody) además persiste el `defaultValue` en
+  // `answers` al montar el paso para que dependsOn/insights lo vean.
+  if (
+    (q.type === 'slider' || q.type === 'number') &&
+    value === undefined &&
+    q.defaultValue !== undefined
+  ) {
+    return true
+  }
   if (value === undefined) return false
   if (q.type === 'multiChips') return Array.isArray(value) && value.length > 0
   if (q.type === 'grid') {
@@ -1761,8 +2013,7 @@ const DEFAULT_TONE_BANDS: readonly ToneBand[] = [
   {max: 20, color: 'error', message: 'Hay problemas serios que conviene priorizar.'},
 ]
 
-const sectionScoreStorageKey = (cat: DiagnosisCategoryId): string =>
-  `__sectionScore__${cat}`
+const sectionScoreStorageKey = (cat: DiagnosisCategoryId): string => `__sectionScore__${cat}`
 
 /**
  * Nodo de "puntaje de sección": pantalla intersticial que ve el usuario
@@ -1809,9 +2060,8 @@ export const SECTION_SCORE_NODES: readonly SectionScoreNode[] = CATEGORY_ORDER.m
   toneBands: DEFAULT_TONE_BANDS,
 }))
 
-export const findSectionScoreNode = (
-  cat: DiagnosisCategoryId,
-): SectionScoreNode | undefined => SECTION_SCORE_NODES.find(n => n.category === cat)
+export const findSectionScoreNode = (cat: DiagnosisCategoryId): SectionScoreNode | undefined =>
+  SECTION_SCORE_NODES.find(n => n.category === cat)
 
 /**
  * Pieza visual del Summary final, descrita declarativamente. El render
@@ -1896,9 +2146,7 @@ export const SUMMARY_NODE: SummaryNode = {
 }
 
 /** Devuelve el nodo de resultado correspondiente a una `storageKey`, si lo hay. */
-export const findResultNode = (
-  key: string,
-): SectionScoreNode | SummaryNode | undefined => {
+export const findResultNode = (key: string): SectionScoreNode | SummaryNode | undefined => {
   if (key === SUMMARY_NODE.storageKey) return SUMMARY_NODE
   return SECTION_SCORE_NODES.find(n => n.storageKey === key)
 }

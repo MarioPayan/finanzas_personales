@@ -69,12 +69,20 @@ function buildQuestionStep(
   minimumWage: MinimumWageEntry | null,
   countryCode: string | null,
 ): Step<AnswerValue> {
+  // chips de selección única y toggle auto-avanzan: el click o toque
+  // de una opción dispara `commit()`. El propio componente de input
+  // maneja también el caso de `exactInput`: tipear un valor exacto
+  // dispara `commit` con un delay más largo (`EXACT_INPUT_COMMIT_DELAY_MS`),
+  // así no hace falta exponer ese detalle acá. Otros tipos (slider,
+  // number, multiChips, grid) requieren confirmar con "Siguiente".
+  const autoAdvancing = q.type === 'toggle' || q.type === 'chips'
   return {
     id: q.storageKey,
     title: q.title,
     tag: CATEGORIES[q.category].shortLabel,
     tagColor: CATEGORIES[q.category].color,
     header: {prompt: q.prompt, hint: q.hint},
+    hideAdvance: autoAdvancing,
     isApplicable: answers => isQuestionApplicable(q, answers as Answers),
     isComplete: answers => isAnswerComplete(q, answers as Answers),
     render: ctx => (

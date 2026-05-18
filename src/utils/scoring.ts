@@ -255,10 +255,7 @@ export const computeSectionScore = (
  * ⇒ "desde `min` en adelante" (inclusive de 100). Devuelve `null` si
  * ninguna banda matchea — el caller decide el fallback.
  */
-export const resolveToneBand = (
-  bands: readonly ToneBand[],
-  score: number,
-): ToneBand | null => {
+export const resolveToneBand = (bands: readonly ToneBand[], score: number): ToneBand | null => {
   for (const band of bands) {
     const minOk = band.min === undefined || score >= band.min
     const maxOk = band.max === undefined || score < band.max
@@ -278,9 +275,7 @@ export const resolveToneBand = (
  * Útil para el debug, donde necesitamos describir qué puede aportar
  * cada pregunta sin estar evaluando con respuestas reales.
  */
-export type QuestionMaxResult =
-  | {kind: 'fixed'; max: number}
-  | {kind: 'perRow'; perRow: number}
+export type QuestionMaxResult = {kind: 'fixed'; max: number} | {kind: 'perRow'; perRow: number}
 
 export const computeQuestionMax = (q: DiagnosisQuestion): QuestionMaxResult => {
   switch (q.type) {

@@ -41,9 +41,9 @@ export default function DebugValidator() {
           Validador del cuestionario
         </Typography>
         <Typography variant='body2' color='text.secondary'>
-          Análisis declarativo de <code>diagnosis.ts</code> + <code>glossary.ts</code>.
-          Sin ejecutar el quiz: detecta referencias rotas, dependencias mal
-          ordenadas, brechas de scoring y huecos de cobertura de insights.
+          Análisis declarativo de <code>diagnosis.ts</code> + <code>glossary.ts</code>. Sin ejecutar
+          el quiz: detecta referencias rotas, dependencias mal ordenadas, brechas de scoring y
+          huecos de cobertura de insights.
         </Typography>
       </Stack>
 
@@ -57,8 +57,8 @@ export default function DebugValidator() {
 
       {report.totals.errors === 0 && report.totals.warnings === 0 && (
         <Alert severity='success'>
-          Sin errores ni advertencias estructurales. Los <em>infos</em> abajo (si
-          los hay) son sugerencias, no problemas.
+          Sin errores ni advertencias estructurales. Los <em>infos</em> abajo (si los hay) son
+          sugerencias, no problemas.
         </Alert>
       )}
 
@@ -103,8 +103,7 @@ function IssueRow({issue}: {issue: ValidationIssue}) {
         bgcolor: 'background.paper',
         border: 1,
         borderColor: 'divider',
-      }}
-    >
+      }}>
       <Chip
         size='small'
         label={meta.label}
@@ -114,16 +113,9 @@ function IssueRow({issue}: {issue: ValidationIssue}) {
       />
       <Stack spacing={0.5} sx={{flex: 1, minWidth: 0}}>
         <Stack direction='row' spacing={1} sx={{alignItems: 'center', flexWrap: 'wrap'}}>
-          <Chip
-            size='small'
-            label={CATEGORY_LABEL[issue.category]}
-            variant='outlined'
-          />
+          <Chip size='small' label={CATEGORY_LABEL[issue.category]} variant='outlined' />
           {issue.nodeKey && (
-            <Typography
-              variant='caption'
-              sx={{fontFamily: 'monospace', color: 'text.secondary'}}
-            >
+            <Typography variant='caption' sx={{fontFamily: 'monospace', color: 'text.secondary'}}>
               {issue.nodeKey}
               {issue.insightId ? ` · ${issue.insightId}` : ''}
             </Typography>

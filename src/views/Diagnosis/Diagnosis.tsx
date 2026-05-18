@@ -8,7 +8,6 @@ import {buildDiagnosisSteps} from './buildDiagnosisSteps'
 import {DiagnosisProgress} from './DiagnosisProgress'
 import {DiagnosisTreeDrawer} from './DiagnosisTreeDrawer'
 import {DiagnosisInfoDrawer} from './DiagnosisInfoDrawer'
-import {useStepperActions} from '../../components/Stepper'
 
 /**
  * Vista raíz del diagnóstico.
@@ -47,11 +46,7 @@ export default function Diagnosis() {
       steps={steps}
       renderProgress={state => <DiagnosisProgress state={state} />}
       renderSidebar={state => (
-        <DiagnosisSidebar
-          state={state}
-          minimumWage={minimumWage}
-          countryCode={countryCode}
-        />
+        <DiagnosisSidebar state={state} minimumWage={minimumWage} countryCode={countryCode} />
       )}
       renderOverlay={state => {
         const currentKey =
@@ -61,16 +56,9 @@ export default function Diagnosis() {
         return (
           <>
             <DiagnosisInfoDrawer>
-              <DiagnosisSidebar
-                state={state}
-                minimumWage={minimumWage}
-                countryCode={countryCode}
-              />
+              <DiagnosisSidebar state={state} minimumWage={minimumWage} countryCode={countryCode} />
             </DiagnosisInfoDrawer>
-            <DiagnosisTreeDrawer
-              answers={state.answers}
-              currentStorageKey={currentKey}
-            />
+            <DiagnosisTreeDrawer answers={state.answers} currentStorageKey={currentKey} />
           </>
         )
       }}
@@ -87,18 +75,9 @@ function DiagnosisSidebar({
   minimumWage: MinimumWageEntry | null
   countryCode: string | null
 }) {
-  const actions = useStepperActions<AnswerValue>()
   const currentKey =
-    state.currentStep && state.currentStep.kind !== 'interstitial'
-      ? state.currentStep.id
-      : null
+    state.currentStep && state.currentStep.kind !== 'interstitial' ? state.currentStep.id : null
   return (
-    <Sidebar
-      answers={state.answers}
-      currentStorageKey={currentKey}
-      minimumWage={minimumWage}
-      countryCode={countryCode}
-      onAnswer={actions.setAnswer}
-    />
+    <Sidebar currentStorageKey={currentKey} minimumWage={minimumWage} countryCode={countryCode} />
   )
 }

@@ -113,11 +113,7 @@ const collectInsightConditionKeys = (cond: InsightCondition): string[] => {
   }
 }
 
-const checkInsight = (
-  ownerKey: string,
-  ins: Insight,
-  issues: ValidationIssue[],
-) => {
+const checkInsight = (ownerKey: string, ins: Insight, issues: ValidationIssue[]) => {
   if (!VALID_SEVERITIES.has(ins.severity ?? 'info')) {
     issues.push({
       severity: 'error',
@@ -291,14 +287,13 @@ const checkInsightCoverage = (q: DiagnosisQuestion, issues: ValidationIssue[]) =
     (q.type === 'slider' && !!q.score) ||
     (q.type === 'toggle' && !!q.score) ||
     (q.type === 'number' && !!q.score) ||
-    (q.type === 'grid' &&
-      q.cell.kind === 'chips' &&
-      q.cell.options.some(o => (o.score ?? 0) > 0))
+    (q.type === 'grid' && q.cell.kind === 'chips' && q.cell.options.some(o => (o.score ?? 0) > 0))
   if (aportaPuntaje) {
     issues.push({
       severity: 'info',
       category: 'insights',
-      message: 'Nodo con scoring pero sin insights declarados — el usuario recibe puntos pero no ve un diagnóstico textual.',
+      message:
+        'Nodo con scoring pero sin insights declarados — el usuario recibe puntos pero no ve un diagnóstico textual.',
       nodeKey: q.storageKey,
     })
   }

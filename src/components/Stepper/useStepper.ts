@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import type {AnswersMap, Step, StepperActions, StepperState} from './types'
+import type {AnswersMap, CommitOpts, Step, StepperActions, StepperState} from './types'
 
 /**
  * State machine pura del Stepper.
@@ -47,10 +47,7 @@ export function useStepper<TAnswer>(opts: {
   // Cleanup on unmount.
   useEffect(() => cancelAutoAdvance, [cancelAutoAdvance])
 
-  const visibleSteps = useMemo(
-    () => steps.filter(s => s.isApplicable(answers)),
-    [steps, answers],
-  )
+  const visibleSteps = useMemo(() => steps.filter(s => s.isApplicable(answers)), [steps, answers])
 
   // Si el paso actual dejó de ser aplicable, saltar al siguiente que
   // sí lo sea (avanzando por el orden original — no retroceder).
@@ -173,7 +170,7 @@ export function useStepper<TAnswer>(opts: {
   }, [cancelAutoAdvance, initialAnswers, steps, emitStepChange, onAnswersChange])
 
   const commit = useCallback(
-    (value?: TAnswer) => {
+    (value?: TAnswer, opts?: CommitOpts) => {
       cancelAutoAdvance()
       if (!currentStep) return
       // Si se pasó un value, setearlo. Calcular el state que tendríamos
@@ -189,6 +186,7 @@ export function useStepper<TAnswer>(opts: {
       const projectedVisible = steps.filter(s => s.isApplicable(projected))
       const idx = projectedVisible.findIndex(s => s.id === currentStep.id)
       const nextStep = projectedVisible[idx + 1]
+      const delay = opts?.delayMs ?? autoAdvanceMs
       autoAdvanceTimer.current = setTimeout(() => {
         if (nextStep) {
           setCurrentId(nextStep.id)
@@ -199,7 +197,7 @@ export function useStepper<TAnswer>(opts: {
           emitStepChange(null)
           onComplete?.(projected)
         }
-      }, autoAdvanceMs)
+      }, delay)
     },
     [
       cancelAutoAdvance,

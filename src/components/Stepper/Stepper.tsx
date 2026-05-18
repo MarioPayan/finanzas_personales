@@ -80,20 +80,24 @@ function StepperLayout<TAnswer>({
   const theme = useTheme()
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
   const sidebar = renderSidebar?.(state)
-  const progress = renderProgress
-    ? renderProgress(state)
-    : <DefaultProgress state={state as StepperState<unknown>} />
-  const header = renderHeader
-    ? renderHeader(state)
-    : <DefaultHeader state={state as StepperState<unknown>} />
-  const navigation = renderNavigation
-    ? renderNavigation(state, actions)
-    : (
-      <DefaultNavigation
-        state={state as StepperState<unknown>}
-        actions={actions as StepperActions<unknown>}
-      />
-    )
+  const progress = renderProgress ? (
+    renderProgress(state)
+  ) : (
+    <DefaultProgress state={state as StepperState<unknown>} />
+  )
+  const header = renderHeader ? (
+    renderHeader(state)
+  ) : (
+    <DefaultHeader state={state as StepperState<unknown>} />
+  )
+  const navigation = renderNavigation ? (
+    renderNavigation(state, actions)
+  ) : (
+    <DefaultNavigation
+      state={state as StepperState<unknown>}
+      actions={actions as StepperActions<unknown>}
+    />
+  )
 
   return (
     <Box sx={{display: 'flex', minHeight: '100vh', bgcolor: 'background.default'}}>
@@ -123,7 +127,11 @@ function StepperLayout<TAnswer>({
         <Stack spacing={{xs: 3, md: 4}} sx={{maxWidth: 760, mx: 'auto'}}>
           {progress}
           {state.done ? (
-            renderDone ? renderDone(state, actions) : <DefaultDone />
+            renderDone ? (
+              renderDone(state, actions)
+            ) : (
+              <DefaultDone />
+            )
           ) : (
             <>
               <StepShell

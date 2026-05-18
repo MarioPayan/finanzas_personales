@@ -25,12 +25,6 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'Tasa Efectiva Anual: cuánto crece una deuda en un año si no pagas nada. Es la forma estándar de comparar tasas entre productos.',
   },
-  gastosObligatorios: {
-    id: 'gastosObligatorios',
-    term: 'Gastos obligatorios',
-    definition:
-      'Lo que no puedes dejar de pagar este mes sin consecuencias serias: vivienda, servicios, transporte, comida básica, salud.',
-  },
   fondoEmergencia: {
     id: 'fondoEmergencia',
     term: 'Fondo de emergencia',
@@ -42,12 +36,6 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     term: 'CDT',
     definition:
       'Certificado de Depósito a Término: un producto bancario donde dejas dinero un plazo fijo a cambio de una tasa garantizada.',
-  },
-  diversificacion: {
-    id: 'diversificacion',
-    term: 'Diversificación',
-    definition:
-      'Repartir el dinero en distintos vehículos (acciones, fondos, bienes raíces, etc.) para que un mal año en uno no destruya todo.',
   },
   debtKindInvestment: {
     id: 'debtKindInvestment',
@@ -65,29 +53,11 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'Deuda tomada para gastos que no producen ingreso ni evitan otro gasto. Suele ser la más urgente de pagar.',
   },
-  apalancamientoActivos: {
-    id: 'apalancamientoActivos',
-    term: 'Apalancamiento contra activos',
-    definition:
-      'Tomar deuda usando activos como garantía en vez de venderlos: conservás el activo, evitás el impuesto a la ganancia, y el costo es la tasa que pagás. Es la mecánica que usan los patrimonios grandes para financiar consumo sin liquidar inversiones.',
-  },
   fondoIndexado: {
     id: 'fondoIndexado',
     term: 'Fondo indexado',
     definition:
       'Vehículo que replica un índice de mercado (S&P 500, MSCI World, etc.) a bajo costo, en vez de elegir activos uno por uno. En plazos largos le gana a la mayoría de fondos gestionados activamente.',
-  },
-  interesCompuesto: {
-    id: 'interesCompuesto',
-    term: 'Interés compuesto',
-    definition:
-      'Rendimiento que se reinvierte y genera nuevo rendimiento sobre el rendimiento previo. Es la variable que más amplifica empezar temprano: cada año adicional invertido vale más que el anterior.',
-  },
-  sistemaCubetas: {
-    id: 'sistemaCubetas',
-    term: 'Sistema de cubetas',
-    definition:
-      'Dividir el ingreso entrante en compartimentos con un destino predefinido (gastos obligatorios, fondo de emergencia, inversión, gusto). Puede ser mental, en cuentas separadas, o automatizado por el banco. Predice mejor el cumplimiento de ahorro que el monto guardado.',
   },
 }
 

@@ -5,8 +5,7 @@ import {theme} from './theme'
 
 const Debug = lazy(() => import('./views/Debug/Debug'))
 
-const isDebugRoute = (path: string): boolean =>
-  path === '/debug' || path.startsWith('/debug/')
+const isDebugRoute = (path: string): boolean => path === '/debug' || path.startsWith('/debug/')
 
 const Loading = () => (
   <Box
@@ -15,8 +14,7 @@ const Loading = () => (
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',
-    }}
-  >
+    }}>
     <CircularProgress />
   </Box>
 )

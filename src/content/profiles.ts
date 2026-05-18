@@ -56,7 +56,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'base-tight',
         label: 'Apretado',
         description:
-          'Llegás a fin de mes pero el aire es poco. Cualquier imprevisto se vuelve crisis. Reducir un rubro grande o sumar ingreso abre todo lo demás.',
+          'Llegas a fin de mes pero el aire es poco. Cualquier imprevisto se vuelve crisis. Reducir un rubro grande o sumar ingreso abre todo lo demás.',
       },
     },
     {
@@ -76,7 +76,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'base-margin',
         label: 'Con margen',
         description:
-          'Tu base es sólida: hay diferencia entre ingreso y gasto, podés destinar algo a ahorro o inversión sin sacrificar calidad de vida.',
+          'Tu base es sólida: hay diferencia entre ingreso y gasto, puedes destinar algo a ahorro o inversión sin sacrificar calidad de vida.',
       },
     },
     {
@@ -86,7 +86,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'base-comfortable',
         label: 'Cómodo',
         description:
-          'Tus números base están en muy buena forma. Eso libera energía para optimizar lo siguiente — el sistema con el que distribuís lo que sobra.',
+          'Tus números base están en muy buena forma. Eso libera energía para optimizar lo siguiente — el sistema con el que distribuyes lo que sobra.',
       },
     },
   ],
@@ -118,7 +118,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'debt-managing',
         label: 'Manejando la deuda',
         description:
-          'Tenés deuda pero está bajo control. El siguiente paso es revisar si todas son necesarias o si alguna se puede consolidar a mejor tasa.',
+          'Tienes deuda pero está bajo control. El siguiente paso es revisar si todas son necesarias o si alguna se puede consolidar a mejor tasa.',
       },
     },
     {
@@ -138,7 +138,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'debt-free',
         label: 'Sin lastre',
         description:
-          'No tenés deuda mala o tu deuda es estructuralmente productiva. Cualquier excedente puede ir a fondo o inversión sin compromisos.',
+          'No tienes deuda mala o tu deuda es estructuralmente productiva. Cualquier excedente puede ir a fondo o inversión sin compromisos.',
       },
     },
   ],
@@ -150,7 +150,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'stability-exposed',
         label: 'Sin red',
         description:
-          'No tenés colchón ni amortiguadores. Cualquier imprevisto (despido, salud, daño grave) puede arruinar meses de progreso. Construir un fondo mínimo es prioridad.',
+          'No tienes colchón ni amortiguadores. Cualquier imprevisto (despido, salud, daño grave) puede arruinar meses de progreso. Construir un fondo mínimo es prioridad.',
       },
     },
     {
@@ -160,7 +160,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'stability-building',
         label: 'Construyendo el colchón',
         description:
-          'Algo de protección, pero no alcanza para un evento serio. La meta cercana: 1 mes de gastos obligatorios líquidos. Después escalá a 3, después a 6.',
+          'Algo de protección, pero no alcanza para un evento serio. La meta cercana: 1 mes de gastos obligatorios líquidos. Después escala a 3, después a 6.',
       },
     },
     {
@@ -180,7 +180,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'stability-shielded',
         label: 'Bien protegido',
         description:
-          'Tu base de seguridad está sólida. Tenés fondo, seguro de salud, y horizonte laboral cubierto. Podés tomar más riesgo en inversiones sin perder sueño.',
+          'Tu base de seguridad está sólida. Tienes fondo, seguro de salud, y horizonte laboral cubierto. Puedes tomar más riesgo en inversiones sin perder sueño.',
       },
     },
     {
@@ -190,7 +190,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'stability-fortress',
         label: 'Fortaleza',
         description:
-          'Tu seguridad financiera es notable: fondo amplio y líquido, cobertura completa, segunda fuente de ingreso. Tenés libertad real para elegir tu estrategia.',
+          'Tu seguridad financiera es notable: fondo amplio y líquido, cobertura completa, segunda fuente de ingreso. Tienes libertad real para elegir tu estrategia.',
       },
     },
   ],
@@ -202,7 +202,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'investment-uninvested',
         label: 'Sin inversión',
         description:
-          'Tu plata no está trabajando. No es un mal estado si todavía estás cerrando la base, pero el costo de oportunidad crece con cada año que pasa.',
+          'Tu dinero no está trabajando. No es un mal estado si todavía estás cerrando la base, pero el costo de oportunidad crece con cada año que pasa.',
       },
     },
     {
@@ -212,7 +212,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'investment-curious',
         label: 'Curioso del mercado',
         description:
-          'Ya invertís algo o aprendiste lo básico, pero todavía es una porción chica de tu cuadro. Definir perfil de riesgo es el paso que más mueve la aguja.',
+          'Ya inviertes algo o aprendiste lo básico, pero todavía es una porción chica de tu cuadro. Definir perfil de riesgo es el paso que más mueve la aguja.',
       },
     },
     {
@@ -222,7 +222,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'investment-learning',
         label: 'Inversor en formación',
         description:
-          'Tenés inversiones activas pero el portafolio podría estar más diversificado o mejor calibrado a tu edad. La consistencia mensual gana a los timings.',
+          'Tienes inversiones activas pero el portafolio podría estar más diversificado o mejor calibrado a tu edad. La consistencia mensual gana a los timings.',
       },
     },
     {
@@ -232,7 +232,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'investment-active',
         label: 'Inversor activo',
         description:
-          'Diversificás bien, conocés tu perfil y tus vehículos rinden. El refinamiento ahora viene de bajar costos (fees, fondos indexados) y dejar correr el tiempo.',
+          'Diversificas bien, conoces tu perfil y tus vehículos rinden. El refinamiento ahora viene de bajar costos (fees, fondos indexados) y dejar correr el tiempo.',
       },
     },
     {
@@ -242,7 +242,7 @@ export const SECTION_PROFILES: Record<DiagnosisCategoryId, readonly ProfileBand[
         id: 'investment-mature',
         label: 'Inversor maduro',
         description:
-          'Tu estrategia es sólida en horizonte, diversificación y costos. Revisá una vez al año el balance entre perfil de riesgo y etapa de vida — eso cambia con los años.',
+          'Tu estrategia es sólida en horizonte, diversificación y costos. Revisa una vez al año el balance entre perfil de riesgo y etapa de vida — eso cambia con los años.',
       },
     },
   ],
@@ -284,7 +284,7 @@ export const getOverallProfile = (
       profile: {
         id: 'unknown',
         label: 'Sin datos',
-        description: 'Completá al menos una sección del diagnóstico para ver tu perfil.',
+        description: 'Completa al menos una sección del diagnóstico para ver tu perfil.',
       },
       reason: 'bottleneck',
     }
@@ -296,7 +296,7 @@ export const getOverallProfile = (
         id: 'overall-balanced',
         label: 'Equilibrado',
         description:
-          'Las cuatro áreas — base, deuda, estabilidad e inversión — están en buen estado. No hay un único cuello de botella; el siguiente paso es elegir qué área querés llevar de "muy bien" a "excelente".',
+          'Las cuatro áreas — base, deuda, estabilidad e inversión — están en buen estado. No hay un único cuello de botella; el siguiente paso es elegir qué área quieres llevar de "muy bien" a "excelente".',
       },
       reason: 'well-rounded',
     }

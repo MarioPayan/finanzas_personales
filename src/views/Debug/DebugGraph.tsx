@@ -101,10 +101,7 @@ const CATEGORY_COLOR: Record<DiagnosisCategoryId, string> = {
 const sectionScoreKey = (cat: DiagnosisCategoryId): string =>
   findSectionScoreNode(cat)?.storageKey ?? ''
 
-const EDGE_STYLE: Record<
-  EdgeKind,
-  {stroke: string; dash?: number[]; legend: string}
-> = {
+const EDGE_STYLE: Record<EdgeKind, {stroke: string; dash?: number[]; legend: string}> = {
   flow: {stroke: '#475569', legend: EDGE_LEGEND.flow},
   skip: {stroke: '#ed6c02', legend: EDGE_LEGEND.skip},
   derivation: {stroke: '#1976d2', dash: [6, 4], legend: EDGE_LEGEND.derivation},
@@ -403,7 +400,11 @@ const buildSectionScoreTemplate = (): go.Node =>
     $(
       go.Panel,
       'Vertical',
-      {alignment: go.Spot.Center, defaultAlignment: go.Spot.Center, padding: new go.Margin(12, 18, 12, 18)},
+      {
+        alignment: go.Spot.Center,
+        defaultAlignment: go.Spot.Center,
+        padding: new go.Margin(12, 18, 12, 18),
+      },
       $(
         go.TextBlock,
         {
@@ -446,7 +447,11 @@ const buildSummaryTemplate = (): go.Node =>
     $(
       go.Panel,
       'Vertical',
-      {alignment: go.Spot.Center, defaultAlignment: go.Spot.Center, padding: new go.Margin(16, 22, 16, 22)},
+      {
+        alignment: go.Spot.Center,
+        defaultAlignment: go.Spot.Center,
+        padding: new go.Margin(16, 22, 16, 22),
+      },
       $(
         go.TextBlock,
         {
@@ -583,12 +588,7 @@ const initDiagram = (host: HTMLDivElement): go.Diagram => {
 
 // ---------- Componente React ----------
 
-export default function DebugGraph({
-  questions,
-  selectedKey,
-  onNodeClick,
-  height = 1100,
-}: Props) {
+export default function DebugGraph({questions, selectedKey, onNodeClick, height = 1100}: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const diagramRef = useRef<go.Diagram | null>(null)
   const onNodeClickRef = useRef(onNodeClick)
@@ -599,8 +599,7 @@ export default function DebugGraph({
     const diagram = initDiagram(hostRef.current)
     diagramRef.current = diagram
 
-    const {groups, questionNodes, sectionScoreNodes, summaryNode, links} =
-      buildModel(questions)
+    const {groups, questionNodes, sectionScoreNodes, summaryNode, links} = buildModel(questions)
 
     diagram.model = $(go.GraphLinksModel, {
       nodeKeyProperty: 'key',

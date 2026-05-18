@@ -1,13 +1,5 @@
 import {useMemo, useState} from 'react'
-import {
-  Box,
-  Chip,
-  Divider,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
-} from '@mui/material'
+import {Box, Chip, Divider, MenuItem, Select, Stack, Typography} from '@mui/material'
 import {CANONICAL_PROFILES} from '../../content/canonicalProfiles'
 import {
   CATEGORIES,
@@ -42,10 +34,7 @@ const SEVERITY_COLOR: Record<string, 'error' | 'warning' | 'info' | 'success'> =
 export default function DebugSimulator() {
   const [profileId, setProfileId] = useState<string>(CANONICAL_PROFILES[0]?.id ?? '')
 
-  const profile = useMemo(
-    () => CANONICAL_PROFILES.find(p => p.id === profileId),
-    [profileId],
-  )
+  const profile = useMemo(() => CANONICAL_PROFILES.find(p => p.id === profileId), [profileId])
 
   const smm = useMemo(
     () => (profile ? (MINIMUM_WAGES[profile.countryCode]?.amount ?? null) : null),
@@ -82,8 +71,8 @@ export default function DebugSimulator() {
         </Typography>
         <Typography variant='body2' color='text.secondary'>
           Cargá un perfil canónico (los mismos definidos en{' '}
-          <code>src/content/canonicalProfiles.ts</code> que se usan para
-          los tests de regresión) y veé el quiz resuelto de punta a punta.
+          <code>src/content/canonicalProfiles.ts</code> que se usan para los tests de regresión) y
+          veé el quiz resuelto de punta a punta.
         </Typography>
       </Stack>
 
@@ -93,8 +82,7 @@ export default function DebugSimulator() {
           onChange={e => setProfileId(e.target.value)}
           size='small'
           fullWidth
-          sx={{maxWidth: 480}}
-        >
+          sx={{maxWidth: 480}}>
           {CANONICAL_PROFILES.map(p => (
             <MenuItem key={p.id} value={p.id}>
               {p.label}
@@ -106,8 +94,8 @@ export default function DebugSimulator() {
       {profile && (
         <>
           <Typography variant='body2' color='text.secondary' sx={{maxWidth: 760}}>
-            {profile.description} · País: <code>{profile.countryCode}</code> · SMM
-            referencia: {smm ? smm.toLocaleString() : '—'}{' '}
+            {profile.description} · País: <code>{profile.countryCode}</code> · SMM referencia:{' '}
+            {smm ? smm.toLocaleString() : '—'}{' '}
             {profile.countryCode && MINIMUM_WAGES[profile.countryCode]?.currency}
           </Typography>
 
@@ -119,8 +107,7 @@ export default function DebugSimulator() {
                 bgcolor: 'background.paper',
                 border: 1,
                 borderColor: 'divider',
-              }}
-            >
+              }}>
               <Typography variant='overline' color='text.secondary'>
                 Perfil global
               </Typography>
@@ -128,11 +115,7 @@ export default function DebugSimulator() {
               <Typography variant='body2' color='text.secondary'>
                 {overall.profile.description}
               </Typography>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                sx={{display: 'block', mt: 1}}
-              >
+              <Typography variant='caption' color='text.secondary' sx={{display: 'block', mt: 1}}>
                 Razón: <strong>{overall.reason}</strong>
                 {overall.bottleneck ? ` · cuello de botella: ${overall.bottleneck}` : ''}
               </Typography>
@@ -152,8 +135,7 @@ export default function DebugSimulator() {
                   display: 'flex',
                   gap: 2,
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <Chip
                   size='small'
                   label={CATEGORIES[r.category].shortLabel}
@@ -180,13 +162,10 @@ export default function DebugSimulator() {
           </Stack>
 
           <Stack spacing={1}>
-            <Typography variant='subtitle1'>
-              Insights disparados ({insights.length})
-            </Typography>
+            <Typography variant='subtitle1'>Insights disparados ({insights.length})</Typography>
             {insights.length === 0 ? (
               <Typography variant='body2' color='text.secondary'>
-                Sin insights — el perfil pasa el quiz sin ninguna condición de
-                diagnóstico activa.
+                Sin insights — el perfil pasa el quiz sin ninguna condición de diagnóstico activa.
               </Typography>
             ) : (
               <Stack spacing={1}>
@@ -198,13 +177,11 @@ export default function DebugSimulator() {
                       borderRadius: 1,
                       border: 1,
                       borderColor: 'divider',
-                    }}
-                  >
+                    }}>
                     <Stack
                       direction='row'
                       spacing={1}
-                      sx={{alignItems: 'center', flexWrap: 'wrap', mb: 0.5}}
-                    >
+                      sx={{alignItems: 'center', flexWrap: 'wrap', mb: 0.5}}>
                       <Chip
                         size='small'
                         label={ci.insight.severity ?? 'info'}
@@ -212,8 +189,7 @@ export default function DebugSimulator() {
                       />
                       <Typography
                         variant='caption'
-                        sx={{fontFamily: 'monospace', color: 'text.secondary'}}
-                      >
+                        sx={{fontFamily: 'monospace', color: 'text.secondary'}}>
                         {ci.nodeKey} · {ci.insight.id}
                       </Typography>
                     </Stack>
@@ -238,16 +214,14 @@ export default function DebugSimulator() {
                 q => (
                   <Box
                     key={q.storageKey}
-                    sx={{display: 'flex', gap: 2, py: 0.5, alignItems: 'baseline'}}
-                  >
+                    sx={{display: 'flex', gap: 2, py: 0.5, alignItems: 'baseline'}}>
                     <Typography
                       variant='caption'
                       sx={{
                         fontFamily: 'monospace',
                         color: 'text.secondary',
                         minWidth: 220,
-                      }}
-                    >
+                      }}>
                       {q.storageKey}
                     </Typography>
                     <Typography variant='body2'>

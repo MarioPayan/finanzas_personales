@@ -38,7 +38,15 @@ const colorToken = (sev: InsightSeverity): string =>
 
 const labelOf = (sev: InsightSeverity): string => SUMMARY_NODE.severityLabels[sev].label
 
-function InsightRow({item, index, reducedMotion}: {item: CollectedInsight; index: number; reducedMotion: boolean}) {
+function InsightRow({
+  item,
+  index,
+  reducedMotion,
+}: {
+  item: CollectedInsight
+  index: number
+  reducedMotion: boolean
+}) {
   const sev = item.insight.severity ?? 'info'
   const color = colorToken(sev)
   const label = labelOf(sev)
@@ -173,9 +181,7 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
                 initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 8}}
                 animate={{opacity: 1, y: 0}}
                 transition={{duration: 0.3, delay: reducedMotion ? 0 : 0.1 + i * 0.06}}>
-                <Card
-                  elevation={0}
-                  sx={{border: 1, borderColor: 'divider', height: '100%'}}>
+                <Card elevation={0} sx={{border: 1, borderColor: 'divider', height: '100%'}}>
                   <CardContent sx={{p: {xs: 2, md: 2.5}}}>
                     <Stack spacing={0.75}>
                       <Chip
@@ -202,10 +208,7 @@ export default function Summary({answers, smm, countryCode, onRestart}: SummaryP
                         }}>
                         {score}
                       </Typography>
-                      <Typography
-                        variant='caption'
-                        color='text.secondary'
-                        sx={{lineHeight: 1.3}}>
+                      <Typography variant='caption' color='text.secondary' sx={{lineHeight: 1.3}}>
                         {profile?.label ?? '—'}
                       </Typography>
                     </Stack>

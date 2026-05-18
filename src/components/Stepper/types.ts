@@ -27,11 +27,22 @@ export type StepRenderCtx<TAnswer> = {
   /** Setea la respuesta del paso actual. No avanza por sí solo. */
   setAnswer: (value: TAnswer) => void
   /**
-   * Setea y pide avance automático tras `autoAdvanceMs`. Pensado para
-   * inputs cuya interacción tiene un "fin claro" (chip click, toggle).
-   * Si el paso no se completa con `value`, el avance no ocurre.
+   * Setea y pide avance automático. Pensado para inputs cuya interacción
+   * tiene un "fin claro" (chip click, toggle, blur). Si el paso no se
+   * completa con `value`, el avance no ocurre.
+   *
+   * El delay default es `autoAdvanceMs` del Stepper (250ms — pensado
+   * para clicks). Para interacciones de tipeo (NumberInput, exactInput)
+   * pasar un `delayMs` más largo (~1500ms) para no avanzar mientras el
+   * usuario sigue escribiendo. Cualquier nuevo commit cancela el timer
+   * previo.
    */
-  commit: (value?: TAnswer) => void
+  commit: (value?: TAnswer, opts?: CommitOpts) => void
+}
+
+export type CommitOpts = {
+  /** Override del delay del Stepper para este commit puntual. */
+  delayMs?: number
 }
 
 /**
@@ -89,14 +100,18 @@ export type Step<TAnswer = unknown> = {
   tag?: string
 
   /** Color (token del theme) para el chip de categoría. Opcional. */
-  tagColor?:
-    | 'primary'
-    | 'secondary'
-    | 'warning'
-    | 'info'
-    | 'success'
-    | 'error'
-    | 'default'
+  tagColor?: 'primary' | 'secondary' | 'warning' | 'info' | 'success' | 'error' | 'default'
+
+  /**
+   * Si está marcado, el paso oculta el botón "Siguiente" del footer.
+   * Se usa cuando el input del paso ya dispara `commit()` por sí solo
+   * (chips de selección única, toggles): mostrar "Siguiente" sería
+   * ruido — el click en la opción ya avanza.
+   *
+   * El botón "Atrás" se mantiene visible siempre que `isFirst` lo
+   * permita.
+   */
+  hideAdvance?: boolean
 }
 
 export type StepperState<TAnswer = unknown> = {
@@ -129,7 +144,7 @@ export type StepperActions<TAnswer = unknown> = {
   goTo: (id: string) => void
   reset: () => void
   /** Setea respuesta del paso actual + pide auto-advance (debounce). */
-  commit: (value?: TAnswer) => void
+  commit: (value?: TAnswer, opts?: CommitOpts) => void
 }
 
 export type StepperProps<TAnswer = unknown> = {
@@ -154,10 +169,7 @@ export type StepperProps<TAnswer = unknown> = {
   renderProgress?: (state: StepperState<TAnswer>) => ReactNode
 
   /** Override de la navegación. Default: botones Atrás / Siguiente. */
-  renderNavigation?: (
-    state: StepperState<TAnswer>,
-    actions: StepperActions<TAnswer>,
-  ) => ReactNode
+  renderNavigation?: (state: StepperState<TAnswer>, actions: StepperActions<TAnswer>) => ReactNode
 
   /** Sidebar opcional. Recibe el state vigente. */
   renderSidebar?: (state: StepperState<TAnswer>) => ReactNode
@@ -167,10 +179,7 @@ export type StepperProps<TAnswer = unknown> = {
    * que aparezca también en mobile. Pensado para FABs flotantes, modales,
    * drawers globales del producto.
    */
-  renderOverlay?: (
-    state: StepperState<TAnswer>,
-    actions: StepperActions<TAnswer>,
-  ) => ReactNode
+  renderOverlay?: (state: StepperState<TAnswer>, actions: StepperActions<TAnswer>) => ReactNode
 
   /** Override de la pantalla "done". Default: mensaje minimalista. */
   renderDone?: (state: StepperState<TAnswer>, actions: StepperActions<TAnswer>) => ReactNode

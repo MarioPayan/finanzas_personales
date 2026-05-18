@@ -1,4 +1,5 @@
-import type {ReactNode} from 'react'
+import {useEffect, type ReactNode} from 'react'
+import {Box, Stack, Typography} from '@mui/material'
 import ChipGroup from '../../components/inputs/ChipGroup'
 import Toggle from '../../components/inputs/Toggle'
 import RangeSlider from '../../components/inputs/RangeSlider'
@@ -19,6 +20,7 @@ import {
 import type {MinimumWageEntry} from '../../content/minimumWages'
 import {findCreditScoreBands} from '../../content/creditScoreBands'
 import {formatBracket, formatShare, getDerivationBase} from '../../utils/calculations'
+import {getQuestionGlossary} from '../../utils/glossaryMatching'
 
 /**
  * Renderiza SOLO el cuerpo (input) de una pregunta del diagnóstico.
@@ -137,7 +139,41 @@ const buildGridRowChange =
     setAnswer(next as AnswerValue)
   }
 
-export default function DiagnosisQuestionBody({
+export default function DiagnosisQuestionBody(props: Props): ReactNode {
+  const glossary = getQuestionGlossary(props.question)
+  const input = renderInput(props)
+  if (glossary.length === 0) return input
+  return (
+    <Stack spacing={2.5}>
+      <Stack
+        spacing={1}
+        sx={{
+          p: 1.5,
+          borderLeft: 3,
+          borderColor: 'info.main',
+          bgcolor: 'action.hover',
+          borderRadius: 0.5,
+        }}>
+        {glossary.map(entry => (
+          <Box key={entry.id}>
+            <Typography variant='subtitle2' sx={{fontWeight: 700, lineHeight: 1.3}}>
+              {entry.term}
+            </Typography>
+            <Typography
+              variant='body2'
+              color='text.secondary'
+              sx={{mt: 0.25, lineHeight: 1.5}}>
+              {entry.definition}
+            </Typography>
+          </Box>
+        ))}
+      </Stack>
+      {input}
+    </Stack>
+  )
+}
+
+function renderInput({
   question,
   answers,
   answer,
@@ -160,10 +196,15 @@ export default function DiagnosisQuestionBody({
       <ChipGroup
         options={options}
         value={typeof value === 'string' || typeof value === 'number' ? value : null}
-        onChange={(v, opts) => (opts?.commit ? commit(v) : setAnswer(v))}
+        onChange={(v, opts) =>
+          opts?.commit ? commit(v, {delayMs: opts.delayMs}) : setAnswer(v)
+        }
         ariaLabel={question.prompt}
         derivedSublabels={derivedSublabels}
         exactInput={question.exactInput}
+        exactInputCurrency={
+          question.exactInput?.isMoney ? minimumWage?.currency : undefined
+        }
       />
     )
   }
@@ -181,37 +222,37 @@ export default function DiagnosisQuestionBody({
   }
 
   if (question.type === 'slider') {
-    const sliderValue = typeof value === 'number' ? value : question.defaultValue
     return (
-      <RangeSlider
-        value={sliderValue}
-        onChange={v => setAnswer(v)}
-        min={question.min}
-        max={question.max}
-        step={question.step}
-        unit={question.unit}
-        marks={question.marks}
-        ariaLabel={question.prompt}
-        derivedHint={computeSliderHint(question, sliderValue, answers, minimumWage)}
-        derivedHintInfo={computeDerivationInfo(question)}
-      />
+      <DefaultValuePersist
+        storageKey={question.storageKey}
+        value={value}
+        defaultValue={question.defaultValue}
+        setAnswer={setAnswer}>
+        <SliderField question={question} value={value} answers={answers} minimumWage={minimumWage} setAnswer={setAnswer} />
+      </DefaultValuePersist>
     )
   }
 
   if (question.type === 'number') {
     const numValue = typeof value === 'number' ? value : (question.defaultValue ?? null)
     return (
-      <NumberInput
-        value={numValue}
-        onChange={v => setAnswer(v ?? question.defaultValue ?? 0)}
-        min={question.min}
-        max={question.max}
-        step={question.step}
-        unit={question.unit}
-        placeholder={question.placeholder}
-        ariaLabel={question.prompt}
-        size='medium'
-      />
+      <DefaultValuePersist
+        storageKey={question.storageKey}
+        value={value}
+        defaultValue={question.defaultValue}
+        setAnswer={setAnswer}>
+        <NumberInput
+          value={numValue}
+          onChange={v => setAnswer(v ?? question.defaultValue ?? 0)}
+          min={question.min}
+          max={question.max}
+          step={question.step}
+          unit={question.unit}
+          placeholder={question.placeholder}
+          ariaLabel={question.prompt}
+          size='medium'
+        />
+      </DefaultValuePersist>
     )
   }
 
@@ -246,9 +287,72 @@ export default function DiagnosisQuestionBody({
         value={gridValue}
         onChange={buildGridRowChange(question, answers, setAnswer)}
         derivedSublabels={prepared?.derivedSublabels}
+        minimumWage={minimumWage}
       />
     )
   }
 
   return null
+}
+
+/**
+ * Wrapper genérico: cuando el usuario llega al paso y `value` está
+ * undefined, persiste `defaultValue` en `answers` con `setAnswer`. Sirve
+ * para que dependsOn/insights/progress vean el valor que el usuario
+ * efectivamente ve en la UI desde el primer momento, sin esperar
+ * interacción. Solo aplica a tipos con `defaultValue` semánticamente
+ * "ya respondido" (slider, number).
+ *
+ * Importante: usa el `storageKey` como key del `useEffect`, así corre
+ * cada vez que se monta para un nodo distinto. Las interacciones
+ * subsecuentes del usuario pasan por el onChange normal.
+ */
+function DefaultValuePersist({
+  storageKey,
+  value,
+  defaultValue,
+  setAnswer,
+  children,
+}: {
+  storageKey: string
+  value: AnswerValue | undefined
+  defaultValue: number | undefined
+  setAnswer: (value: AnswerValue) => void
+  children: ReactNode
+}) {
+  useEffect(() => {
+    if (value === undefined && defaultValue !== undefined) setAnswer(defaultValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey])
+  return <>{children}</>
+}
+
+function SliderField({
+  question,
+  value,
+  answers,
+  minimumWage,
+  setAnswer,
+}: {
+  question: SliderQuestion
+  value: AnswerValue | undefined
+  answers: Answers
+  minimumWage: MinimumWageEntry | null
+  setAnswer: (value: AnswerValue) => void
+}) {
+  const sliderValue = typeof value === 'number' ? value : question.defaultValue
+  return (
+    <RangeSlider
+      value={sliderValue}
+      onChange={v => setAnswer(v)}
+      min={question.min}
+      max={question.max}
+      step={question.step}
+      unit={question.unit}
+      marks={question.marks}
+      ariaLabel={question.prompt}
+      derivedHint={computeSliderHint(question, sliderValue, answers, minimumWage)}
+      derivedHintInfo={computeDerivationInfo(question)}
+    />
+  )
 }

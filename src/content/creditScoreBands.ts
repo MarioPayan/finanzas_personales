@@ -299,7 +299,5 @@ export const CREDIT_SCORE_BANDS: readonly CreditScoreBands[] = [
   // escala que no aplica.
 ]
 
-export const findCreditScoreBands = (
-  countryCode: string,
-): CreditScoreBands | undefined =>
+export const findCreditScoreBands = (countryCode: string): CreditScoreBands | undefined =>
   CREDIT_SCORE_BANDS.find(b => b.countryCode === countryCode)

@@ -21,19 +21,12 @@ export default function DebugDetailSection({node}: {node: SectionScoreNode}) {
   const cat = CATEGORIES[node.category]
   const inCat = DIAGNOSIS_QUESTIONS.filter(q => q.category === node.category)
   const rows = inCat.map(q => ({question: q, max: computeQuestionMax(q)}))
-  const totalFixedMax = rows.reduce(
-    (s, r) => s + (r.max.kind === 'fixed' ? r.max.max : 0),
-    0,
-  )
+  const totalFixedMax = rows.reduce((s, r) => s + (r.max.kind === 'fixed' ? r.max.max : 0), 0)
 
   return (
     <Stack spacing={2}>
       <Stack direction='row' spacing={1} sx={{alignItems: 'center', flexWrap: 'wrap', gap: 0.5}}>
-        <Chip
-          label={node.kind}
-          size='small'
-          sx={{fontFamily: 'monospace', fontWeight: 600}}
-        />
+        <Chip label={node.kind} size='small' sx={{fontFamily: 'monospace', fontWeight: 600}} />
         <Chip label={node.category} size='small' variant='outlined' />
       </Stack>
 
@@ -55,11 +48,8 @@ export default function DebugDetailSection({node}: {node: SectionScoreNode}) {
             borderRadius: 1,
             border: '1px dashed',
             borderColor: 'divider',
-          }}
-        >
-          <Typography sx={{fontFamily: 'monospace', fontSize: 13}}>
-            {node.formula}
-          </Typography>
+          }}>
+          <Typography sx={{fontFamily: 'monospace', fontSize: 13}}>{node.formula}</Typography>
         </Box>
       </Section>
 
@@ -82,22 +72,20 @@ export default function DebugDetailSection({node}: {node: SectionScoreNode}) {
         <Box sx={{mt: 2, pt: 1.5, borderTop: '1px solid', borderColor: 'divider'}}>
           <Typography variant='body2'>
             <Mono>
-              Σ max teórico (preguntas con max fijo) ={' '}
-              {totalFixedMax > 0 ? totalFixedMax : '—'}
+              Σ max teórico (preguntas con max fijo) = {totalFixedMax > 0 ? totalFixedMax : '—'}
             </Mono>
           </Typography>
           <Typography variant='caption' color='text.secondary'>
-            El máximo real depende de qué preguntas resulten aplicables y, en
-            grids, de cuántas filas genere el usuario.
+            El máximo real depende de qué preguntas resulten aplicables y, en grids, de cuántas
+            filas genere el usuario.
           </Typography>
         </Box>
       </Section>
 
       <Section title='Bandas de tono y mensaje'>
         <Typography variant='body2' color='text.secondary' sx={{mb: 1}}>
-          Una vez calculado el puntaje, <Mono>SectionScore.tsx</Mono> elige
-          color y mensaje según las bandas declaradas en el nodo (categoría{' '}
-          <strong>{cat.label}</strong>):
+          Una vez calculado el puntaje, <Mono>SectionScore.tsx</Mono> elige color y mensaje según
+          las bandas declaradas en el nodo (categoría <strong>{cat.label}</strong>):
         </Typography>
         <Stack spacing={0.75}>
           {node.toneBands.map((b, i) => (
@@ -121,8 +109,7 @@ function Section({title, children}: {title: string; children: ReactNode}) {
       <Typography
         variant='overline'
         color='text.secondary'
-        sx={{lineHeight: 1.5, display: 'block'}}
-      >
+        sx={{lineHeight: 1.5, display: 'block'}}>
         {title}
       </Typography>
       <Box sx={{mt: 0.5}}>{children}</Box>
@@ -156,8 +143,7 @@ function ToneBandRow({band}: {band: ToneBand}) {
           <Typography
             component='span'
             variant='caption'
-            sx={{ml: 0.5, color: 'text.secondary', fontFamily: 'monospace'}}
-          >
+            sx={{ml: 0.5, color: 'text.secondary', fontFamily: 'monospace'}}>
             color: {band.color}
           </Typography>
         </Typography>
@@ -169,11 +155,7 @@ function ToneBandRow({band}: {band: ToneBand}) {
   )
 }
 
-function ScoringRow({
-  row,
-}: {
-  row: {question: DiagnosisQuestion; max: QuestionMaxResult}
-}) {
+function ScoringRow({row}: {row: {question: DiagnosisQuestion; max: QuestionMaxResult}}) {
   const {question, max} = row
   const display =
     max.kind === 'fixed'

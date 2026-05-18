@@ -1,5 +1,15 @@
 import {useEffect, useState} from 'react'
-import {Box, Button, Card, CardContent, Chip, Stack, Typography, useMediaQuery, useTheme} from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material'
 import {AnimatePresence, motion} from 'framer-motion'
 import {
   CATEGORIES,
@@ -168,10 +178,7 @@ export default function SectionScore({
                   initial={reducedMotion ? {opacity: 1, x: 0} : {opacity: 0, x: -8}}
                   animate={{opacity: 1, x: 0}}
                   transition={{duration: 0.3, delay: reducedMotion ? 0 : 0.4 + i * 0.06}}>
-                  <Stack
-                    direction='row'
-                    spacing={1.5}
-                    sx={{alignItems: 'stretch'}}>
+                  <Stack direction='row' spacing={1.5} sx={{alignItems: 'stretch'}}>
                     <Box
                       sx={{
                         width: 4,

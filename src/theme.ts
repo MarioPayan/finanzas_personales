@@ -61,8 +61,7 @@ export const theme = createTheme({
     divider: '#E2E8F0', // slate-200
   },
   typography: {
-    fontFamily:
-      'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     h1: {fontWeight: 800, letterSpacing: '-0.03em'},
     h2: {fontWeight: 800, letterSpacing: '-0.025em'},
     h3: {fontWeight: 700, letterSpacing: '-0.02em'},
