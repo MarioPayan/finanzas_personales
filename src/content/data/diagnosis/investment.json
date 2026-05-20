@@ -1,0 +1,936 @@
+[
+  {
+    "storageKey": "yearsInvesting",
+    "title": "Años invirtiendo",
+    "description": "Cuánto tiempo lleva el usuario invirtiendo, contado desde la primera inversión real. No depende de `invests`: capta el caso \"joven que no invierte\" para activar el insight de interés compuesto. La opción \"Nunca\" puntúa bajo aunque el usuario no se considere inversor.",
+    "category": "investment",
+    "type": "chips",
+    "prompt": "¿Hace cuánto inviertes?",
+    "hint": "Desde la primera inversión real que sigue activa o de la que aprendiste algo. Cuentas de ahorro genéricas no cuentan.",
+    "options": [
+      {
+        "value": "never",
+        "label": "Nunca invertí",
+        "score": 10
+      },
+      {
+        "value": "lt1",
+        "label": "Menos de 1 año",
+        "sublabel": "Estoy arrancando",
+        "score": 40
+      },
+      {
+        "value": "1to3",
+        "label": "1 a 3 años",
+        "sublabel": "Empezando a ver resultados",
+        "score": 70
+      },
+      {
+        "value": "3to10",
+        "label": "3 a 10 años",
+        "sublabel": "Ya pasé al menos un ciclo de mercado",
+        "score": 90
+      },
+      {
+        "value": "gt10",
+        "label": "Más de 10 años",
+        "sublabel": "Inversor experimentado",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "compoundTimeWasted",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "in",
+              "key": "yearsInvesting",
+              "values": [
+                "never",
+                "lt1"
+              ]
+            },
+            {
+              "kind": "numberBelow",
+              "key": "age",
+              "threshold": 30
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Eres joven y todavía no estás capturando interés compuesto.",
+        "tip": "Cada año invertido a los 20 vale más que diez años invertidos a los 40, gracias al interés compuesto. Atajo mental: la \"regla del 72\" — años para duplicar capital = 72 / tasa%. Al 10% se duplica en 7,2 años; empezar a los 25 te da 5+ duplicaciones antes de los 65. No hace falta saber mucho: un fondo indexado básico ya activa el reloj."
+      },
+      {
+        "id": "notInvestingButReady",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "any",
+              "of": [
+                {
+                  "kind": "equals",
+                  "key": "yearsInvesting",
+                  "value": "never"
+                },
+                {
+                  "kind": "equals",
+                  "key": "invests",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "kind": "in",
+              "key": "emergencyMonths",
+              "values": [
+                "1to3",
+                "3to6",
+                "6to12",
+                "gt12"
+              ]
+            },
+            {
+              "kind": "any",
+              "of": [
+                {
+                  "kind": "equals",
+                  "key": "hasDebt",
+                  "value": false
+                },
+                {
+                  "kind": "not",
+                  "of": {
+                    "kind": "gridAnyIn",
+                    "key": "debtAmounts",
+                    "values": [
+                      "10to50",
+                      "50to200",
+                      "gt200"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "No estás invirtiendo, pero tu situación lo permitiría.",
+        "tip": "Con un fondo de emergencia razonable y sin deuda grande, tienes margen para empezar con instrumentos seguros (CDT, fondos de inversión) e ir escalando a medida que ganes confianza."
+      }
+    ]
+  },
+  {
+    "storageKey": "professionalEducationInvestment",
+    "title": "Inversión en formación profesional",
+    "description": "Si el usuario invirtió tiempo o dinero en formación de su rubro durante el último año. La inversión que más mueve el ingreso a largo plazo es la que se hace en uno mismo — el readme original abre la sección de inversiones con esto. Vive en la categoría Inversiones pero no depende del gate `invests`: aplica aunque la persona no invierta financieramente.",
+    "category": "investment",
+    "type": "chips",
+    "prompt": "¿En el último año invertiste en formarte para tu trabajo o profesión?",
+    "hint": "Cursos, certificaciones, lecturas técnicas, mentorías, posgrado.",
+    "options": [
+      {
+        "value": "no",
+        "label": "No",
+        "score": 10
+      },
+      {
+        "value": "a-bit",
+        "label": "Algo de lectura informal",
+        "sublabel": "Artículos, videos, podcasts del rubro",
+        "score": 40
+      },
+      {
+        "value": "time",
+        "label": "Sí, dediqué tiempo",
+        "sublabel": "Cursos gratuitos, autoestudio constante",
+        "score": 75
+      },
+      {
+        "value": "time-money",
+        "label": "Sí, tiempo y dinero",
+        "sublabel": "Certificación, posgrado, curso pago",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "noProfessionalEducation",
+        "when": {
+          "kind": "equals",
+          "key": "professionalEducationInvestment",
+          "value": "no"
+        },
+        "severity": "info",
+        "diagnostic": "No estás invirtiendo en formación de tu rubro.",
+        "tip": "Tu mejor activo eres tú mismo. Cualquier mejora en tu trabajo se compone — sube el ingreso, abre puertas, da margen para todo lo demás. No tiene por qué ser caro: empezar con contenido gratuito ya cuenta."
+      }
+    ]
+  },
+  {
+    "storageKey": "financialEducationInvestment",
+    "title": "Inversión en educación financiera",
+    "description": "Si el usuario invirtió tiempo o dinero en aprender sobre finanzas personales en el último año. Saber antes de invertir reduce el riesgo de tomar decisiones por moda o por miedo. No depende del gate `invests`: tiene sentido preguntar incluso a quien no invierte aún.",
+    "category": "investment",
+    "type": "chips",
+    "prompt": "¿En el último año invertiste en educar tus finanzas personales?",
+    "hint": "Libros, podcasts, cursos, canales, comunidades. Antes de invertir conviene saber en qué.",
+    "options": [
+      {
+        "value": "no",
+        "label": "No",
+        "score": 10
+      },
+      {
+        "value": "a-bit",
+        "label": "Algo de contenido informal",
+        "sublabel": "Videos, posts, alguna conversación",
+        "score": 40
+      },
+      {
+        "value": "time",
+        "label": "Sí, dediqué tiempo",
+        "sublabel": "Libros, podcasts, autoestudio",
+        "score": 75
+      },
+      {
+        "value": "time-money",
+        "label": "Sí, tiempo y dinero",
+        "sublabel": "Cursos pagos, asesoría, formación formal",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "noFinancialEducation",
+        "when": {
+          "kind": "equals",
+          "key": "financialEducationInvestment",
+          "value": "no"
+        },
+        "severity": "info",
+        "diagnostic": "No estás invirtiendo en tu educación financiera.",
+        "tip": "No es necesario gastar dinero — un par de podcasts o libros gratuitos te dan lo básico. Lo importante es saber qué estás haciendo antes de mover dinero, no aprenderlo cuando ya cometiste el error."
+      }
+    ]
+  },
+  {
+    "storageKey": "invests",
+    "title": "Hábito de inversión",
+    "description": "Puerta de entrada al bloque de inversiones financieras. Si el usuario no invierte, las preguntas siguientes que dependen de este gate se omiten — pero las de educación (antes de este nodo) ya se preguntaron, porque la inversión en uno mismo aplica con o sin inversión financiera. Se omite si `yearsInvesting = never` (la respuesta \"Nunca invertí\" ya implica que no invierte).",
+    "category": "investment",
+    "type": "toggle",
+    "prompt": "¿Inviertes parte de tu ingreso?",
+    "dependsOn": [
+      {
+        "storageKey": "yearsInvesting",
+        "in": [
+          "lt1",
+          "1to3",
+          "3to10",
+          "gt10"
+        ]
+      }
+    ],
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 30
+    },
+    "insights": [
+      {
+        "id": "investingBeforeEmergency",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "equals",
+              "key": "invests",
+              "value": true
+            },
+            {
+              "kind": "in",
+              "key": "emergencyMonths",
+              "values": [
+                "none",
+                "lt1"
+              ]
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Estás invirtiendo antes de tener fondo de emergencia.",
+        "tip": "Si surge un imprevisto, vas a tener que vender la inversión, probablemente en mal momento (cuando todo cae al mismo tiempo). Antes de aumentar exposición de inversión, completa al menos 1-3 meses de gastos en cuenta líquida — ese es el costo de oportunidad real de invertir sin colchón."
+      },
+      {
+        "id": "investingActively",
+        "when": {
+          "kind": "equals",
+          "key": "invests",
+          "value": true
+        },
+        "severity": "positive",
+        "diagnostic": "Estás invirtiendo, lo cual indica un hábito financiero saludable.",
+        "tip": "Asegúrate de que las tasas de tus deudas no superen el rendimiento de tus inversiones — si lo superan, pagar deuda es matemáticamente la mejor inversión."
+      }
+    ]
+  },
+  {
+    "storageKey": "tradingFrequency",
+    "title": "Frecuencia de trading",
+    "description": "Cuán seguido el usuario compra o vende sus inversiones. El backlog del video lo identifica como predictor robusto: tradear frecuentemente correlaciona con peor rendimiento que comprar y mantener. Capta day-trading aunque el usuario no lo declare como tal.",
+    "category": "investment",
+    "type": "chips",
+    "prompt": "¿Con qué frecuencia compras o vendes tus inversiones?",
+    "hint": "No cuenta el aporte mensual a un fondo; cuenta cuándo decides entrar o salir de una posición.",
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "never",
+        "label": "Casi nunca",
+        "sublabel": "Compré y dejé; ajusto rara vez",
+        "score": 100
+      },
+      {
+        "value": "few-year",
+        "label": "Pocas veces al año",
+        "score": 90
+      },
+      {
+        "value": "monthly",
+        "label": "Mensual",
+        "score": 60
+      },
+      {
+        "value": "weekly",
+        "label": "Semanal",
+        "score": 25
+      },
+      {
+        "value": "daily",
+        "label": "Diario",
+        "sublabel": "Sigo el mercado todos los días",
+        "score": 5
+      }
+    ],
+    "insights": [
+      {
+        "id": "frequentTrading",
+        "when": {
+          "kind": "in",
+          "key": "tradingFrequency",
+          "values": [
+            "weekly",
+            "daily"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Estás tradeando con mucha frecuencia.",
+        "tip": "La evidencia es consistente y pesada: estudios sobre day traders muestran que >80% pierde dinero en su primer año, y solo ~2% es rentable de forma sostenida. En promedio, quien tradea seguido rinde menos que quien compra y mantiene, después de comisiones e impuestos. Si tu rentabilidad neta no le está ganando a un fondo indexado, conviene reducir la frecuencia y dejar que el tiempo trabaje. (Y si te enteraste de un activo por TikTok, ya es tarde.)"
+      }
+    ]
+  },
+  {
+    "storageKey": "usesIndexFunds",
+    "title": "Uso de fondos indexados",
+    "description": "Si el usuario usa fondos indexados o ETFs en su portafolio. El backlog del video lo cita como atajo de bajo costo que históricamente le gana a la mayoría de gestores activos en el largo plazo.",
+    "category": "investment",
+    "type": "toggle",
+    "prompt": "¿Usas fondos indexados o ETFs en tu portafolio?",
+    "hint": "Replican un índice (S&P 500, MSCI World, etc.) a bajo costo, en vez de elegir activos uno por uno.",
+    "glossaryTerms": [
+      "fondoIndexado"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      }
+    ],
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 30
+    },
+    "insights": [
+      {
+        "id": "noIndexFunds",
+        "when": {
+          "kind": "equals",
+          "key": "usesIndexFunds",
+          "value": false
+        },
+        "severity": "info",
+        "diagnostic": "Tu portafolio no incluye fondos indexados.",
+        "tip": "El estudio SPIVA de S&P para LatAm 2025 mostró que ~75% de fondos activos no superaron su benchmark a 1 año, y 100% perdieron a 10 años en varias categorías. En plazos de 20 años, ~94% de los gestores profesionales globales no le gana a un índice básico tipo S&P 500. Comisión razonable de un ETF indexado: <0,2%; FIC activo típico Colombia: 1-2% — la diferencia compuesta destruye rendimiento a largo plazo. Un indexado básico (VOO, IVV, VWRA) de base es la apuesta con mejor relación esfuerzo/resultado."
+      }
+    ]
+  },
+  {
+    "storageKey": "riskProfile",
+    "title": "Perfil de inversionista",
+    "description": "Autoclasificación del usuario en su perfil de riesgo: conservador (preservar capital, baja rentabilidad), moderado (balance), agresivo (mayor rentabilidad aceptando volatilidad). \"No sé\" da puntos bajos y desencadena una pregunta de seguimiento que sugiere un perfil basado en la edad.",
+    "category": "investment",
+    "type": "chips",
+    "prompt": "¿Cuál es tu perfil de inversionista?",
+    "hint": "Conservador: prefieres rentabilidad baja pero segura. Moderado: balance entre rendimiento y riesgo. Agresivo: aceptas volatilidad y posibles pérdidas a cambio de mayor rentabilidad esperada.",
+    "sidebarWidgets": [
+      "ageBasedRiskAllocation"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "conservative",
+        "label": "Conservador",
+        "score": 80
+      },
+      {
+        "value": "moderate",
+        "label": "Moderado",
+        "score": 90
+      },
+      {
+        "value": "aggressive",
+        "label": "Agresivo",
+        "score": 80
+      },
+      {
+        "value": "unknown",
+        "label": "No sé",
+        "score": 20
+      }
+    ],
+    "insights": [
+      {
+        "id": "riskProfileMatchesAge",
+        "when": {
+          "kind": "any",
+          "of": [
+            {
+              "kind": "all",
+              "of": [
+                {
+                  "kind": "numberBelow",
+                  "key": "age",
+                  "threshold": 30
+                },
+                {
+                  "kind": "equals",
+                  "key": "riskProfile",
+                  "value": "aggressive"
+                }
+              ]
+            },
+            {
+              "kind": "all",
+              "of": [
+                {
+                  "kind": "numberAtLeast",
+                  "key": "age",
+                  "threshold": 30
+                },
+                {
+                  "kind": "numberBelow",
+                  "key": "age",
+                  "threshold": 50
+                },
+                {
+                  "kind": "equals",
+                  "key": "riskProfile",
+                  "value": "moderate"
+                }
+              ]
+            },
+            {
+              "kind": "all",
+              "of": [
+                {
+                  "kind": "numberAtLeast",
+                  "key": "age",
+                  "threshold": 50
+                },
+                {
+                  "kind": "equals",
+                  "key": "riskProfile",
+                  "value": "conservative"
+                }
+              ]
+            }
+          ]
+        },
+        "severity": "positive",
+        "diagnostic": "Tu perfil de riesgo está alineado con tu etapa de vida.",
+        "tip": "Buena foto inicial. Igual conviene revisarlo cada 5-10 años — las prioridades cambian con responsabilidades, dependientes, salud."
+      },
+      {
+        "id": "riskProfileUnknown",
+        "when": {
+          "kind": "equals",
+          "key": "riskProfile",
+          "value": "unknown"
+        },
+        "severity": "info",
+        "diagnostic": "No tienes claro tu perfil de inversionista.",
+        "tip": "Definirlo es uno de los pasos más útiles: te dice qué instrumentos tienen sentido para ti y cuáles no, y te evita entrar en una inversión que no puedes sostener cuando empiece a moverse."
+      }
+    ]
+  },
+  {
+    "storageKey": "riskProfileGuess",
+    "title": "Perfil sugerido",
+    "description": "Pregunta de seguimiento si el usuario respondió \"No sé\" en `riskProfile`. Le pedimos que elija una referencia con una guía rápida basada en edad. La elección coincidente con la sugerencia para su edad da un insight informativo positivo; cualquier otra elección sigue siendo válida pero no recibe el bonus.",
+    "category": "investment",
+    "type": "chips",
+    "prompt": "Sin un perfil claro, ¿cuál escogerías como referencia?",
+    "hint": "Como guía: con menos de 30 años (mucho horizonte) suele recomendarse agresivo; entre 30 y 50, moderado; con 50 o más, conservador para preservar capital.",
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      },
+      {
+        "storageKey": "riskProfile",
+        "equals": "unknown"
+      }
+    ],
+    "options": [
+      {
+        "value": "conservative",
+        "label": "Conservador",
+        "score": 30
+      },
+      {
+        "value": "moderate",
+        "label": "Moderado",
+        "score": 30
+      },
+      {
+        "value": "aggressive",
+        "label": "Agresivo",
+        "score": 30
+      }
+    ],
+    "insights": [
+      {
+        "id": "guessMatchesAgeRecommendation",
+        "when": {
+          "kind": "any",
+          "of": [
+            {
+              "kind": "all",
+              "of": [
+                {
+                  "kind": "numberBelow",
+                  "key": "age",
+                  "threshold": 30
+                },
+                {
+                  "kind": "equals",
+                  "key": "riskProfileGuess",
+                  "value": "aggressive"
+                }
+              ]
+            },
+            {
+              "kind": "all",
+              "of": [
+                {
+                  "kind": "numberAtLeast",
+                  "key": "age",
+                  "threshold": 30
+                },
+                {
+                  "kind": "numberBelow",
+                  "key": "age",
+                  "threshold": 50
+                },
+                {
+                  "kind": "equals",
+                  "key": "riskProfileGuess",
+                  "value": "moderate"
+                }
+              ]
+            },
+            {
+              "kind": "all",
+              "of": [
+                {
+                  "kind": "numberAtLeast",
+                  "key": "age",
+                  "threshold": 50
+                },
+                {
+                  "kind": "equals",
+                  "key": "riskProfileGuess",
+                  "value": "conservative"
+                }
+              ]
+            }
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "Tu elección coincide con la recomendación general para tu edad.",
+        "tip": "Es una buena referencia para empezar. Cuando tengas más experiencia invirtiendo conocerás mejor tu perfil real, que puede diferir."
+      }
+    ]
+  },
+  {
+    "storageKey": "investmentVehicles",
+    "title": "Vehículos de inversión",
+    "description": "Mecanismos en los que el usuario tiene inversiones activas. La selección define las filas de las preguntas de monto y rendimiento.",
+    "category": "investment",
+    "type": "multiChips",
+    "prompt": "¿En cuáles de estos mecanismos inviertes?",
+    "hint": "Selecciona todos los que apliquen.",
+    "glossaryTerms": [
+      "cdt"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "cdt",
+        "label": "CDT",
+        "score": 10
+      },
+      {
+        "value": "fund",
+        "label": "Fondo de inversión",
+        "score": 15
+      },
+      {
+        "value": "shares",
+        "label": "Acciones",
+        "score": 15
+      },
+      {
+        "value": "realEstate",
+        "label": "Bienes raíces",
+        "score": 15
+      },
+      {
+        "value": "crypto",
+        "label": "Criptomonedas",
+        "score": 5
+      },
+      {
+        "value": "bonds",
+        "label": "Bonos",
+        "score": 15
+      },
+      {
+        "value": "other",
+        "label": "Otro",
+        "score": 10
+      }
+    ],
+    "insights": [
+      {
+        "id": "lowDiversification",
+        "when": {
+          "kind": "multiCountAtMost",
+          "key": "investmentVehicles",
+          "count": 1
+        },
+        "severity": "warning",
+        "diagnostic": "Estás invirtiendo en un solo vehículo.",
+        "tip": "La concentración en un único activo es el error #1 según múltiples fuentes: un evento idiosincrático arruina el portafolio entero. Diversifica entre instrumentos con riesgos distintos (renta fija + renta variable + dólar / ETF global). Un mal año en un único vehículo no debería poder destruir tu plan completo."
+      },
+      {
+        "id": "cryptoOnly",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "multiHas",
+              "key": "investmentVehicles",
+              "value": "crypto"
+            },
+            {
+              "kind": "multiCountAtMost",
+              "key": "investmentVehicles",
+              "count": 1
+            }
+          ]
+        },
+        "severity": "critical",
+        "diagnostic": "Tu única inversión es cripto.",
+        "tip": "Cripto es una clase de activo de alta volatilidad. Conviene combinarla con instrumentos más estables (renta fija, fondos diversificados) para que un crash no se lleve todo."
+      }
+    ]
+  },
+  {
+    "storageKey": "currencyDiversification",
+    "title": "Diversificación por moneda",
+    "description": "Si parte del ahorro o inversión está en USD u otra moneda fuerte. En países con devaluación estructural (Argentina, Venezuela) es crítico; en otros (Colombia, México, Chile) es cobertura cambiaria que complementa el portafolio local. Fintech como Littio, Wise, Global66 lo hicieron accesible sin mínimos.",
+    "category": "investment",
+    "type": "toggle",
+    "prompt": "¿Tienes parte de tu ahorro o inversión en USD u otra moneda fuerte?",
+    "hint": "Cuentas en dólares (Littio, Wise, Global66), bonos en USD, ETFs internacionales — cualquier cosa que no se mueva al ritmo de tu moneda local.",
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      }
+    ],
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 50
+    },
+    "insights": [
+      {
+        "id": "noCurrencyDiversification",
+        "when": {
+          "kind": "equals",
+          "key": "currencyDiversification",
+          "value": false
+        },
+        "severity": "info",
+        "diagnostic": "Todo tu ahorro/inversión está en moneda local.",
+        "tip": "Si tu moneda local se devalúa, pierdes poder adquisitivo internacional aunque el monto en pesos suba. Mantener 10-30% en USD vía cuentas fintech (Littio, Wise) o ETFs es cobertura sencilla y de bajo costo."
+      }
+    ]
+  },
+  {
+    "storageKey": "investmentAmounts",
+    "title": "Monto por vehículo",
+    "description": "Cuánto dinero tiene invertido el usuario en cada vehículo seleccionado. Se contextualiza con el salario mínimo.",
+    "category": "investment",
+    "type": "grid",
+    "prompt": "¿Cuánto tienes invertido en cada uno?",
+    "hint": "Aproximadamente, en múltiplos del salario mínimo, o el monto exacto.",
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      },
+      {
+        "storageKey": "investmentVehicles",
+        "nonEmpty": true
+      }
+    ],
+    "derivation": {
+      "kind": "multiplyMinimumWage",
+      "inputs": [
+        "incomeBand"
+      ]
+    },
+    "rowSource": {
+      "kind": "multiSelectLabels",
+      "storageKey": "investmentVehicles"
+    },
+    "cell": {
+      "kind": "chips",
+      "options": [
+        {
+          "value": "lt1",
+          "label": "Menos de 1 SMM",
+          "bracket": {
+            "max": 1
+          },
+          "score": 30
+        },
+        {
+          "value": "1to2",
+          "label": "1 a 2 SMM",
+          "bracket": {
+            "min": 1,
+            "max": 2
+          },
+          "score": 50
+        },
+        {
+          "value": "2to4",
+          "label": "2 a 4 SMM",
+          "bracket": {
+            "min": 2,
+            "max": 4
+          },
+          "score": 70
+        },
+        {
+          "value": "gt4",
+          "label": "Más de 4 SMM",
+          "bracket": {
+            "min": 4
+          },
+          "score": 100
+        }
+      ],
+      "exactInput": {
+        "min": 0,
+        "step": 1000,
+        "placeholder": "Monto exacto",
+        "isMoney": true
+      }
+    },
+    "insights": [
+      {
+        "id": "smallPositions",
+        "when": {
+          "kind": "gridEveryIn",
+          "key": "investmentAmounts",
+          "values": [
+            "lt1"
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "Tus posiciones individuales son menores a 1 SMM.",
+        "tip": "Es razonable empezar pequeño para aprender, pero es el capital significativo el que mueve la aguja en el largo plazo. Apunta a escalar a medida que ganas confianza con cada vehículo."
+      }
+    ]
+  },
+  {
+    "storageKey": "investmentYields",
+    "title": "Rendimiento por vehículo",
+    "description": "Rendimiento efectivo anual aproximado por cada vehículo. Permite distinguir inversiones que crecen del dinero estancado.",
+    "category": "investment",
+    "type": "grid",
+    "prompt": "¿Cuál es el rendimiento anual de cada uno?",
+    "hint": "Si no estás seguro, ingresa tu mejor estimación (en % EA).",
+    "glossaryTerms": [
+      "ea"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "invests",
+        "equals": true
+      },
+      {
+        "storageKey": "investmentVehicles",
+        "nonEmpty": true
+      }
+    ],
+    "rowSource": {
+      "kind": "multiSelectLabels",
+      "storageKey": "investmentVehicles"
+    },
+    "cell": {
+      "kind": "chips",
+      "options": [
+        {
+          "value": "negative",
+          "label": "Negativo",
+          "sublabel": "Estoy perdiendo",
+          "score": 0
+        },
+        {
+          "value": "lt3",
+          "label": "0% a 3%",
+          "sublabel": "Apenas inflación",
+          "score": 25
+        },
+        {
+          "value": "3to7",
+          "label": "3% a 7%",
+          "sublabel": "Cuenta de ahorros, CDT",
+          "score": 55
+        },
+        {
+          "value": "7to15",
+          "label": "7% a 15%",
+          "sublabel": "Renta fija con riesgo, fondos diversificados",
+          "score": 90
+        },
+        {
+          "value": "gt15",
+          "label": "Más de 15%",
+          "sublabel": "Rentabilidad alta — verifica riesgo",
+          "score": 100
+        }
+      ],
+      "exactInput": {
+        "min": -100,
+        "max": 1000,
+        "step": 0.1,
+        "unit": "% EA",
+        "placeholder": "Rendimiento exacto"
+      },
+      "exactScore": [
+        {
+          "max": 0,
+          "score": 0
+        },
+        {
+          "min": 0,
+          "max": 3,
+          "score": 25
+        },
+        {
+          "min": 3,
+          "max": 7,
+          "score": 55
+        },
+        {
+          "min": 7,
+          "max": 15,
+          "score": 90
+        },
+        {
+          "min": 15,
+          "score": 100
+        }
+      ]
+    },
+    "insights": [
+      {
+        "id": "belowInflationYield",
+        "when": {
+          "kind": "gridAnyIn",
+          "key": "investmentYields",
+          "values": [
+            "negative",
+            "lt3"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Al menos uno de tus vehículos rinde por debajo de la inflación.",
+        "tip": "Si la inflación local supera ese rendimiento, ese vehículo te está haciendo perder poder adquisitivo. Revisa si conviene rotarlo a algo más productivo."
+      },
+      {
+        "id": "unsustainableHighYield",
+        "when": {
+          "kind": "any",
+          "of": [
+            {
+              "kind": "gridAnyIn",
+              "key": "investmentYields",
+              "values": [
+                "gt15"
+              ]
+            },
+            {
+              "kind": "gridAnyNumberAbove",
+              "key": "investmentYields",
+              "threshold": 30
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tienes al menos un vehículo con rendimientos muy altos.",
+        "tip": "Rendimientos consistentemente altos casi siempre esconden riesgo no contabilizado o sesgo de supervivencia (ves al ganador, no a los que perdieron). Antes de duplicar la apuesta, verifica el track record en años malos — si nunca lo viste perder, todavía no lo conoces."
+      }
+    ]
+  }
+]

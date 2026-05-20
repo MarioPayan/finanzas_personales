@@ -1,0 +1,255 @@
+[
+  {
+    "storageKey": "ownsHome",
+    "title": "Situación de vivienda",
+    "description": "Cómo el usuario habita su vivienda. Habilita gates para deducciones (hipoteca), seguro de hogar, y ajusta el contexto de fondo de emergencia. Las opciones cubren los casos típicos LatAm: propia con hipoteca activa, propia paga, arrendada, familiar (vivir en casa de padres / sin pagar renta), y otra.",
+    "category": "protection",
+    "type": "chips",
+    "prompt": "¿Cómo es tu vivienda actual?",
+    "options": [
+      {
+        "value": "mortgaged",
+        "label": "Propia con hipoteca",
+        "sublabel": "Crédito hipotecario activo",
+        "score": 80
+      },
+      {
+        "value": "owned",
+        "label": "Propia sin hipoteca",
+        "sublabel": "Pagada completamente",
+        "score": 100
+      },
+      {
+        "value": "rented",
+        "label": "Arrendada",
+        "sublabel": "Pago renta mensual",
+        "score": 60
+      },
+      {
+        "value": "family",
+        "label": "Familiar / sin pagar",
+        "sublabel": "Vivo con familia, no pago vivienda",
+        "score": 50
+      },
+      {
+        "value": "other",
+        "label": "Otra",
+        "sublabel": "Arriendo informal, vivienda compartida, etc.",
+        "score": 40
+      }
+    ]
+  },
+  {
+    "storageKey": "hasARL",
+    "title": "Cobertura de riesgos laborales (ARL)",
+    "description": "Si el usuario independiente tiene ARL activa. La ARL es seguro de riesgos laborales obligatorio para empleados formales (cubierto por el empleador) e independientes con contrato de prestación de servicios mayor a un mes. Sin ARL, un accidente de trabajo deja al independiente sin red.",
+    "category": "protection",
+    "type": "toggle",
+    "prompt": "¿Estás afiliado a una ARL?",
+    "hint": "ARL = Administradora de Riesgos Laborales. Si eres empleado formal, generalmente la paga tu empleador. Si eres independiente, la tienes que activar tú.",
+    "glossaryTerms": [
+      "arl"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "formalEmployment",
+        "in": [
+          "independent",
+          "mixed"
+        ]
+      }
+    ],
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 20
+    },
+    "insights": [
+      {
+        "id": "noARLIndependent",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "equals",
+              "key": "hasARL",
+              "value": false
+            },
+            {
+              "kind": "in",
+              "key": "formalEmployment",
+              "values": [
+                "independent",
+                "mixed"
+              ]
+            }
+          ]
+        },
+        "severity": "critical",
+        "diagnostic": "Eres independiente y no estás afiliado a ARL.",
+        "tip": "Un accidente de trabajo te deja completamente expuesto — gastos médicos altos sin cobertura, sin indemnización por incapacidad temporal. La tarifa está entre 0,5% y 7% del IBC según clase de riesgo y es deducible. Activarla cuesta poco y tapa un agujero grande."
+      }
+    ]
+  },
+  {
+    "storageKey": "hasLifeInsurance",
+    "title": "Seguro de vida",
+    "description": "Si el usuario tiene seguro de vida con suma asegurada acorde a su situación. Solo tiene sentido cuando hay dependientes económicos o deudas grandes (hipoteca). Sin dependientes y sin deuda, es generalmente innecesario.",
+    "category": "protection",
+    "type": "toggle",
+    "prompt": "¿Tienes seguro de vida?",
+    "hint": "No el seguro funerario chico, sino uno que cubra a quien depende económicamente de ti si falleces.",
+    "dependsOn": [
+      {
+        "storageKey": "hasDependents",
+        "greaterThan": 0
+      }
+    ],
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 20
+    },
+    "insights": [
+      {
+        "id": "noLifeInsuranceWithDependents",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "equals",
+              "key": "hasLifeInsurance",
+              "value": false
+            },
+            {
+              "kind": "numberAtLeast",
+              "key": "hasDependents",
+              "threshold": 1
+            }
+          ]
+        },
+        "severity": "critical",
+        "diagnostic": "Tienes dependientes económicos y no tienes seguro de vida.",
+        "tip": "Si faltas, los que dependen de ti quedan sin red. Una suma asegurada de 5 a 10 veces tu ingreso anual cubre el ajuste; pólizas a plazo (no whole-life) son baratas para edades jóvenes. Es de las inversiones de mejor relación costo/protección."
+      }
+    ]
+  },
+  {
+    "storageKey": "hasHealthCoverage",
+    "title": "Cobertura de salud",
+    "description": "Qué nivel de cobertura de salud tiene el usuario. La EPS (Colombia) o equivalente regional es el piso obligatorio; planes complementarios y medicina prepagada amplían acceso a redes privadas y reducen tiempos. Esta pregunta reemplaza al anterior `hasHealthInsurance` (toggle) con más granularidad.",
+    "category": "protection",
+    "type": "chips",
+    "prompt": "¿Qué cobertura de salud tienes?",
+    "hint": "En Colombia: EPS es el piso legal; complementario amplía red dentro de tu EPS; prepagada es 100% privada.",
+    "options": [
+      {
+        "value": "none",
+        "label": "Sin cobertura",
+        "sublabel": "No estoy afiliado a ningún sistema",
+        "score": 0
+      },
+      {
+        "value": "public",
+        "label": "Solo público / EPS",
+        "sublabel": "Lo mínimo legal",
+        "score": 60
+      },
+      {
+        "value": "complementary",
+        "label": "Plan complementario",
+        "sublabel": "EPS + amplía red de la misma EPS",
+        "score": 85
+      },
+      {
+        "value": "prepaid",
+        "label": "Medicina prepagada",
+        "sublabel": "100% privada, sin pasar por médico general",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "noHealthCoverage",
+        "when": {
+          "kind": "equals",
+          "key": "hasHealthCoverage",
+          "value": "none"
+        },
+        "severity": "critical",
+        "diagnostic": "No tienes ninguna cobertura de salud.",
+        "tip": "Es lo primero que conviene resolver, antes que cualquier otra movida financiera. Un evento de salud sin cobertura puede arruinar años de progreso. En Colombia la EPS pública o subsidiada cubre el piso legal; en otros países, IMSS / Fonasa / EsSalud equivalentes."
+      },
+      {
+        "id": "minimumHealthCoverageOlder",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "equals",
+              "key": "hasHealthCoverage",
+              "value": "public"
+            },
+            {
+              "kind": "numberAtLeast",
+              "key": "age",
+              "threshold": 40
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Solo tienes EPS y ya pasaste los 40.",
+        "tip": "La probabilidad de eventos serios sube con la edad. Un plan complementario suma red sin un gasto enorme — buena relación costo/beneficio para esta etapa de vida."
+      }
+    ]
+  },
+  {
+    "storageKey": "hasHomeInsurance",
+    "title": "Seguro de hogar",
+    "description": "Si el usuario tiene seguro de hogar (incendio, terremoto, contenido, hurto). Es obligatorio si hay hipoteca activa (el banco lo exige). Para propiedad sin hipoteca es voluntario pero altamente recomendado en zonas sísmicas (Colombia: Cafetera, Nariño, Bogotá).",
+    "category": "protection",
+    "type": "toggle",
+    "prompt": "¿Tu vivienda tiene seguro?",
+    "hint": "Cubre incendio, terremoto, daños por agua, hurto. En Colombia es zona sísmica activa — el seguro tiene mejor relación costo/protección que en otros países.",
+    "dependsOn": [
+      {
+        "storageKey": "ownsHome",
+        "in": [
+          "mortgaged",
+          "owned"
+        ]
+      }
+    ],
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 30
+    },
+    "insights": [
+      {
+        "id": "noHomeInsuranceOwned",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "equals",
+              "key": "hasHomeInsurance",
+              "value": false
+            },
+            {
+              "kind": "equals",
+              "key": "ownsHome",
+              "value": "owned"
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tu vivienda es propia y no tiene seguro.",
+        "tip": "Un siniestro grave (incendio, terremoto) puede destruir años de patrimonio. Asegurar al 100% del valor de reposición — el infraseguro hace que la indemnización se pague a prorrata. Costo típico anual: 0,2-0,5% del valor del inmueble."
+      }
+    ]
+  }
+]

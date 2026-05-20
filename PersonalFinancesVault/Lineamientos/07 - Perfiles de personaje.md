@@ -5,7 +5,7 @@ con personalidad**: un nombre y una descripción que reemplazan al número
 en las pantallas finales. Es la capa que vuelve gamificable el scoring
 sin tocar la lógica que lo produce.
 
-> Fuente de verdad: `src/content/profiles.ts`.
+> Fuente de verdad del contenido: `src/content/data/foundationProfiles.json` y `src/content/data/sectionProfiles.json` (validados por `src/content/schemas/profiles.ts`; helpers en `src/content/profiles.ts`).
 
 ---
 
@@ -106,7 +106,7 @@ peso. Solo se actualizan si:
 - Las bandas de toneBand del `__sectionScore__` cambian (5 → 4 o 6).
 - Una palabra envejece mal según feedback de usuarios.
 
-En esos casos: editar `src/content/profiles.ts` y reflejar en este
+En esos casos: editar `src/content/data/sectionProfiles.json` (o `foundationProfiles.json`) y reflejar en este
 archivo. Los perfiles son contenido editorial — no requieren cambios en
 motores de scoring.
 

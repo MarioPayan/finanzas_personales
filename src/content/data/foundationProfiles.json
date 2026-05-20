@@ -1,0 +1,47 @@
+[
+  {
+    "min": 0,
+    "max": 20,
+    "profile": {
+      "id": "foundation-survival",
+      "label": "En modo supervivencia",
+      "description": "El ingreso apenas alcanza para los gastos obligatorios — no hay margen para ahorrar ni invertir. La prioridad es destrabar ese piso antes que cualquier otra movida."
+    }
+  },
+  {
+    "min": 20,
+    "max": 40,
+    "profile": {
+      "id": "foundation-tight",
+      "label": "Apretado",
+      "description": "Llegas a fin de mes pero el aire es poco. Cualquier imprevisto se vuelve crisis. Reducir un rubro grande o sumar ingreso abre todo lo demás."
+    }
+  },
+  {
+    "min": 40,
+    "max": 60,
+    "profile": {
+      "id": "foundation-balancer",
+      "label": "Equilibrista",
+      "description": "Tu ingreso y tus gastos están en balance, pero sin colchón. Un pequeño cambio en cualquier dirección puede mover la situación rápido."
+    }
+  },
+  {
+    "min": 60,
+    "max": 80,
+    "profile": {
+      "id": "foundation-margin",
+      "label": "Con margen",
+      "description": "Tu base es sólida: hay diferencia entre ingreso y gasto, puedes destinar algo a ahorro o inversión sin sacrificar calidad de vida."
+    }
+  },
+  {
+    "min": 80,
+    "max": 100.01,
+    "profile": {
+      "id": "foundation-comfortable",
+      "label": "Cómodo",
+      "description": "Tus números base están en muy buena forma. Eso libera energía para optimizar lo siguiente — el sistema con el que distribuyes lo que sobra."
+    }
+  }
+]

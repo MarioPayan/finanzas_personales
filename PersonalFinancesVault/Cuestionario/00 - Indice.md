@@ -1,7 +1,7 @@
 # Cuestionario del diagnóstico — índice
 
-> **Fuente de verdad:** `src/content/diagnosis.ts`. Cualquier divergencia
-> entre este índice y el TS es un bug a corregir en la misma pasada.
+> **Fuente de verdad:** los JSONs en `src/content/data/diagnosis/<categoryId>.json` (contenido) + los schemas zod en `src/content/schemas/` (shape). En runtime, `src/content/diagnosis.ts` los concatena en `DIAGNOSIS_QUESTIONS`. Cualquier divergencia
+> entre este índice y los JSONs es un bug a corregir en la misma pasada.
 > Esta página es la **entrada AI-first** al cuestionario: si necesitas
 > verificar estructura, gates, scoring o insights existentes, consulta
 > primero las tablas maestras de abajo antes de abrir los archivos por
@@ -19,21 +19,21 @@ referenciado, widgets del panel lateral.
 
 | # | storageKey | bloque | tipo | gate | max | #ins | glossary | sidebar |
 |---|---|---|---|---|---:|---:|---|---|
-| 1 | `incomeBand` | base | chips | — | 100 | 5 | smm | minimumWage |
-| 2 | `age` | base | number | — | 0 | 0 | — | — |
-| 3 | `hasDependents` | base | number | — | 0 | 0 | — | — |
-| 4 | `formalEmployment` | base | chips | — | 100 | 0 | — | — |
-| 5 | `incomeStability` | base | chips | — | 100 | 0 | — | — |
-| 6 | `obligatoryPct` | base | slider | — | 100 | 3 | — | — |
-| 7 | `obligatoryAnnualItems` | base | multiChips | — | 0 | 0 | — | — |
-| 8 | `obligatoryAnnualAmounts` | base | grid | `obligatoryAnnualItems ≠ ∅` | 0 | 0 | — | — |
-| 9 | `discretionaryPct` | base | slider | — | 100 | 3 | — | — |
-| 10 | `discretionaryAnnualItems` | base | multiChips | — | 0 | 0 | — | — |
-| 11 | `discretionaryAnnualAmounts` | base | grid | `discretionaryAnnualItems ≠ ∅` | 0 | 0 | — | — |
-| 12 | `hasBudgetSystem` | base | chips | — | 100 | 2 | — | — |
-| 13 | `usesAutomation` | base | toggle | — | 100 | 2 | — | — |
-| 14 | `knowsCreditScore` | base | toggle | — | 100 | 0 | — | — |
-| 15 | `creditScoreBand` | base | chips | `knowsCreditScore = true` | 100 | 1 | — | creditScoreScale |
+| 1 | `incomeBand` | income | chips | — | 100 | 5 | smm | minimumWage |
+| 2 | `age` | profile | number | — | 0 | 0 | — | — |
+| 3 | `hasDependents` | profile | number | — | 0 | 0 | — | — |
+| 4 | `formalEmployment` | profile | chips | — | 100 | 0 | — | — |
+| 5 | `incomeStability` | income | chips | — | 100 | 0 | — | — |
+| 6 | `obligatoryPct` | expenses | slider | — | 100 | 3 | — | — |
+| 7 | `obligatoryAnnualItems` | expenses | multiChips | — | 0 | 0 | — | — |
+| 8 | `obligatoryAnnualAmounts` | expenses | grid | `obligatoryAnnualItems ≠ ∅` | 0 | 0 | — | — |
+| 9 | `discretionaryPct` | expenses | slider | — | 100 | 3 | — | — |
+| 10 | `discretionaryAnnualItems` | expenses | multiChips | — | 0 | 0 | — | — |
+| 11 | `discretionaryAnnualAmounts` | expenses | grid | `discretionaryAnnualItems ≠ ∅` | 0 | 0 | — | — |
+| 12 | `hasBudgetSystem` | habits | chips | — | 100 | 2 | — | — |
+| 13 | `usesAutomation` | habits | toggle | — | 100 | 2 | — | — |
+| 14 | `knowsCreditScore` | debt | toggle | — | 100 | 0 | — | — |
+| 15 | `creditScoreBand` | debt | chips | `knowsCreditScore = true` | 100 | 1 | — | creditScoreScale |
 | 16 | `hasDebt` | debt | toggle | — | 100 | 1 | — | — |
 | 17 | `debtMonthlyPct` | debt | slider | `hasDebt = true` | 100 | 3 | — | — |
 | 18 | `debtCount` | debt | number | `hasDebt = true` | 90 | 2 | — | — |
@@ -81,13 +81,22 @@ Notas:
 - **`hasHealthInsurance` (toggle stability) fue eliminado** en mayo
   2026 — su rol lo cubre `hasHealthCoverage` (chips) en la nueva
   sección Protección con más granularidad.
+- **Nota (mayo 2026):** la categoría `base` fue descompuesta en cuatro
+  bloques más finos — `profile` (perfil demográfico), `income`
+  (ingresos), `expenses` (egresos) y `habits` (hábitos) — y las
+  preguntas de puntaje crediticio (`knowsCreditScore`,
+  `creditScoreBand`) pasaron a `debt`. El archivo
+  `01 - Base (salario y gastos).md` mantiene el contenido detallado
+  agrupado en esos 4 bloques (no se reorganizó en archivos separados
+  para no fragmentar la lectura humana).
 - Para detalle por opción (etiquetas, sublabels, bracket, score), abrir
   el archivo de categoría correspondiente:
-  - `01 - Base (salario y gastos).md` — Base
-  - `02 - Deudas.md` — Deudas
+  - `01 - Base (salario y gastos).md` — bloques Perfil / Ingresos /
+    Egresos / Hábitos
+  - `02 - Deudas.md` — Deudas y crédito
   - `03 - Estabilidad.md` — Estabilidad
   - `04 - Inversiones.md` — Inversiones
-  - `05 - Proteccion.md` — Protección (nueva sección, mayo 2026)
+  - `05 - Proteccion.md` — Protección
 
 ---
 
@@ -182,24 +191,30 @@ Todas las dependencias explícitas. Indentación marca gate: cada nivel
 se omite si su padre no se cumple.
 
 ```
-Base
-├── incomeBand                              chips     — siempre
+Perfil
 ├── age                                     number    — siempre
 ├── hasDependents                           number    — siempre
-├── formalEmployment                        chips     — siempre
-├── incomeStability                         chips     — siempre
+└── formalEmployment                        chips     — siempre
+
+Ingresos
+├── incomeBand                              chips     — siempre
+└── incomeStability                         chips     — siempre
+
+Egresos
 ├── obligatoryPct                           slider    — siempre
 ├── obligatoryAnnualItems                   multiChips — siempre
 │   └── obligatoryAnnualAmounts             grid (1 fila / item) — si obligatoryAnnualItems ≠ ∅
 ├── discretionaryPct                        slider    — siempre
-├── discretionaryAnnualItems                multiChips — siempre
-│   └── discretionaryAnnualAmounts          grid (1 fila / item) — si discretionaryAnnualItems ≠ ∅
-├── hasBudgetSystem                         chips     — siempre
-├── usesAutomation                          toggle    — siempre
-├── knowsCreditScore                        toggle    — siempre
-└── creditScoreBand                         chips     — si knowsCreditScore = Sí
+└── discretionaryAnnualItems                multiChips — siempre
+    └── discretionaryAnnualAmounts          grid (1 fila / item) — si discretionaryAnnualItems ≠ ∅
 
-Deudas
+Hábitos
+├── hasBudgetSystem                         chips     — siempre
+└── usesAutomation                          toggle    — siempre
+
+Deudas y crédito
+├── knowsCreditScore                        toggle    — siempre
+├── creditScoreBand                         chips     — si knowsCreditScore = Sí
 └── hasDebt                                 toggle    — siempre
     └── (si hasDebt = Sí)
         ├── debtMonthlyPct                  slider
@@ -255,18 +270,26 @@ que no la cumple, o cuando un `grid` se quedó sin filas por
 
 ## Nodos de resultado (no preguntas)
 
-El flujo intercala **4 pantallas de puntaje por sección** y **1
+El flujo intercala **8 pantallas intersticiales por sección** y **1
 pantalla de diagnóstico final**. Viven en `diagnosis.ts` como nodos
 independientes; no aparecen en la tabla maestra porque no son
-preguntas.
+preguntas. Cada categoría declara su `interstitial`:
 
-| storageKey | tipo | descripción |
+  - `'score'` (default): círculo 0-100 con perfil narrativo y lista de
+    insights de la sección.
+  - `'narrative'`: pantalla de transición sin score numérico — la usa
+    `profile`, cuyas preguntas son demográficas y no aportan puntaje.
+
+| storageKey | modo | descripción |
 |---|---|---|
-| `__sectionScore__base` | sectionScore | Pantalla intersticial al terminar el bloque Base. |
-| `__sectionScore__debt` | sectionScore | Idem Deudas. |
-| `__sectionScore__stability` | sectionScore | Idem Estabilidad. |
-| `__sectionScore__protection` | sectionScore | Idem Protección (mayo 2026). |
-| `__sectionScore__investment` | sectionScore | Idem Inversiones. |
+| `__sectionScore__profile` | narrative | Transición tras Perfil — saludo sin score numérico. |
+| `__sectionScore__income` | score | Intersticial tras Ingresos. |
+| `__sectionScore__expenses` | score | Intersticial tras Egresos. |
+| `__sectionScore__habits` | score | Intersticial tras Hábitos. |
+| `__sectionScore__debt` | score | Intersticial tras Deudas y crédito. |
+| `__sectionScore__stability` | score | Intersticial tras Estabilidad. |
+| `__sectionScore__protection` | score | Intersticial tras Protección. |
+| `__sectionScore__investment` | score | Intersticial tras Inversiones. |
 | `__summary__` | summary | Pantalla final. Agrega insights, "Tu próximo paso", meta FIRE, perfil global, y frase de cierre. No calcula un score global numérico. |
 
 Cada `sectionScore` aplica las mismas **toneBands** por defecto:

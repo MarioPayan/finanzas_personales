@@ -1,0 +1,116 @@
+{
+  "AR": {
+    "countryName": "Argentina",
+    "amount": 322200,
+    "currency": "ARS",
+    "year": 2025
+  },
+  "BO": {
+    "countryName": "Bolivia",
+    "amount": 2750,
+    "currency": "BOB",
+    "year": 2025
+  },
+  "BR": {
+    "countryName": "Brasil",
+    "amount": 1518,
+    "currency": "BRL",
+    "year": 2025
+  },
+  "CL": {
+    "countryName": "Chile",
+    "amount": 510636,
+    "currency": "CLP",
+    "year": 2025
+  },
+  "CO": {
+    "countryName": "Colombia",
+    "amount": 1423500,
+    "currency": "COP",
+    "year": 2025
+  },
+  "CR": {
+    "countryName": "Costa Rica",
+    "amount": 358609,
+    "currency": "CRC",
+    "year": 2025
+  },
+  "CU": {
+    "countryName": "Cuba",
+    "amount": 2100,
+    "currency": "CUP",
+    "year": 2025
+  },
+  "DO": {
+    "countryName": "República Dominicana",
+    "amount": 21000,
+    "currency": "DOP",
+    "year": 2025
+  },
+  "EC": {
+    "countryName": "Ecuador",
+    "amount": 470,
+    "currency": "USD",
+    "year": 2025
+  },
+  "GT": {
+    "countryName": "Guatemala",
+    "amount": 3500,
+    "currency": "GTQ",
+    "year": 2025
+  },
+  "HN": {
+    "countryName": "Honduras",
+    "amount": 13500,
+    "currency": "HNL",
+    "year": 2025
+  },
+  "MX": {
+    "countryName": "México",
+    "amount": 8480,
+    "currency": "MXN",
+    "year": 2025
+  },
+  "NI": {
+    "countryName": "Nicaragua",
+    "amount": 7600,
+    "currency": "NIO",
+    "year": 2025
+  },
+  "PA": {
+    "countryName": "Panamá",
+    "amount": 745,
+    "currency": "USD",
+    "year": 2025
+  },
+  "PE": {
+    "countryName": "Perú",
+    "amount": 1130,
+    "currency": "PEN",
+    "year": 2025
+  },
+  "PY": {
+    "countryName": "Paraguay",
+    "amount": 2798309,
+    "currency": "PYG",
+    "year": 2025
+  },
+  "SV": {
+    "countryName": "El Salvador",
+    "amount": 365,
+    "currency": "USD",
+    "year": 2025
+  },
+  "UY": {
+    "countryName": "Uruguay",
+    "amount": 22268,
+    "currency": "UYU",
+    "year": 2025
+  },
+  "VE": {
+    "countryName": "Venezuela",
+    "amount": 130,
+    "currency": "VES",
+    "year": 2025
+  }
+}

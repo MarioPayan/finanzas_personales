@@ -2,7 +2,7 @@
 
 ## Glosario
 
-Vive en `src/content/glossary.ts` como un mapa `id → entrada`. Cada entrada
+Vive en `src/content/data/glossary.json` como un mapa `id → entrada` (cargado y validado por `src/content/glossary.ts`). Cada entrada
 tiene `term` y `definition` — sin ejemplos, sin variantes.
 
 ### Cómo se decide qué mostrar
@@ -24,7 +24,7 @@ muestra**. Es una regla de integridad: no se define lo que no se mencionó.
 
 Dos caminos:
 
-- Cambiar el `term` en `glossary.ts` para que coincida con lo que sí aparece
+- Cambiar el `term` en `glossary.json` para que coincida con lo que sí aparece
   en el texto (p. ej. `term: 'inversión'` en vez de `'Diversificación'`).
 - Editar el nodo para que el texto incluya el término (en `prompt`, `hint`,
   `label`, `sublabel` o `examples`).

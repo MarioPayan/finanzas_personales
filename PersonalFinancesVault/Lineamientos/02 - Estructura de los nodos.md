@@ -1,8 +1,11 @@
 # Estructura de los nodos
 
-Un "nodo" es una pregunta del diagnóstico. Vive en
-`src/content/diagnosis.ts` dentro de `DIAGNOSIS_QUESTIONS`. Cada nodo es un
-objeto autocontenido — sin lógica externa hardcodeada — analizable como JSON.
+Un "nodo" es una pregunta del diagnóstico. El **contenido** vive en
+`src/content/data/diagnosis/<categoryId>.json` (un archivo por categoría);
+el **shape** se valida con los schemas zod de `src/content/schemas/`. En
+runtime, `src/content/diagnosis.ts` concatena los JSONs en
+`DIAGNOSIS_QUESTIONS`. Cada nodo es un objeto autocontenido — sin lógica
+externa hardcodeada — analizable como JSON.
 
 ## Campos comunes a todo nodo
 
@@ -14,7 +17,7 @@ objeto autocontenido — sin lógica externa hardcodeada — analizable como JSO
 | `prompt`         | `string`                      | sí          | La pregunta visible al usuario.                                                |
 | `hint`           | `string`                      | no          | Texto auxiliar bajo el prompt. Aclaraciones cortas.                            |
 | `category`       | `DiagnosisCategoryId`         | sí          | A qué bloque pertenece (`base`, `debt`, `stability`, `investment`).            |
-| `glossaryTerms`  | `readonly string[]`           | no          | Ids de entradas en `glossary.ts`. Solo se muestran si el término aparece literalmente en el texto del nodo. |
+| `glossaryTerms`  | `readonly string[]`           | no          | Ids de entradas en `src/content/data/glossary.json`. Solo se muestran si el término aparece literalmente en el texto del nodo. |
 | `sidebarWidgets` | `readonly SidebarWidgetId[]`  | no          | Componentes auxiliares del panel lateral que este nodo activa.                 |
 | `tips`           | `readonly string[]`           | no          | Indicaciones contextuales que el sidebar muestra mientras el nodo es el actual. Ver [[03 - Panel lateral]]. |
 | `dependsOn`      | `readonly DependencyClause[]` | no          | Cláusulas de aplicabilidad. AND entre cláusulas.                               |
@@ -368,13 +371,14 @@ Composición:
    `LayeredDigraphLayout` con `direction: 90` (DOWN). El flujo del
    cuestionario corre de arriba hacia abajo.
 
-   Las cuatro categorías financieras (`base`, `debt`, `stability`,
-   `investment`) son **Groups** con su propio `LayeredDigraphLayout`
-   interno, también vertical. Cada Group tiene fondo tintado del
-   color de la categoría y un header con su `label` largo, así la
-   identidad de categoría no necesita repetirse en cada nodo. El
-   orden cronológico del cuestionario coincide con el orden vertical
-   de los Groups en `CATEGORY_ORDER`.
+   Las ocho categorías financieras (`profile`, `income`, `expenses`,
+   `habits`, `debt`, `stability`, `protection`, `investment`) son
+   **Groups** con su propio `LayeredDigraphLayout` interno, también
+   vertical. Cada Group tiene fondo tintado del color de la categoría
+   y un header con su `label` largo, así la identidad de categoría no
+   necesita repetirse en cada nodo. El orden cronológico del
+   cuestionario coincide con el orden vertical de los Groups en
+   `CATEGORY_ORDER`.
 
    Hay **cuatro templates de nodo** (`nodeCategoryProperty: 'kind'`
    en el modelo, para no chocar con la `category` financiera):

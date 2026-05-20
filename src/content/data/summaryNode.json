@@ -1,0 +1,44 @@
+{
+  "storageKey": "__summary__",
+  "kind": "summary",
+  "title": "Diagnóstico final",
+  "userHeading": "Tu lectura financiera",
+  "description": "Pantalla final del cuestionario. NO calcula un puntaje global; presenta dos cosas en orden: insights aplicables (recolectados con collectInsights) agrupados por categoría, y respuestas listadas con formatAnswerVerbose.",
+  "components": [
+    {
+      "id": "insights",
+      "title": "Insights aplicables",
+      "description": "collectInsights(answers, smm) recorre los nodos aplicables y completos, evalúa el árbol when de cada insight y devuelve los que matched. Los nodos cuya pregunta fue omitida por dependencia o no completada no se evalúan. Las condiciones pueden referenciar cualquier storageKey, no solo el propio."
+    },
+    {
+      "id": "answers",
+      "title": "Respuestas listadas",
+      "userHeading": "Esto fue lo que respondiste",
+      "description": "Para cada pregunta con respuesta (answers[storageKey] !== undefined), se muestra title, prompt y la respuesta formateada con formatAnswerVerbose(question, value, answers). Sin score, sin agregados — es el \"esto fue lo que respondiste\" que cierra la pantalla."
+    }
+  ],
+  "severityOrder": [
+    "critical",
+    "warning",
+    "info",
+    "positive"
+  ],
+  "severityLabels": {
+    "critical": {
+      "label": "Crítico",
+      "color": "error"
+    },
+    "warning": {
+      "label": "A revisar",
+      "color": "warning"
+    },
+    "info": {
+      "label": "Para considerar",
+      "color": "info"
+    },
+    "positive": {
+      "label": "A favor",
+      "color": "success"
+    }
+  }
+}

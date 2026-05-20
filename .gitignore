@@ -6,8 +6,8 @@ coverage
 # Lockfiles: este repo usa pnpm únicamente.
 package-lock.json
 
-# Workspace state local de Obsidian (cambia al abrir/cerrar tabs).
-PersonalFinancesVault/.obsidian/workspace.json
+# Workspace y config local de Obsidian (estado por usuario; cambia al abrir/cerrar tabs y al alternar plugins).
+PersonalFinancesVault/.obsidian/
 
 # Notas de referencia personal que no son parte del producto.
 video.md

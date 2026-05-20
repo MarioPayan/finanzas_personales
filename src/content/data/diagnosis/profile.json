@@ -1,0 +1,64 @@
+[
+  {
+    "storageKey": "age",
+    "title": "Edad",
+    "description": "Edad del usuario en años. Es información de perfil que el cuestionario usa para condicionar insights — riesgo de no tener seguro, sugerencia de perfil de inversionista — sin tomar decisiones por el usuario.",
+    "category": "profile",
+    "type": "number",
+    "prompt": "¿Qué edad tienes?",
+    "min": 14,
+    "max": 100,
+    "step": 1,
+    "defaultValue": 30,
+    "unit": "años"
+  },
+  {
+    "storageKey": "hasDependents",
+    "title": "Dependientes económicos",
+    "description": "Número de personas que dependen económicamente del usuario (hijos, pareja sin ingreso, padres, hermanos). Es información de contexto: condiciona el tamaño recomendado del fondo de emergencia, la necesidad de seguro de vida, y los gates de la sección Protección.",
+    "category": "profile",
+    "type": "number",
+    "prompt": "¿Cuántas personas dependen económicamente de ti?",
+    "hint": "Cuenta hijos, pareja sin ingresos, padres u otros familiares que cubrís económicamente.",
+    "min": 0,
+    "max": 10,
+    "step": 1,
+    "defaultValue": 0,
+    "unit": "personas"
+  },
+  {
+    "storageKey": "formalEmployment",
+    "title": "Tipo de empleo",
+    "description": "Si el usuario es empleado formal, independiente/freelance, mixto, o sin ingresos formales. Es contexto que gatea preguntas posteriores (ARL para independientes, IBC, declaración tributaria) y ajusta recomendaciones de fondo de emergencia (independiente → más meses).",
+    "category": "profile",
+    "type": "chips",
+    "prompt": "¿Cómo es tu situación laboral actual?",
+    "hint": "Tu fuente principal de ingreso — independiente significa que facturás o vendés por tu cuenta.",
+    "options": [
+      {
+        "value": "formal",
+        "label": "Empleado formal",
+        "sublabel": "Contrato laboral, nómina, aportes vía empleador",
+        "score": 100
+      },
+      {
+        "value": "mixed",
+        "label": "Mixto",
+        "sublabel": "Empleo formal + freelance / negocio",
+        "score": 90
+      },
+      {
+        "value": "independent",
+        "label": "Independiente",
+        "sublabel": "Honorarios, freelance, negocio propio",
+        "score": 80
+      },
+      {
+        "value": "unemployed",
+        "label": "Sin ingreso formal",
+        "sublabel": "Estudiante, busca empleo, en transición",
+        "score": 30
+      }
+    ]
+  }
+]

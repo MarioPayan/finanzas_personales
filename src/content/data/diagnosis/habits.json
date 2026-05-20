@@ -1,0 +1,100 @@
+[
+  {
+    "storageKey": "hasBudgetSystem",
+    "title": "Sistema de cubetas",
+    "description": "Cómo el usuario distribuye su ingreso entrante: en cabeza, en cuentas separadas, o automatizado por el banco. El \"sistema de cubetas\" predice mejor el cumplimiento del ahorro que el monto ahorrado.",
+    "category": "habits",
+    "type": "chips",
+    "prompt": "¿Tienes un sistema para repartir tu ingreso cuando entra?",
+    "hint": "Hablamos de cómo decides cuánto va a obligatorios, ahorro, inversión y gusto — no del monto, sino del método.",
+    "options": [
+      {
+        "value": "no",
+        "label": "No tengo método",
+        "sublabel": "Gasto y veo qué queda al final del mes",
+        "score": 10
+      },
+      {
+        "value": "mental",
+        "label": "Mental",
+        "sublabel": "Tengo una idea de cuánto va a cada cosa, pero todo en una sola cuenta",
+        "score": 40
+      },
+      {
+        "value": "accounts",
+        "label": "Cuentas separadas",
+        "sublabel": "Una cuenta para gastos, otra para ahorro, otra para inversión",
+        "score": 80
+      },
+      {
+        "value": "automated",
+        "label": "Automatizado",
+        "sublabel": "El banco o una app reparte automáticamente cuando llega el ingreso",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "noBudgetSystem",
+        "when": {
+          "kind": "equals",
+          "key": "hasBudgetSystem",
+          "value": "no"
+        },
+        "severity": "warning",
+        "diagnostic": "No tienes un sistema para repartir tu ingreso.",
+        "tip": "En Colombia, 55% de quienes tienen productos financieros no presupuestan; el resultado: lo que sobra al final del mes nunca alcanza. Regla más simple: cuando entra el ingreso, mueve primero un porcentaje fijo a ahorro/inversión, y vive con lo que queda. Mental, en cuentas separadas o automatizado — cualquier sistema le gana a no tener."
+      },
+      {
+        "id": "automatedBudget",
+        "when": {
+          "kind": "equals",
+          "key": "hasBudgetSystem",
+          "value": "automated"
+        },
+        "severity": "positive",
+        "diagnostic": "Tu reparto está automatizado.",
+        "tip": "Es la versión más sólida del sistema: el ahorro no depende de tu disciplina mensual. Verifica una vez al año que los porcentajes sigan haciendo sentido para tu ingreso y tus metas."
+      }
+    ]
+  },
+  {
+    "storageKey": "usesAutomation",
+    "title": "Automatización del ahorro",
+    "description": "Si el ahorro o la inversión del usuario corre por débito automático o transferencia programada. La automatización es el hábito más correlacionado con la construcción de patrimonio porque saca a la fuerza de voluntad de la ecuación: lo que se debita antes de gastar, se ahorra; lo que se ahorra \"al final del mes\", rara vez sobra.",
+    "category": "habits",
+    "type": "toggle",
+    "prompt": "¿Tu ahorro o inversión sale por débito automático?",
+    "hint": "Por ejemplo: una transferencia programada el día de tu pago, o un débito recurrente que mueve plata a tu cuenta de ahorro o fondo cada mes.",
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 40
+    },
+    "insights": [
+      {
+        "id": "automationHabit",
+        "when": {
+          "kind": "equals",
+          "key": "usesAutomation",
+          "value": true
+        },
+        "severity": "positive",
+        "diagnostic": "Tu ahorro está automatizado.",
+        "tip": "Es la práctica que más amplifica el resultado a largo plazo. Mientras tus metas mensuales sean realistas, dejar que el sistema corra solo es suficiente — revisa una vez al año los porcentajes."
+      },
+      {
+        "id": "noAutomation",
+        "when": {
+          "kind": "equals",
+          "key": "usesAutomation",
+          "value": false
+        },
+        "severity": "info",
+        "diagnostic": "Tu ahorro depende de decisión manual cada mes.",
+        "tip": "Automatizar el débito el día que entra tu ingreso es una de las palancas más altas: el ahorro deja de competir con todos los gastos del mes. Empieza con un porcentaje chico que no duela y súbelo cada 3-6 meses."
+      }
+    ]
+  }
+]

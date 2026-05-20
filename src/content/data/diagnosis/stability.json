@@ -1,0 +1,542 @@
+[
+  {
+    "storageKey": "emergencyMonths",
+    "title": "Fondo de emergencia",
+    "description": "Cuántos meses de gastos obligatorios tiene el usuario guardados como colchón ante imprevistos.",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿Cuántos meses de gastos tienes guardados como fondo de emergencia?",
+    "hint": "Aproximadamente, o ingresa la cantidad exacta de meses.",
+    "glossaryTerms": [
+      "fondoEmergencia"
+    ],
+    "derivation": {
+      "kind": "multiplyMonthlyExpenses",
+      "inputs": [
+        "incomeBand",
+        "obligatoryPct"
+      ]
+    },
+    "options": [
+      {
+        "value": "none",
+        "label": "Ninguno",
+        "score": 0
+      },
+      {
+        "value": "lt1",
+        "label": "Menos de 1 mes",
+        "bracket": {
+          "max": 1
+        },
+        "score": 20
+      },
+      {
+        "value": "1to3",
+        "label": "1 a 3 meses",
+        "bracket": {
+          "min": 1,
+          "max": 3
+        },
+        "score": 50
+      },
+      {
+        "value": "3to6",
+        "label": "3 a 6 meses",
+        "bracket": {
+          "min": 3,
+          "max": 6
+        },
+        "score": 75
+      },
+      {
+        "value": "6to12",
+        "label": "6 a 12 meses",
+        "bracket": {
+          "min": 6,
+          "max": 12
+        },
+        "score": 95
+      },
+      {
+        "value": "gt12",
+        "label": "12 meses o más",
+        "bracket": {
+          "min": 12
+        },
+        "score": 100
+      }
+    ],
+    "exactInput": {
+      "min": 0,
+      "max": 120,
+      "step": 0.5,
+      "unit": "meses",
+      "placeholder": "Meses exactos"
+    },
+    "exactScore": [
+      {
+        "max": 1,
+        "score": 20
+      },
+      {
+        "min": 1,
+        "max": 3,
+        "score": 50
+      },
+      {
+        "min": 3,
+        "max": 6,
+        "score": 75
+      },
+      {
+        "min": 6,
+        "max": 12,
+        "score": 95
+      },
+      {
+        "min": 12,
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "noEmergencyFund",
+        "when": {
+          "kind": "in",
+          "key": "emergencyMonths",
+          "values": [
+            "none",
+            "lt1"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tu fondo de emergencia es inexistente o muy chico.",
+        "tip": "Empieza por una meta chica que sí puedas cumplir: 1 mes de gastos obligatorios en cuenta líquida. Las metas grandes que no se cumplen producen abandono; las chicas que se cumplen producen hábito. Cuando llegues a 1 mes, redefine el siguiente objetivo a 3 meses."
+      },
+      {
+        "id": "strongEmergencyFund",
+        "when": {
+          "kind": "in",
+          "key": "emergencyMonths",
+          "values": [
+            "6to12",
+            "gt12"
+          ]
+        },
+        "severity": "positive",
+        "diagnostic": "Tu fondo de emergencia cubre 6 meses o más.",
+        "tip": "Si la cifra es muy superior a 6 meses, parte del excedente puede ir a inversión y rendir más sin perder seguridad."
+      }
+    ]
+  },
+  {
+    "storageKey": "emergencyAccessSpeed",
+    "title": "Velocidad de acceso al fondo",
+    "description": "Cuán rápido puede el usuario disponer del dinero del fondo si lo necesita. Un fondo grande pero ilíquido (CDT bloqueado, inversión a meses) no es realmente un fondo de emergencia. Esta pregunta separa el fondo \"nominal\" del fondo \"operativo\".",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿Qué tan rápido podrías disponer de tu fondo si lo necesitaras hoy?",
+    "hint": "Piénsalo como: si esta noche se me daña el auto y necesito el dinero, ¿cuándo lo tengo en mi mano?",
+    "dependsOn": [
+      {
+        "storageKey": "emergencyMonths",
+        "in": [
+          "1to3",
+          "3to6",
+          "6to12",
+          "gt12"
+        ]
+      }
+    ],
+    "options": [
+      {
+        "value": "minutes",
+        "label": "En minutos",
+        "sublabel": "Cuenta de ahorros, billetera digital",
+        "score": 100
+      },
+      {
+        "value": "hours",
+        "label": "En horas",
+        "sublabel": "Transferencia entre bancos",
+        "score": 90
+      },
+      {
+        "value": "days",
+        "label": "En días",
+        "sublabel": "Fondo de inversión a la vista, retiro programado",
+        "score": 60
+      },
+      {
+        "value": "weeks",
+        "label": "En semanas",
+        "sublabel": "CDT, fondo con liquidación lenta",
+        "score": 25
+      },
+      {
+        "value": "months",
+        "label": "En meses",
+        "sublabel": "Inversión bloqueada, propiedad",
+        "score": 5
+      }
+    ],
+    "insights": [
+      {
+        "id": "illiquidEmergencyFund",
+        "when": {
+          "kind": "in",
+          "key": "emergencyAccessSpeed",
+          "values": [
+            "weeks",
+            "months"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tu fondo no es realmente líquido — tarda demasiado en estar disponible.",
+        "tip": "El propósito del fondo es cubrir lo inesperado. Si tarda semanas o meses, la emergencia ya pasó. Una cuenta de ahorros o un fondo a la vista cumplen mejor ese rol; puedes mantener el resto a más plazo."
+      }
+    ]
+  },
+  {
+    "storageKey": "jobHorizon",
+    "title": "Horizonte laboral",
+    "description": "Cuánto tiempo se ve el usuario en su trabajo actual. Es proxy de la estabilidad laboral percibida. Si el horizonte es corto (≤5 años), el cuestionario pregunta por planes de segunda fuente de ingreso.",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿En cuánto tiempo te ves todavía en tu trabajo actual?",
+    "options": [
+      {
+        "value": "0to1",
+        "label": "0 a 1 año",
+        "score": 30
+      },
+      {
+        "value": "1to3",
+        "label": "1 a 3 años",
+        "score": 50
+      },
+      {
+        "value": "3to5",
+        "label": "3 a 5 años",
+        "score": 70
+      },
+      {
+        "value": "5to10",
+        "label": "5 a 10 años",
+        "score": 85
+      },
+      {
+        "value": "10to20",
+        "label": "10 a 20 años",
+        "score": 95
+      },
+      {
+        "value": "gt20",
+        "label": "Más de 20 años",
+        "score": 100
+      }
+    ]
+  },
+  {
+    "storageKey": "secondIncomeStream",
+    "title": "Segunda fuente de ingreso",
+    "description": "Si el horizonte laboral es corto/medio (≤5 años), preguntamos si el usuario tiene o está construyendo una segunda fuente de ingreso. Captura preparación ante un cambio que el propio usuario ya intuye. La opción \"no me interesa\" se incluye porque algunos usuarios deliberadamente dependen de su empleo principal — no es lo mismo que \"todavía no\" pero implica menos preparación.",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿Tienes una fuente de ingreso secundaria?",
+    "hint": "Negocio propio, freelance, ingresos pasivos, monetización de un hobby — cualquier cosa que no sea tu trabajo actual.",
+    "dependsOn": [
+      {
+        "storageKey": "jobHorizon",
+        "in": [
+          "0to1",
+          "1to3",
+          "3to5"
+        ]
+      }
+    ],
+    "options": [
+      {
+        "value": "no",
+        "label": "No, todavía no",
+        "score": 10
+      },
+      {
+        "value": "no-interest",
+        "label": "No, no me interesa",
+        "score": 5
+      },
+      {
+        "value": "idea",
+        "label": "Tengo una idea",
+        "score": 30
+      },
+      {
+        "value": "working",
+        "label": "Estoy trabajando en ello",
+        "score": 60
+      },
+      {
+        "value": "results",
+        "label": "Estoy viendo resultados",
+        "score": 85
+      },
+      {
+        "value": "stable",
+        "label": "Sí, ya es ingreso estable",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "noSecondIncomeShortHorizon",
+        "when": {
+          "kind": "in",
+          "key": "secondIncomeStream",
+          "values": [
+            "no",
+            "no-interest"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tu horizonte laboral es corto y no tienes otra fuente en marcha.",
+        "tip": "No es urgente, pero conviene empezar a pensarlo. Una segunda fuente toma años en madurar; si esperas a necesitarla ya es tarde."
+      }
+    ]
+  },
+  {
+    "storageKey": "financialStressLevel",
+    "title": "Nivel de estrés financiero",
+    "description": "Cuán seguido el usuario percibe ansiedad o malestar por la situación financiera. Es una variable subjetiva que no aparece en ninguna otra pregunta y que el video de Galloway identifica como factor de daño a la salud. Va al final de Estabilidad porque acumula el efecto de todo lo anterior.",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿Con qué frecuencia sientes estrés financiero?",
+    "hint": "Ansiedad cuando se acerca fin de mes, evitar abrir cuentas, dormir mal por dinero — esas señales.",
+    "options": [
+      {
+        "value": "none",
+        "label": "Casi nunca",
+        "sublabel": "El dinero no me quita el sueño",
+        "score": 100
+      },
+      {
+        "value": "sometimes",
+        "label": "A veces",
+        "sublabel": "En meses puntuales o ante imprevistos",
+        "score": 70
+      },
+      {
+        "value": "frequent",
+        "label": "Seguido",
+        "sublabel": "Varias veces al mes",
+        "score": 30
+      },
+      {
+        "value": "constant",
+        "label": "Constante",
+        "sublabel": "Lo cargo casi todos los días",
+        "score": 10
+      }
+    ],
+    "insights": [
+      {
+        "id": "chronicFinancialStress",
+        "when": {
+          "kind": "in",
+          "key": "financialStressLevel",
+          "values": [
+            "frequent",
+            "constant"
+          ]
+        },
+        "severity": "critical",
+        "diagnostic": "Estás cargando estrés financiero sostenido.",
+        "tip": "La presión financiera prolongada sube presión arterial, deteriora el sueño y empeora decisiones — ~45% de adultos pierden sueño por estrés financiero y mal sueño correlaciona con compras compulsivas y decisiones impulsivas (la cadena se retroalimenta). Arreglar el cash-flow no es solo financiero, también es salud — empieza por el rubro más doloroso (deuda cara, gasto fijo grande) y atácalo aunque sea con un primer paso chico."
+      }
+    ]
+  },
+  {
+    "storageKey": "inRelationship",
+    "title": "Convivencia económica",
+    "description": "Si el usuario comparte decisiones económicas con una pareja. Es el gate que decide si se pregunta por la alineación financiera del hogar. No puntúa por sí solo — es informativo.",
+    "category": "stability",
+    "type": "toggle",
+    "prompt": "¿Tienes una pareja con quien compartes decisiones económicas?",
+    "hint": "Conviviendo o no, casados o no — lo que importa es si las decisiones económicas grandes las negocias con alguien más. Si no tienes pareja o las decisiones son solo tuyas, responde No.",
+    "trueLabel": "Sí",
+    "falseLabel": "No"
+  },
+  {
+    "storageKey": "householdFinancialAlignment",
+    "title": "Alineación financiera con la pareja",
+    "description": "Si la pareja conversa de dinero y qué tan alineados están en gastos y ahorro. El backlog del video lo cita como predictor #1 de divorcio. Pregunta sensible — el copy es deliberadamente neutro para no juzgar.",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿Cómo manejan el tema dinero entre los dos?",
+    "hint": "Sin juicio: lo importante es identificar si hay un canal de conversación, no si son perfectos.",
+    "dependsOn": [
+      {
+        "storageKey": "inRelationship",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "never-talk",
+        "label": "No hablamos del tema",
+        "sublabel": "Cada uno con su dinero, sin coordinación",
+        "score": 10
+      },
+      {
+        "value": "disagree",
+        "label": "Hablamos pero discutimos",
+        "sublabel": "No estamos de acuerdo en cómo gastar o ahorrar",
+        "score": 30
+      },
+      {
+        "value": "aligned-no-plan",
+        "label": "Estamos alineados pero sin plan",
+        "sublabel": "En la misma página, sin metas escritas",
+        "score": 70
+      },
+      {
+        "value": "aligned-plan",
+        "label": "Alineados con plan",
+        "sublabel": "Metas concretas, revisión periódica",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "householdFinancialMisalignment",
+        "when": {
+          "kind": "in",
+          "key": "householdFinancialAlignment",
+          "values": [
+            "never-talk",
+            "disagree"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "No hay un canal aceitado para hablar de dinero con tu pareja.",
+        "tip": "La falta de conversación financiera es el predictor más fuerte de conflicto serio en una pareja, antes que el monto ahorrado. Prueba la conversación más simple: una vez al mes, 20 minutos, repasar lo que entró, lo que salió y un objetivo a 90 días."
+      }
+    ]
+  },
+  {
+    "storageKey": "coupleFinancialStructure",
+    "title": "Estructura financiera de la pareja",
+    "description": "Cómo se reparten los gastos entre los dos: 50/50, proporcional al ingreso, pool conjunto, o separado. Con ingresos asimétricos, 50/50 suele generar resentimiento; estructuras híbridas (pool para compartidos + individual para autonomía) muestran menor caída de satisfacción en los primeros años (estudio Northwestern 2023).",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿Cómo dividen los gastos en pareja?",
+    "dependsOn": [
+      {
+        "storageKey": "inRelationship",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "fifty",
+        "label": "50/50",
+        "sublabel": "Cada uno aporta la mitad sin importar el ingreso",
+        "score": 50
+      },
+      {
+        "value": "proportional",
+        "label": "Proporcional al ingreso",
+        "sublabel": "Cada uno aporta el mismo % de su ingreso al pool",
+        "score": 90
+      },
+      {
+        "value": "pool",
+        "label": "Pool conjunto",
+        "sublabel": "Todo entra a una cuenta común, ambos retiran",
+        "score": 80
+      },
+      {
+        "value": "hybrid",
+        "label": "Híbrido",
+        "sublabel": "Conjunta para compartidos + individuales para autonomía",
+        "score": 100
+      },
+      {
+        "value": "separate",
+        "label": "Totalmente separado",
+        "sublabel": "Cada uno con su plata, sin gastos compartidos formales",
+        "score": 40
+      }
+    ],
+    "insights": [
+      {
+        "id": "unequalSplit5050",
+        "when": {
+          "kind": "equals",
+          "key": "coupleFinancialStructure",
+          "value": "fifty"
+        },
+        "severity": "info",
+        "diagnostic": "Reparten los gastos 50/50.",
+        "tip": "Es la estructura más simple pero la que más conflicto genera con ingresos asimétricos: el de menor ingreso queda con menos margen real. Si los ingresos son distintos, vale considerar pasar a proporcional o híbrida."
+      }
+    ]
+  },
+  {
+    "storageKey": "talksAboutMoneyWithPartner",
+    "title": "Frecuencia de conversación sobre dinero",
+    "description": "Cuán seguido la pareja conversa sobre dinero. Predictor #1 de conflicto cuando es nulo. Estudios muestran que parejas que pelean por dinero tienen +49% de probabilidad de divorcio; las que conversan periódicamente sin conflicto reportan mayor satisfacción.",
+    "category": "stability",
+    "type": "chips",
+    "prompt": "¿Con qué frecuencia hablan de dinero?",
+    "dependsOn": [
+      {
+        "storageKey": "inRelationship",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "never",
+        "label": "Casi nunca",
+        "sublabel": "Cada uno con lo suyo; no es un tema",
+        "score": 20
+      },
+      {
+        "value": "only-crisis",
+        "label": "Solo en crisis",
+        "sublabel": "Cuando aparece un problema",
+        "score": 30
+      },
+      {
+        "value": "monthly",
+        "label": "Cada mes",
+        "sublabel": "Conversación rutinaria al cierre del mes",
+        "score": 90
+      },
+      {
+        "value": "on-income",
+        "label": "Cada vez que entra ingreso",
+        "sublabel": "Revisión activa con cada cobro",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "silentMoneyCouple",
+        "when": {
+          "kind": "in",
+          "key": "talksAboutMoneyWithPartner",
+          "values": [
+            "never",
+            "only-crisis"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "No hay una conversación recurrente sobre dinero con tu pareja.",
+        "tip": "Estudios muestran que las parejas que pelean por dinero tienen casi 50% más probabilidad de divorcio. Una conversación corta una vez al mes — entradas, salidas, una meta — desactiva ese ruido sin hacer del dinero un tema central."
+      }
+    ]
+  }
+]

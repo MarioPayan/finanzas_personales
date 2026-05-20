@@ -1,0 +1,398 @@
+[
+  {
+    "storageKey": "obligatoryPct",
+    "title": "Gastos obligatorios",
+    "description": "Porcentaje del ingreso que se va en gastos sin los cuales el usuario no puede pasar el mes (vivienda, comida, transporte, servicios, salud). Incluye gastos anuales prorrateados — impuestos, matrículas, seguros — divididos en su equivalente mensual.",
+    "category": "expenses",
+    "type": "slider",
+    "prompt": "¿Qué porcentaje de tu ingreso se va en gastos obligatorios?",
+    "hint": "Solo lo que pagas todos los meses: comida, vivienda, transporte, servicios, salud. Los gastos anuales (impuestos, matrículas, seguros) se preguntan justo después.",
+    "derivation": {
+      "kind": "shareOfMonthlyIncome",
+      "inputs": [
+        "incomeBand"
+      ]
+    },
+    "min": 0,
+    "max": 100,
+    "step": 1,
+    "defaultValue": 50,
+    "unit": "%",
+    "marks": [
+      {
+        "value": 0,
+        "label": "0%"
+      },
+      {
+        "value": 50,
+        "label": "50%"
+      },
+      {
+        "value": 100,
+        "label": "100%"
+      }
+    ],
+    "score": [
+      {
+        "min": 0,
+        "max": 30,
+        "score": 100
+      },
+      {
+        "min": 30,
+        "max": 50,
+        "score": 80
+      },
+      {
+        "min": 50,
+        "max": 70,
+        "score": 50
+      },
+      {
+        "min": 70,
+        "max": 90,
+        "score": 20
+      },
+      {
+        "min": 90,
+        "max": 101,
+        "score": 5
+      }
+    ],
+    "insights": [
+      {
+        "id": "obligatoryBelowSubsistence",
+        "when": {
+          "kind": "obligatoryAbsoluteBelowSmmTimes",
+          "multiplier": 0.4
+        },
+        "severity": "info",
+        "diagnostic": "Tu gasto absoluto en obligatorios está por debajo del mínimo de subsistencia.",
+        "tip": "Probablemente tengas apoyos externos (vivienda familiar, subsidios) o no estés contando todo. Revisa si tu cifra incluye realmente comida, vivienda, transporte y servicios."
+      },
+      {
+        "id": "highObligatorySpending",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "numberAbove",
+              "key": "obligatoryPct",
+              "threshold": 70
+            },
+            {
+              "kind": "obligatoryAbsoluteAboveSmmTimes",
+              "multiplier": 0.4
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Más del 70% de tu ingreso se va en gastos obligatorios.",
+        "tip": "Empieza por reducir o renegociar el rubro más grande (vivienda, transporte, servicios) o por aumentar ingresos. Con ese margen tan apretado, cualquier imprevisto se vuelve crisis."
+      },
+      {
+        "id": "lowObligatorySpending",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "numberBelow",
+              "key": "obligatoryPct",
+              "threshold": 30
+            },
+            {
+              "kind": "obligatoryAbsoluteAboveSmmTimes",
+              "multiplier": 0.4
+            }
+          ]
+        },
+        "severity": "positive",
+        "diagnostic": "Más del 70% de tu ingreso queda libre después de tus obligaciones.",
+        "tip": "Buen punto de partida para fortalecer el fondo de emergencia y dirigir el resto a inversiones diversificadas."
+      }
+    ]
+  },
+  {
+    "storageKey": "obligatoryAnnualItems",
+    "title": "Tipos de gastos anuales obligatorios",
+    "description": "Lista de rubros que el usuario tiene como gasto obligatorio anual o esporádico, separados del mes a mes. Cada item seleccionado genera una fila en `obligatoryAnnualAmounts` para capturar el monto. Sirve para que el usuario visualice estos gastos sin necesidad de prorratearlos mentalmente en el slider mensual.",
+    "category": "expenses",
+    "type": "multiChips",
+    "prompt": "¿Qué gastos obligatorios pagas en el año (fuera del mes a mes)?",
+    "hint": "Marca los que apliquen. Son los gastos que no llegan todos los meses pero que sí necesitas prever.",
+    "options": [
+      {
+        "value": "taxes",
+        "label": "Impuestos",
+        "sublabel": "Predial, vehicular, renta, IVA anual",
+        "score": 0
+      },
+      {
+        "value": "insurance",
+        "label": "Seguros",
+        "sublabel": "Salud, auto, casa, vida",
+        "score": 0
+      },
+      {
+        "value": "tuition",
+        "label": "Matrículas",
+        "sublabel": "Colegio, universidad, posgrado",
+        "score": 0
+      },
+      {
+        "value": "maintenance",
+        "label": "Mantenimientos",
+        "sublabel": "Auto, casa, electrodomésticos",
+        "score": 0
+      },
+      {
+        "value": "other",
+        "label": "Otros",
+        "sublabel": "Trámites, certificaciones, licencias",
+        "score": 0
+      },
+      {
+        "value": "none",
+        "label": "Ninguno",
+        "sublabel": "No tengo gastos anuales obligatorios",
+        "score": 0,
+        "clearOthers": true
+      }
+    ]
+  },
+  {
+    "storageKey": "obligatoryAnnualAmounts",
+    "title": "Monto anual por rubro obligatorio",
+    "description": "Monto que el usuario paga al año en cada rubro obligatorio anual seleccionado. Es información complementaria al slider de `obligatoryPct` (que mide solo el gasto mensual recurrente). No entra al scoring; sirve para que el usuario tenga visibilidad del total real y para futuras derivaciones de gasto efectivo.",
+    "category": "expenses",
+    "type": "grid",
+    "prompt": "¿Cuánto pagas en el año por cada rubro?",
+    "hint": "Una estimación está bien. Si no sabes con exactitud, suma lo que recuerdes de los últimos 12 meses.",
+    "dependsOn": [
+      {
+        "storageKey": "obligatoryAnnualItems",
+        "nonEmpty": true,
+        "nonEmptyExcept": [
+          "none"
+        ]
+      }
+    ],
+    "rowSource": {
+      "kind": "multiSelectLabels",
+      "storageKey": "obligatoryAnnualItems"
+    },
+    "cell": {
+      "kind": "number",
+      "exactInput": {
+        "min": 0,
+        "step": 10000,
+        "placeholder": "Monto anual",
+        "suggestionsSmm": [
+          0.5,
+          1,
+          2,
+          5,
+          10
+        ],
+        "isMoney": true
+      }
+    }
+  },
+  {
+    "storageKey": "discretionaryPct",
+    "title": "Gastos discrecionales",
+    "description": "Porcentaje del ingreso que se va en gastos no esenciales — salidas, hobbies, ropa, comer fuera, viajes — y gastos anuales prorrateados como vacaciones, regalos y suscripciones. Junto con obligatoryPct define cuánto queda libre para ahorro e inversión.",
+    "category": "expenses",
+    "type": "slider",
+    "prompt": "¿Qué porcentaje de tu ingreso se va en gastos discrecionales?",
+    "hint": "Solo lo que pagas todos los meses: salidas, hobbies, ropa, comer fuera, suscripciones mensuales. Los gastos anuales (vacaciones, regalos, viajes) se preguntan justo después.",
+    "derivation": {
+      "kind": "shareOfMonthlyIncome",
+      "inputs": [
+        "incomeBand"
+      ]
+    },
+    "min": 0,
+    "max": 100,
+    "step": 1,
+    "defaultValue": 25,
+    "unit": "%",
+    "marks": [
+      {
+        "value": 0,
+        "label": "0%"
+      },
+      {
+        "value": 50,
+        "label": "50%"
+      },
+      {
+        "value": 100,
+        "label": "100%"
+      }
+    ],
+    "score": [
+      {
+        "min": 0,
+        "max": 15,
+        "score": 100
+      },
+      {
+        "min": 15,
+        "max": 30,
+        "score": 80
+      },
+      {
+        "min": 30,
+        "max": 45,
+        "score": 50
+      },
+      {
+        "min": 45,
+        "max": 60,
+        "score": 20
+      },
+      {
+        "min": 60,
+        "max": 101,
+        "score": 5
+      }
+    ],
+    "insights": [
+      {
+        "id": "highDiscretionarySpending",
+        "when": {
+          "kind": "numberAbove",
+          "key": "discretionaryPct",
+          "threshold": 45
+        },
+        "severity": "warning",
+        "diagnostic": "Estás gastando una parte muy alta de tu ingreso en lo discrecional.",
+        "tip": "No se trata de cohibirte, sino de saber adónde va. Los \"gastos hormiga\" se acumulan: en Colombia los top 3 son snacks (~26%), planes de diversión (14%) y cigarrillos (7%) del total discrecional. Anota un mes lo que gastas en lo no esencial; suele sorprender. Ese margen es el que permite invertir o construir fondo de emergencia."
+      },
+      {
+        "id": "discretionaryHoursOfLife",
+        "when": {
+          "kind": "numberAbove",
+          "key": "discretionaryPct",
+          "threshold": 45
+        },
+        "severity": "info",
+        "diagnostic": "Prueba medir tus gastos discrecionales en horas de tu vida.",
+        "tip": "Divide tu ingreso mensual por tus horas trabajadas: ese es tu ingreso por hora. Cuando dudes con un gasto grande, divídelo por esa cifra — te dice cuántas horas de tu vida cuesta. Es un filtro más honesto que pensar en dinero."
+      },
+      {
+        "id": "lifestyleInflation",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "incomeAboveSmmTimes",
+              "multiplier": 2
+            },
+            {
+              "kind": "numberAbove",
+              "key": "discretionaryPct",
+              "threshold": 35
+            }
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "Tu ingreso está por encima del piso pero tu margen es chico.",
+        "tip": "Es el patrón clásico de lifestyle inflation: cada subida de ingreso se traduce en subida proporcional de gasto, no de ahorro. Tu situación se va a sentir igual con $5M o con $10M si no fijas un porcentaje de ahorro automático que crezca contigo. Una regla simple: cuando sube el ingreso, ahorra al menos el 50% del aumento antes de incorporarlo al gasto."
+      }
+    ]
+  },
+  {
+    "storageKey": "discretionaryAnnualItems",
+    "title": "Tipos de gastos anuales discrecionales",
+    "description": "Lista de rubros no esenciales que el usuario gasta de forma anual o esporádica grande, separados del mes a mes. Cada item seleccionado genera una fila en `discretionaryAnnualAmounts`. Captura el gasto discrecional que pasa fuera del slider mensual (vacaciones, regalos, viajes).",
+    "category": "expenses",
+    "type": "multiChips",
+    "prompt": "¿Qué gastos discrecionales pagas en el año (fuera del mes a mes)?",
+    "hint": "Marca los que apliquen. Pagos no esenciales que se concentran en momentos específicos del año.",
+    "options": [
+      {
+        "value": "vacation",
+        "label": "Vacaciones",
+        "sublabel": "Hoteles, vuelos, paseos cortos",
+        "score": 0
+      },
+      {
+        "value": "gifts",
+        "label": "Regalos",
+        "sublabel": "Cumpleaños, navidad, ocasiones especiales",
+        "score": 0
+      },
+      {
+        "value": "subscriptions",
+        "label": "Suscripciones anuales",
+        "sublabel": "Streaming, gimnasio, software, revistas",
+        "score": 0
+      },
+      {
+        "value": "bigTrips",
+        "label": "Viajes grandes",
+        "sublabel": "Viaje internacional, luna de miel, retiros",
+        "score": 0
+      },
+      {
+        "value": "events",
+        "label": "Eventos",
+        "sublabel": "Bodas, conciertos, fiestas, retiros",
+        "score": 0
+      },
+      {
+        "value": "other",
+        "label": "Otros",
+        "sublabel": "Compras grandes esporádicas",
+        "score": 0
+      },
+      {
+        "value": "none",
+        "label": "Ninguno",
+        "sublabel": "No tengo gastos anuales discrecionales",
+        "score": 0,
+        "clearOthers": true
+      }
+    ]
+  },
+  {
+    "storageKey": "discretionaryAnnualAmounts",
+    "title": "Monto anual por rubro discrecional",
+    "description": "Monto que el usuario gasta al año en cada rubro discrecional anual seleccionado. Complementa al slider de `discretionaryPct` (que mide solo el gasto mensual recurrente). No entra al scoring; sirve para que el usuario tenga visibilidad del total real y para futuras derivaciones de gasto efectivo.",
+    "category": "expenses",
+    "type": "grid",
+    "prompt": "¿Cuánto gastas en el año por cada rubro?",
+    "hint": "Una estimación está bien. Si no sabes con exactitud, suma lo que recuerdes de los últimos 12 meses.",
+    "dependsOn": [
+      {
+        "storageKey": "discretionaryAnnualItems",
+        "nonEmpty": true,
+        "nonEmptyExcept": [
+          "none"
+        ]
+      }
+    ],
+    "rowSource": {
+      "kind": "multiSelectLabels",
+      "storageKey": "discretionaryAnnualItems"
+    },
+    "cell": {
+      "kind": "number",
+      "exactInput": {
+        "min": 0,
+        "step": 10000,
+        "placeholder": "Monto anual",
+        "suggestionsSmm": [
+          0.5,
+          1,
+          2,
+          5,
+          10
+        ],
+        "isMoney": true
+      }
+    }
+  }
+]

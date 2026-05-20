@@ -1,0 +1,331 @@
+{
+  "income": [
+    {
+      "min": 0,
+      "max": 20,
+      "profile": {
+        "id": "income-fragile",
+        "label": "Ingreso frágil",
+        "description": "Lo que entra al mes no alcanza para vivir con holgura. Antes de pensar en optimizar gasto, la palanca real es subir el ingreso: formación, cambio de rol o sumar fuente complementaria."
+      }
+    },
+    {
+      "min": 20,
+      "max": 40,
+      "profile": {
+        "id": "income-modest",
+        "label": "Ingreso modesto",
+        "description": "Tu ingreso te cubre lo básico pero deja poco margen. Si es variable, la presión es doble. Una mejora del 15-20% destraba todo lo demás."
+      }
+    },
+    {
+      "min": 40,
+      "max": 60,
+      "profile": {
+        "id": "income-stable",
+        "label": "Ingreso estable",
+        "description": "Tu ingreso es razonable y predecible. Es buen momento para enfocar en cómo lo distribuyes: ahorro, inversión y deuda gana más palanca que más ingreso."
+      }
+    },
+    {
+      "min": 60,
+      "max": 80,
+      "profile": {
+        "id": "income-comfortable",
+        "label": "Ingreso cómodo",
+        "description": "Estás claramente por encima del promedio. Tienes capacidad real para construir patrimonio sin sacrificar calidad de vida — el riesgo ahora es la inflación de estilo de vida."
+      }
+    },
+    {
+      "min": 80,
+      "max": 100.01,
+      "profile": {
+        "id": "income-high",
+        "label": "Ingreso alto",
+        "description": "Tu ingreso es alto en términos absolutos y relativos. La pregunta cambia: ya no es cuánto ganas, sino cuánto de eso está trabajando para ti. Diversificación, fiscal y heredabilidad pasan al frente."
+      }
+    }
+  ],
+  "expenses": [
+    {
+      "min": 0,
+      "max": 20,
+      "profile": {
+        "id": "expenses-overflowing",
+        "label": "Gasto desbordado",
+        "description": "Lo que se va supera o iguala lo que entra. Sin recortar un rubro grande u ordenar el gasto fijo, no hay forma de avanzar. Priorizar bajar obligatorios o discrecionales es la única salida real."
+      }
+    },
+    {
+      "min": 20,
+      "max": 40,
+      "profile": {
+        "id": "expenses-tight",
+        "label": "Gasto apretado",
+        "description": "Gastas casi todo lo que entra. Un mes complicado se vuelve crisis. Identificar 1-2 rubros para optimizar (suscripciones, vivienda, transporte) destraba el plan completo."
+      }
+    },
+    {
+      "min": 40,
+      "max": 60,
+      "profile": {
+        "id": "expenses-balanced",
+        "label": "Gasto controlado",
+        "description": "Tus gastos están bajo control pero el sobrante es chico. Identificar dónde se va el dinero y ajustar 1-2 categorías mueve el ahorro de marginal a significativo."
+      }
+    },
+    {
+      "min": 60,
+      "max": 80,
+      "profile": {
+        "id": "expenses-efficient",
+        "label": "Gasto eficiente",
+        "description": "Vives con holgura sobre tus posibilidades. Hay sobrante real que puede ir a inversión. El próximo refinamiento es separar entre lo que disfrutas y lo que pagas por inercia."
+      }
+    },
+    {
+      "min": 80,
+      "max": 100.01,
+      "profile": {
+        "id": "expenses-disciplined",
+        "label": "Gasto disciplinado",
+        "description": "Tu nivel de gasto es muy controlado para tu ingreso. Acumulas sobrante mes a mes. Cuida no caer en sub-vivir: parte del ingreso es para disfrutar el presente, no sólo asegurar el futuro."
+      }
+    }
+  ],
+  "habits": [
+    {
+      "min": 0,
+      "max": 20,
+      "profile": {
+        "id": "habits-blind",
+        "label": "A ciegas",
+        "description": "No sabes con precisión cuánto entra ni cuánto se va. Cada decisión es por intuición. Empezar con un seguimiento simple (1-2 meses anotando todo) cambia tu situación más que cualquier consejo de inversión."
+      }
+    },
+    {
+      "min": 20,
+      "max": 40,
+      "profile": {
+        "id": "habits-occasional",
+        "label": "Atención puntual",
+        "description": "Miras tus números cuando hay un susto. No hay sistema. Implementar una revisión mensual de 15 minutos te da control real sin convertirte en obsesivo del Excel."
+      }
+    },
+    {
+      "min": 40,
+      "max": 60,
+      "profile": {
+        "id": "habits-tracker",
+        "label": "Llevas registro",
+        "description": "Hay un sistema básico funcionando. El siguiente paso es automatizar lo repetitivo (transferencias, ahorro, pagos) para liberar atención hacia decisiones más estratégicas."
+      }
+    },
+    {
+      "min": 60,
+      "max": 80,
+      "profile": {
+        "id": "habits-systematic",
+        "label": "Sistemático",
+        "description": "Tienes hábitos consolidados y parte del sistema corre solo. El refinamiento ahora es revisar trimestralmente que el sistema sigue calzando con tu situación, no en seguir agregando reglas."
+      }
+    },
+    {
+      "min": 80,
+      "max": 100.01,
+      "profile": {
+        "id": "habits-mastery",
+        "label": "Maestría",
+        "description": "Tu sistema financiero es prácticamente automático y disciplinado. Eso libera energía mental para lo importante. Cuida no sobre-optimizar — más reglas no siempre dan más resultado."
+      }
+    }
+  ],
+  "debt": [
+    {
+      "min": 0,
+      "max": 20,
+      "profile": {
+        "id": "debt-trapped",
+        "label": "Atrapado en la deuda",
+        "description": "Tu deuda actual te empuja todos los meses. Antes de pensar en invertir o ahorrar fuerte, el plan tiene que ser eliminar la deuda más cara."
+      }
+    },
+    {
+      "min": 20,
+      "max": 40,
+      "profile": {
+        "id": "debt-pressured",
+        "label": "Bajo presión de deuda",
+        "description": "La deuda te ocupa una porción importante del ingreso. Una estrategia clara (avalancha o bola de nieve) puede sacarte de este estado en meses, no años."
+      }
+    },
+    {
+      "min": 40,
+      "max": 60,
+      "profile": {
+        "id": "debt-managing",
+        "label": "Manejando la deuda",
+        "description": "Tienes deuda pero está bajo control. El siguiente paso es revisar si todas son necesarias o si alguna se puede consolidar a mejor tasa."
+      }
+    },
+    {
+      "min": 60,
+      "max": 80,
+      "profile": {
+        "id": "debt-light",
+        "label": "Casi sin lastre",
+        "description": "Tu deuda activa es poca o productiva. El foco se mueve hacia construir fondo de emergencia e inversiones."
+      }
+    },
+    {
+      "min": 80,
+      "max": 100.01,
+      "profile": {
+        "id": "debt-free",
+        "label": "Sin lastre",
+        "description": "No tienes deuda mala o tu deuda es estructuralmente productiva. Cualquier excedente puede ir a fondo o inversión sin compromisos."
+      }
+    }
+  ],
+  "stability": [
+    {
+      "min": 0,
+      "max": 20,
+      "profile": {
+        "id": "stability-exposed",
+        "label": "Sin red",
+        "description": "No tienes colchón ni amortiguadores. Cualquier imprevisto (despido, salud, daño grave) puede arruinar meses de progreso. Construir un fondo mínimo es prioridad."
+      }
+    },
+    {
+      "min": 20,
+      "max": 40,
+      "profile": {
+        "id": "stability-building",
+        "label": "Construyendo el colchón",
+        "description": "Algo de protección, pero no alcanza para un evento serio. La meta cercana: 1 mes de gastos obligatorios líquidos. Después escala a 3, después a 6."
+      }
+    },
+    {
+      "min": 40,
+      "max": 60,
+      "profile": {
+        "id": "stability-partial",
+        "label": "Resiliencia parcial",
+        "description": "Tu colchón cubre lo cotidiano pero no un evento prolongado. Llevarlo a 3-6 meses de gastos te libera de tomar decisiones financieras por miedo."
+      }
+    },
+    {
+      "min": 60,
+      "max": 80,
+      "profile": {
+        "id": "stability-shielded",
+        "label": "Bien protegido",
+        "description": "Tu base de seguridad está sólida. Tienes fondo, seguro de salud, y horizonte laboral cubierto. Puedes tomar más riesgo en inversiones sin perder sueño."
+      }
+    },
+    {
+      "min": 80,
+      "max": 100.01,
+      "profile": {
+        "id": "stability-fortress",
+        "label": "Fortaleza",
+        "description": "Tu seguridad financiera es notable: fondo amplio y líquido, cobertura completa, segunda fuente de ingreso. Tienes libertad real para elegir tu estrategia."
+      }
+    }
+  ],
+  "protection": [
+    {
+      "min": 0,
+      "max": 20,
+      "profile": {
+        "id": "protection-bare",
+        "label": "Sin cobertura",
+        "description": "No tienes seguros básicos ni red de protección. Un accidente, una enfermedad seria o un incendio te dejarían en quiebra. Empezar por lo obligatorio (salud, ARL si eres independiente) cambia tu exposición de raíz."
+      }
+    },
+    {
+      "min": 20,
+      "max": 40,
+      "profile": {
+        "id": "protection-partial",
+        "label": "Cobertura parcial",
+        "description": "Tienes lo mínimo legal pero no lo que tu situación pide. Si hay dependientes o deuda grande, falta seguro de vida; si tienes vivienda, falta seguro de hogar. Cubrir esos huecos es barato y de alto impacto."
+      }
+    },
+    {
+      "min": 40,
+      "max": 60,
+      "profile": {
+        "id": "protection-basic",
+        "label": "Bien cubierto en lo esencial",
+        "description": "Lo esencial está. La pregunta ahora es si pagas más de lo necesario o si hay riesgos específicos (salud avanzada, profesión riesgosa) sin cubrir. Una revisión anual te ahorra plata o te quita un susto."
+      }
+    },
+    {
+      "min": 60,
+      "max": 80,
+      "profile": {
+        "id": "protection-strong",
+        "label": "Bien protegido",
+        "description": "Tu red de seguros está pensada para tu situación. Cubres los riesgos grandes sin pagar de más. El refinamiento ahora es revisar coberturas si cambia algo (matrimonio, hijos, casa nueva)."
+      }
+    },
+    {
+      "min": 80,
+      "max": 100.01,
+      "profile": {
+        "id": "protection-fortress",
+        "label": "Protección completa",
+        "description": "Tu cobertura es excepcional y proporcional a tu situación. Tomar riesgos en inversión es seguro porque el resto está blindado. Solo cuida no estar sobre-asegurado (pagando por riesgos que ya no aplican)."
+      }
+    }
+  ],
+  "investment": [
+    {
+      "min": 0,
+      "max": 20,
+      "profile": {
+        "id": "investment-uninvested",
+        "label": "Sin inversión",
+        "description": "Tu dinero no está trabajando. No es un mal estado si todavía estás cerrando la base, pero el costo de oportunidad crece con cada año que pasa."
+      }
+    },
+    {
+      "min": 20,
+      "max": 40,
+      "profile": {
+        "id": "investment-curious",
+        "label": "Curioso del mercado",
+        "description": "Ya inviertes algo o aprendiste lo básico, pero todavía es una porción chica de tu cuadro. Definir perfil de riesgo es el paso que más mueve la aguja."
+      }
+    },
+    {
+      "min": 40,
+      "max": 60,
+      "profile": {
+        "id": "investment-learning",
+        "label": "Inversor en formación",
+        "description": "Tienes inversiones activas pero el portafolio podría estar más diversificado o mejor calibrado a tu edad. La consistencia mensual gana a los timings."
+      }
+    },
+    {
+      "min": 60,
+      "max": 80,
+      "profile": {
+        "id": "investment-active",
+        "label": "Inversor activo",
+        "description": "Diversificas bien, conoces tu perfil y tus vehículos rinden. El refinamiento ahora viene de bajar costos (fees, fondos indexados) y dejar correr el tiempo."
+      }
+    },
+    {
+      "min": 80,
+      "max": 100.01,
+      "profile": {
+        "id": "investment-mature",
+        "label": "Inversor maduro",
+        "description": "Tu estrategia es sólida en horizonte, diversificación y costos. Revisa una vez al año el balance entre perfil de riesgo y etapa de vida — eso cambia con los años."
+      }
+    }
+  ]
+}

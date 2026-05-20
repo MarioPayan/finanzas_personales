@@ -69,7 +69,7 @@ La derivación decide qué va arriba (label principal) y qué va abajo
 | `multiplyMinimumWage`  | **label = rango en moneda local**, sublabel = etiqueta original (`"1 a 2 SMM"`)        | label original       |
 | `multiplyMonthlyIncome` / `multiplyMonthlyExpenses` | label original; sublabel = rango en moneda local            | label original       |
 | `creditScoreBands`     | label original (`"Bueno"`, etc.); sublabel = rango del buró del país (`"650–720"`)     | label original       |
-| Sin derivation         | label original; sublabel estático si existe en `diagnosis.ts`                          | —                    |
+| Sin derivation         | label original; sublabel estático si existe en el JSON del nodo                        | —                    |
 
 `multiplyMinimumWage` es el único caso que **swappea**: el usuario piensa
 en su moneda, no en múltiplos del SMM. Los nodos afectados son
@@ -79,7 +79,7 @@ secundaria sin tapar la etiqueta semántica.
 
 ## Reglas
 
-- Si agregas un `DerivationKind`, agregalo a la unión en `diagnosis.ts` **y**
+- Si agregas un `DerivationKind`, ampliá `DerivationKindSchema` en `src/content/schemas/common.ts` **y**
   a `getDerivationBase` en `utils/calculations.ts`. TypeScript marcará el
   `switch` exhaustivo si olvidas uno.
 - `derivation.inputs` es **documental**: lista los `storageKey` que la fórmula

@@ -1,0 +1,730 @@
+[
+  {
+    "storageKey": "knowsCreditScore",
+    "title": "Conocimiento del score",
+    "description": "Si el usuario conoce su puntaje crediticio (Datacrédito en Colombia, Buró en México, Boa Vista/Serasa en Brasil, Equifax en otros). Conocerlo es indicador básico de educación financiera — saber cómo te ven los bancos. Si no lo conoce, las preguntas siguientes sobre el score se omiten.",
+    "category": "debt",
+    "type": "toggle",
+    "prompt": "¿Conoces tu puntaje crediticio?",
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 100,
+      "whenFalse": 30
+    }
+  },
+  {
+    "storageKey": "creditScoreBand",
+    "title": "Banda del score",
+    "description": "Banda aproximada del puntaje crediticio. Las escalas varían por país; cada chip muestra como sublabel el rango numérico del buró del país detectado, resuelto vía la derivación `creditScoreBands`. El widget del sidebar (`creditScoreScale`) repite la tabla completa para referencia.",
+    "category": "debt",
+    "type": "chips",
+    "prompt": "¿En qué banda dirías que está tu puntaje?",
+    "hint": "Como referencia: malo (te niegan crédito), regular (te lo dan con tasas altas), bueno (tasas estándar), excelente (mejores tasas y tarjetas premium).",
+    "sidebarWidgets": [
+      "creditScoreScale"
+    ],
+    "derivation": {
+      "kind": "creditScoreBands",
+      "inputs": []
+    },
+    "dependsOn": [
+      {
+        "storageKey": "knowsCreditScore",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "bad",
+        "label": "Malo",
+        "score": 20
+      },
+      {
+        "value": "regular",
+        "label": "Regular",
+        "score": 50
+      },
+      {
+        "value": "good",
+        "label": "Bueno",
+        "score": 80
+      },
+      {
+        "value": "excellent",
+        "label": "Excelente",
+        "score": 100
+      }
+    ],
+    "insights": [
+      {
+        "id": "badCreditScore",
+        "when": {
+          "kind": "in",
+          "key": "creditScoreBand",
+          "values": [
+            "bad",
+            "regular"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tu puntaje crediticio no está en buen rango.",
+        "tip": "Revisa tus deudas activas, paga puntual aunque sean montos chicos, y evita pedir múltiples créditos en poco tiempo. Adicional: 10-15% de los reportes a centrales (Datacrédito / TransUnion) tienen errores. La consulta gratuita mensual te deja detectar y disputar bajadas injustas. Subir un score toma meses, no días."
+      }
+    ]
+  },
+  {
+    "storageKey": "hasDebt",
+    "title": "Existencia de deudas",
+    "description": "Puerta de entrada al bloque de deuda. Si el usuario no tiene deudas activas, las preguntas siguientes de la categoría se omiten.",
+    "category": "debt",
+    "type": "toggle",
+    "prompt": "¿Tienes deudas activas?",
+    "trueLabel": "Sí",
+    "falseLabel": "No",
+    "score": {
+      "whenTrue": 0,
+      "whenFalse": 100
+    },
+    "insights": [
+      {
+        "id": "noDebt",
+        "when": {
+          "kind": "equals",
+          "key": "hasDebt",
+          "value": false
+        },
+        "severity": "positive",
+        "diagnostic": "No tienes deudas activas — buena posición de partida.",
+        "tip": "Si tu fondo de emergencia ya cubre 3 meses o más, considera dirigir el excedente del ingreso a inversiones diversificadas en vez de dejarlo quieto."
+      }
+    ]
+  },
+  {
+    "storageKey": "debtMonthlyPct",
+    "title": "Cuota mensual de deudas",
+    "description": "Porcentaje del ingreso que se va en cuotas mensuales de las deudas activas. Es el indicador real de presión de cash-flow: un saldo grande con cuota chica duele menos mes a mes que un saldo modesto con cuota grande.",
+    "category": "debt",
+    "type": "slider",
+    "prompt": "¿Qué porcentaje de tu ingreso se va en cuotas mensuales de tus deudas?",
+    "hint": "Suma de todas las cuotas mensuales (tarjetas, créditos, hipoteca, vehículo). Si una deuda es a meses sin intereses, cuenta igual la cuota.",
+    "dependsOn": [
+      {
+        "storageKey": "hasDebt",
+        "equals": true
+      }
+    ],
+    "derivation": {
+      "kind": "shareOfMonthlyIncome",
+      "inputs": [
+        "incomeBand"
+      ]
+    },
+    "min": 0,
+    "max": 100,
+    "step": 1,
+    "defaultValue": 30,
+    "unit": "%",
+    "marks": [
+      {
+        "value": 0,
+        "label": "0%"
+      },
+      {
+        "value": 50,
+        "label": "50%"
+      },
+      {
+        "value": 100,
+        "label": "100%"
+      }
+    ],
+    "score": [
+      {
+        "min": 0,
+        "max": 15,
+        "score": 100
+      },
+      {
+        "min": 15,
+        "max": 30,
+        "score": 70
+      },
+      {
+        "min": 30,
+        "max": 45,
+        "score": 40
+      },
+      {
+        "min": 45,
+        "max": 101,
+        "score": 10
+      }
+    ],
+    "insights": [
+      {
+        "id": "debtPaymentPressureModerate",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "numberAbove",
+              "key": "debtMonthlyPct",
+              "threshold": 30
+            },
+            {
+              "kind": "numberAtMost",
+              "key": "debtMonthlyPct",
+              "threshold": 40
+            }
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "Tu cuota de deuda está en zona alta (30-40% del ingreso).",
+        "tip": "Todavía no es zona de peligro pero conviene parar de pedir más. Considera abonar al capital de la deuda de peor tasa cada mes que puedas — bajar este porcentaje libera espacio para fondo de emergencia e inversión."
+      },
+      {
+        "id": "debtPaymentPressure",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "numberAbove",
+              "key": "debtMonthlyPct",
+              "threshold": 40
+            },
+            {
+              "kind": "numberAtMost",
+              "key": "debtMonthlyPct",
+              "threshold": 50
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Más del 40% de tu ingreso se va en cuotas de deuda — zona peligrosa.",
+        "tip": "Bancos consideran zona peligrosa pasado el 40% (Decreto 0583/2025 incluso limita la cuota hipotecaria a ese tope para hogares). Compra de cartera puede bajar la tasa: en Colombia mayo 2026, Banco Agrario ofrece desde 10,30% EA, Serfinanza 12,55%. Renegociar plazos o consolidar son las palancas naturales aquí."
+      },
+      {
+        "id": "debtPaymentPressureSevere",
+        "when": {
+          "kind": "numberAbove",
+          "key": "debtMonthlyPct",
+          "threshold": 50
+        },
+        "severity": "critical",
+        "diagnostic": "Más del 50% de tu ingreso va a deuda — sobreendeudamiento.",
+        "tip": "A este nivel, cualquier imprevisto desencadena mora. Hablar con los bancos para reestructurar antes de caer en default es lo más urgente — los bancos prefieren reestructurar a perder la cartera. Una asesoría financiera profesional (Asobancaria tiene canales gratuitos) puede armar un plan de salida."
+      }
+    ]
+  },
+  {
+    "storageKey": "debtCount",
+    "title": "Cantidad de deudas",
+    "description": "Número de deudas activas. Sirve para preguntar luego, una por una, su tasa y naturaleza sin promediar artificialmente.",
+    "category": "debt",
+    "type": "number",
+    "prompt": "¿Cuántas deudas tienes activas?",
+    "hint": "Si tienes muchas deudas similares, puedes agruparlas (p. ej. todas las tarjetas como una sola).",
+    "dependsOn": [
+      {
+        "storageKey": "hasDebt",
+        "equals": true
+      }
+    ],
+    "min": 1,
+    "max": 20,
+    "step": 1,
+    "defaultValue": 1,
+    "placeholder": "Cantidad",
+    "score": [
+      {
+        "min": 1,
+        "max": 2,
+        "score": 90
+      },
+      {
+        "min": 2,
+        "max": 3,
+        "score": 70
+      },
+      {
+        "min": 3,
+        "max": 4,
+        "score": 50
+      },
+      {
+        "min": 4,
+        "max": 7,
+        "score": 30
+      },
+      {
+        "min": 7,
+        "score": 10
+      }
+    ],
+    "insights": [
+      {
+        "id": "tooManyDebts",
+        "when": {
+          "kind": "numberAbove",
+          "key": "debtCount",
+          "threshold": 5
+        },
+        "severity": "warning",
+        "diagnostic": "Manejas más de 5 deudas activas.",
+        "tip": "Considera consolidar las más caras en una sola con tasa menor para simplificar pagos y reducir intereses totales. En Colombia, compra de cartera con Banco Agrario arranca en 10,30% EA, muy por debajo de las tasas típicas de tarjetas."
+      },
+      {
+        "id": "consolidationCandidate",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "numberAtLeast",
+              "key": "debtCount",
+              "threshold": 3
+            },
+            {
+              "kind": "gridAnyIn",
+              "key": "debtRates",
+              "values": [
+                "high",
+                "veryHigh"
+              ]
+            }
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "Tienes varias deudas y al menos una con tasa alta — candidato a compra de cartera.",
+        "tip": "Cuando hay 3+ deudas activas y alguna pasa el 25% EA, suele convenir una compra de cartera. Cifras Colombia mayo 2026: Banco Agrario 10,30%, Serfinanza 12,55%, Coopcentral 14% EA. Punto crítico: si extiendes el plazo, los intereses totales pueden subir aunque la cuota mensual baje — la jugada solo funciona si en paralelo recortas gasto."
+      }
+    ]
+  },
+  {
+    "storageKey": "debtAmounts",
+    "title": "Monto de cada deuda",
+    "description": "Tamaño relativo de cada deuda comparado con el salario mínimo del país. Reemplaza la pregunta única \"magnitud total\" — el saldo agregado oculta deudas individuales muy distintas (una hipoteca grande convive con tarjetas chicas). Las bandas cubren desde compras chicas hasta vivienda (200+ SMM).",
+    "category": "debt",
+    "type": "grid",
+    "prompt": "¿De cuánto es cada deuda?",
+    "hint": "Comparada con el salario mínimo del país, o ingresa el monto exacto.",
+    "dependsOn": [
+      {
+        "storageKey": "hasDebt",
+        "equals": true
+      },
+      {
+        "storageKey": "debtCount",
+        "greaterThan": 0
+      }
+    ],
+    "derivation": {
+      "kind": "multiplyMinimumWage",
+      "inputs": []
+    },
+    "rowSource": {
+      "kind": "count",
+      "storageKey": "debtCount",
+      "labelTemplate": "Deuda #{n}"
+    },
+    "cell": {
+      "kind": "chips",
+      "options": [
+        {
+          "value": "lt1",
+          "label": "Menos de 1 SMM",
+          "bracket": {
+            "max": 1
+          },
+          "score": 100
+        },
+        {
+          "value": "1to3",
+          "label": "1 a 3 SMM",
+          "bracket": {
+            "min": 1,
+            "max": 3
+          },
+          "score": 80
+        },
+        {
+          "value": "3to10",
+          "label": "3 a 10 SMM",
+          "bracket": {
+            "min": 3,
+            "max": 10
+          },
+          "score": 60
+        },
+        {
+          "value": "10to50",
+          "label": "10 a 50 SMM",
+          "bracket": {
+            "min": 10,
+            "max": 50
+          },
+          "score": 40
+        },
+        {
+          "value": "50to200",
+          "label": "50 a 200 SMM",
+          "bracket": {
+            "min": 50,
+            "max": 200
+          },
+          "score": 20
+        },
+        {
+          "value": "gt200",
+          "label": "Más de 200 SMM",
+          "sublabel": "Vivienda u otra deuda muy grande",
+          "bracket": {
+            "min": 200
+          },
+          "score": 5
+        }
+      ],
+      "exactInput": {
+        "min": 0,
+        "step": 10000,
+        "placeholder": "Monto exacto",
+        "isMoney": true
+      }
+    },
+    "insights": [
+      {
+        "id": "oneVeryLargeDebt",
+        "when": {
+          "kind": "gridAnyIn",
+          "key": "debtAmounts",
+          "values": [
+            "50to200",
+            "gt200"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tienes al menos una deuda muy grande.",
+        "tip": "Si es vivienda u otra deuda buena, el riesgo está acotado a la cuota mensual y la tasa. Si es consumo, el plan tiene que ser bajarla con prioridad — son las deudas que más asfixian."
+      },
+      {
+        "id": "manyMediumDebts",
+        "when": {
+          "kind": "gridCountInAtLeast",
+          "key": "debtAmounts",
+          "values": [
+            "3to10",
+            "10to50"
+          ],
+          "count": 3
+        },
+        "severity": "warning",
+        "diagnostic": "Acumulas varias deudas de tamaño medio.",
+        "tip": "Aunque cada una sea manejable por separado, el problema suele ser la suma de cuotas. Considera compra de cartera para consolidar y bajar la presión mensual."
+      }
+    ]
+  },
+  {
+    "storageKey": "debtRates",
+    "title": "Tasa de cada deuda",
+    "description": "Tasa de interés por deuda. Permite identificar deudas tóxicas individuales y priorizar pagos.",
+    "category": "debt",
+    "type": "grid",
+    "prompt": "¿Cuál es la tasa de interés de cada deuda?",
+    "hint": "Aproximadamente. Si no estás seguro, escoge una banda o ingresa el valor exacto.",
+    "glossaryTerms": [
+      "ea",
+      "tasaUsura",
+      "nmvVsEa"
+    ],
+    "sidebarWidgets": [
+      "usuryRate"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "hasDebt",
+        "equals": true
+      },
+      {
+        "storageKey": "debtCount",
+        "greaterThan": 0
+      }
+    ],
+    "rowSource": {
+      "kind": "count",
+      "storageKey": "debtCount",
+      "labelTemplate": "Deuda #{n}"
+    },
+    "cell": {
+      "kind": "chips",
+      "options": [
+        {
+          "value": "low",
+          "label": "Baja",
+          "sublabel": "Menos de 10% EA",
+          "examples": [
+            "Crédito hipotecario subsidiado",
+            "Algunos créditos de libranza"
+          ],
+          "score": 100
+        },
+        {
+          "value": "mid",
+          "label": "Media",
+          "sublabel": "10% a 25% EA",
+          "examples": [
+            "Crédito educativo",
+            "Crédito de vehículo"
+          ],
+          "score": 70
+        },
+        {
+          "value": "high",
+          "label": "Alta",
+          "sublabel": "25% a 50% EA",
+          "examples": [
+            "Tarjeta de crédito",
+            "Crédito de libre inversión"
+          ],
+          "score": 30
+        },
+        {
+          "value": "veryHigh",
+          "label": "Muy alta",
+          "sublabel": "Más de 50% EA",
+          "examples": [
+            "Avances en efectivo",
+            "Préstamos rotativos informales"
+          ],
+          "score": 5
+        },
+        {
+          "value": "unknown",
+          "label": "No sé",
+          "sublabel": "Asumiremos lo peor",
+          "score": 30
+        }
+      ],
+      "exactInput": {
+        "min": 0,
+        "max": 200,
+        "step": 0.5,
+        "unit": "% EA",
+        "placeholder": "EA exacta"
+      },
+      "exactScore": [
+        {
+          "max": 10,
+          "score": 100
+        },
+        {
+          "min": 10,
+          "max": 25,
+          "score": 70
+        },
+        {
+          "min": 25,
+          "max": 50,
+          "score": 30
+        },
+        {
+          "min": 50,
+          "score": 5
+        }
+      ]
+    },
+    "insights": [
+      {
+        "id": "toxicRates",
+        "when": {
+          "kind": "gridAnyIn",
+          "key": "debtRates",
+          "values": [
+            "high",
+            "veryHigh"
+          ]
+        },
+        "severity": "critical",
+        "diagnostic": "Al menos una de tus deudas tiene tasa alta o muy alta.",
+        "tip": "En Colombia mayo 2026 la tasa de usura (tope legal) está en 28,17% EA — cualquier cosa cerca de ese techo conviene refinanciar. Esa es la primera que conviene atacar: cualquier ahorro o inversión que rinda menos que esa tasa, en la práctica, te está restando dinero. Compra de cartera (Banco Agrario desde 10,30% EA) suele rebajar varios puntos."
+      }
+    ]
+  },
+  {
+    "storageKey": "debtKinds",
+    "title": "Naturaleza de cada deuda",
+    "description": "Si la deuda produce dinero, reemplaza un gasto recurrente, o solo financió consumo. Define el orden de pago en el plan.",
+    "category": "debt",
+    "type": "grid",
+    "prompt": "¿Qué tipo de deuda es cada una?",
+    "glossaryTerms": [
+      "debtKindInvestment",
+      "debtKindSavings",
+      "debtKindBad"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "hasDebt",
+        "equals": true
+      },
+      {
+        "storageKey": "debtCount",
+        "greaterThan": 0
+      }
+    ],
+    "rowSource": {
+      "kind": "count",
+      "storageKey": "debtCount",
+      "labelTemplate": "Deuda #{n}"
+    },
+    "cell": {
+      "kind": "chips",
+      "options": [
+        {
+          "value": "investment",
+          "label": "Una inversión",
+          "sublabel": "p. ej. local, negocio",
+          "score": 90
+        },
+        {
+          "value": "savings",
+          "label": "Un ahorro",
+          "sublabel": "p. ej. casa, carro",
+          "score": 70
+        },
+        {
+          "value": "bad",
+          "label": "Una deuda mala",
+          "sublabel": "p. ej. concierto, vacación",
+          "score": 10
+        }
+      ]
+    },
+    "insights": [
+      {
+        "id": "allBadDebt",
+        "when": {
+          "kind": "gridEveryIn",
+          "key": "debtKinds",
+          "values": [
+            "bad"
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Todas tus deudas son de consumo.",
+        "tip": "Pagar deuda mala libera ingreso futuro. Antes de invertir, prioriza eliminar este tipo de deuda — los intereses te cuestan más de lo que cualquier inversión segura te puede dar."
+      },
+      {
+        "id": "hasGoodDebt",
+        "when": {
+          "kind": "gridAnyIn",
+          "key": "debtKinds",
+          "values": [
+            "investment",
+            "savings"
+          ]
+        },
+        "severity": "positive",
+        "diagnostic": "Parte de tu deuda está produciendo o conservando valor.",
+        "tip": "No es la deuda en sí lo que daña — es la que solo financia consumo. Revisa si las tasas son razonables comparadas con el rendimiento que te dan."
+      },
+      {
+        "id": "leverageAgainstAssets",
+        "when": {
+          "kind": "gridAnyIn",
+          "key": "debtKinds",
+          "values": [
+            "investment"
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "Tu deuda productiva opera como apalancamiento contra activos.",
+        "tip": "Es la misma mecánica que usan los patrimonios grandes: pedir prestado contra activos en vez de venderlos. Conservan el activo, evitan el impuesto a la ganancia, y pagan la tasa. Mientras el activo rinda más que la tasa de la deuda, la estructura suma."
+      }
+    ]
+  },
+  {
+    "storageKey": "creditCardPaymentBehavior",
+    "title": "Pago de tarjetas de crédito",
+    "description": "Comportamiento del usuario con la cuota de su tarjeta de crédito. Pagar solo el mínimo destina casi todo a intereses y deja el capital prácticamente intacto: una deuda de $1M COP al 28% EA pagando mínimo tarda 5+ años y termina costando más del doble. Es el predictor más fuerte de la espiral revolvente.",
+    "category": "debt",
+    "type": "chips",
+    "prompt": "¿Cómo pagas la cuota de tu tarjeta de crédito?",
+    "hint": "Tarjetas de crédito específicamente; si no tienes, elige \"No tengo tarjeta\".",
+    "glossaryTerms": [
+      "tasaUsura"
+    ],
+    "dependsOn": [
+      {
+        "storageKey": "hasDebt",
+        "equals": true
+      }
+    ],
+    "options": [
+      {
+        "value": "payInFull",
+        "label": "Pago el total",
+        "sublabel": "Cancelo el saldo del corte cada mes, no pago intereses",
+        "score": 100
+      },
+      {
+        "value": "payAboveMinimum",
+        "label": "Más del mínimo",
+        "sublabel": "Pago una parte importante pero queda saldo rotando",
+        "score": 60
+      },
+      {
+        "value": "payMinimum",
+        "label": "Solo el mínimo",
+        "sublabel": "Pago la cuota mínima que pide el banco",
+        "score": 10
+      },
+      {
+        "value": "pastDue",
+        "label": "En mora",
+        "sublabel": "No estoy al día con la cuota",
+        "score": 0
+      },
+      {
+        "value": "noCard",
+        "label": "No tengo tarjeta",
+        "sublabel": "No uso tarjeta de crédito",
+        "score": 90
+      }
+    ],
+    "insights": [
+      {
+        "id": "minimumPaymentTrap",
+        "when": {
+          "kind": "equals",
+          "key": "creditCardPaymentBehavior",
+          "value": "payMinimum"
+        },
+        "severity": "critical",
+        "diagnostic": "Estás pagando solo el mínimo de tu tarjeta.",
+        "tip": "Una deuda de $1M al 28% EA pagando mínimo tarda 5+ años y termina costando más del doble. Esa cuota destina casi todo a intereses, casi nada a capital. Sube el pago aunque sea $100K por mes — cada peso que pasa el mínimo va directo al saldo."
+      },
+      {
+        "id": "creditCardInDefault",
+        "when": {
+          "kind": "equals",
+          "key": "creditCardPaymentBehavior",
+          "value": "pastDue"
+        },
+        "severity": "critical",
+        "diagnostic": "Tu tarjeta está en mora.",
+        "tip": "Antes de la cobranza dura, hablar con el banco para reestructurar o consolidar. La mora reporta a Datacrédito y arruina el score por años. Si el saldo es alto, considera una compra de cartera (Banco Agrario ofrece desde 10,30% EA en mayo 2026)."
+      },
+      {
+        "id": "creditCardPayInFull",
+        "when": {
+          "kind": "equals",
+          "key": "creditCardPaymentBehavior",
+          "value": "payInFull"
+        },
+        "severity": "positive",
+        "diagnostic": "Pagas el total de tu tarjeta cada mes.",
+        "tip": "Es la única forma de usar tarjeta sin que te cueste dinero. Mientras mantengas el hábito, la TC es una herramienta neutra que te suma puntos al score, te da beneficios y arma historial."
+      }
+    ]
+  }
+]

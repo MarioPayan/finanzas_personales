@@ -1,0 +1,179 @@
+[
+  {
+    "storageKey": "incomeBand",
+    "title": "Ingresos mensuales",
+    "description": "Banda aproximada de ingreso del usuario, expresada en múltiplos del salario mínimo de su país. Es el ancla para todas las preguntas que dependen del ingreso.",
+    "category": "income",
+    "type": "chips",
+    "prompt": "¿Cuánto ganas al mes, más o menos?",
+    "hint": "En múltiplos del salario mínimo de tu país, o ingresa el valor exacto.",
+    "glossaryTerms": [
+      "smm"
+    ],
+    "sidebarWidgets": [
+      "minimumWage"
+    ],
+    "derivation": {
+      "kind": "multiplyMinimumWage",
+      "inputs": []
+    },
+    "tips": [
+      "Un valor exacto te dará un diagnóstico más fino que la banda. La banda sirve si no recuerdas la cifra exacta."
+    ],
+    "options": [
+      {
+        "value": "lt1",
+        "label": "Menos de 1 SMM",
+        "bracket": {
+          "max": 1
+        },
+        "score": 30
+      },
+      {
+        "value": "1to2",
+        "label": "1 a 2 SMM",
+        "bracket": {
+          "min": 1,
+          "max": 2
+        },
+        "score": 50
+      },
+      {
+        "value": "2to4",
+        "label": "2 a 4 SMM",
+        "bracket": {
+          "min": 2,
+          "max": 4
+        },
+        "score": 70
+      },
+      {
+        "value": "4to8",
+        "label": "4 a 8 SMM",
+        "bracket": {
+          "min": 4,
+          "max": 8
+        },
+        "score": 90
+      },
+      {
+        "value": "gt8",
+        "label": "Más de 8 SMM",
+        "bracket": {
+          "min": 8
+        },
+        "score": 100
+      }
+    ],
+    "exactInput": {
+      "min": 0,
+      "step": 1000,
+      "placeholder": "Valor exacto",
+      "isMoney": true
+    },
+    "insights": [
+      {
+        "id": "incomeBelowMinimum",
+        "when": {
+          "kind": "incomeBelowSmmTimes",
+          "multiplier": 1
+        },
+        "severity": "critical",
+        "diagnostic": "Tu ingreso está por debajo del salario mínimo de tu país.",
+        "tip": "Buscar fuentes complementarias de ingreso, o invertir en formación que abra mejores oportunidades en tu campo, debería ser la prioridad antes que cualquier otra recomendación financiera."
+      },
+      {
+        "id": "incomeWellBelowAverage",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "incomeBelowCountryAverageTimes",
+              "multiplier": 0.5
+            },
+            {
+              "kind": "not",
+              "of": {
+                "kind": "incomeBelowSmmTimes",
+                "multiplier": 1
+              }
+            }
+          ]
+        },
+        "severity": "warning",
+        "diagnostic": "Tu salario está muy por debajo de la media nacional.",
+        "tip": "Estás más cerca del piso que del centro de la distribución. Si la situación es estable, conviene priorizar formación o cambios laborales que muevan el ingreso antes que optimizar gastos."
+      },
+      {
+        "id": "incomeBelowAverage",
+        "when": {
+          "kind": "all",
+          "of": [
+            {
+              "kind": "incomeBelowCountryAverageTimes",
+              "multiplier": 1
+            },
+            {
+              "kind": "not",
+              "of": {
+                "kind": "incomeBelowCountryAverageTimes",
+                "multiplier": 0.5
+              }
+            }
+          ]
+        },
+        "severity": "info",
+        "diagnostic": "Tu salario está por debajo de la media nacional.",
+        "tip": "Es la situación de buena parte de la población — no es alarmante por sí mismo, pero tenelo presente al decidir cuánto destinar a ahorro e inversión."
+      },
+      {
+        "id": "incomeAboveAverage",
+        "when": {
+          "kind": "incomeAboveCountryAverageTimes",
+          "multiplier": 1.5
+        },
+        "severity": "positive",
+        "diagnostic": "Tu salario está por encima de la media nacional.",
+        "tip": "Tienes margen real para construir fondo de emergencia y destinar a inversión sin recortar calidad de vida."
+      },
+      {
+        "id": "incomeHigh",
+        "when": {
+          "kind": "incomeAboveSmmTimes",
+          "multiplier": 8
+        },
+        "severity": "info",
+        "diagnostic": "Tu ingreso está claramente por encima del promedio.",
+        "tip": "Asegúrate de que la mayor parte esté trabajando para ti: revisa diversificación y rendimiento de tus inversiones. Un ingreso alto sin inversión es ahorro estancado."
+      }
+    ]
+  },
+  {
+    "storageKey": "incomeStability",
+    "title": "Estabilidad del ingreso",
+    "description": "Naturaleza del ingreso del usuario. Un sueldo fijo y un ingreso variable (freelance, comisiones, ventas) son perfiles muy distintos: el variable necesita un fondo de emergencia más grueso y tolera peor los gastos obligatorios cercanos al 100%.",
+    "category": "income",
+    "type": "chips",
+    "prompt": "¿Cómo es tu ingreso mes a mes?",
+    "options": [
+      {
+        "value": "fixed",
+        "label": "Sueldo fijo",
+        "sublabel": "El mismo monto cada mes",
+        "score": 100
+      },
+      {
+        "value": "mixed",
+        "label": "Mixto",
+        "sublabel": "Sueldo + comisiones, freelances ocasionales",
+        "score": 70
+      },
+      {
+        "value": "variable",
+        "label": "Variable",
+        "sublabel": "Freelance, comisiones, ventas, autoempleo",
+        "score": 40
+      }
+    ]
+  }
+]

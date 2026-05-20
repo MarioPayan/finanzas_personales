@@ -1,0 +1,30 @@
+[
+  {
+    "min": 80,
+    "color": "success",
+    "message": "Estás en muy buena posición en esta área."
+  },
+  {
+    "min": 60,
+    "max": 80,
+    "color": "success",
+    "message": "Vas bien; hay espacio para optimizar."
+  },
+  {
+    "min": 40,
+    "max": 60,
+    "color": "warning",
+    "message": "Hay aspectos importantes para revisar."
+  },
+  {
+    "min": 20,
+    "max": 40,
+    "color": "warning",
+    "message": "Esta área necesita atención."
+  },
+  {
+    "max": 20,
+    "color": "error",
+    "message": "Hay problemas serios que conviene priorizar."
+  }
+]
