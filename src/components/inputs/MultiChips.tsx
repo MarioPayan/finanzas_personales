@@ -22,11 +22,11 @@ function CheckboxIndicator({selected}: {selected: boolean}) {
     <Box
       aria-hidden
       sx={{
-        width: 22,
-        height: 22,
-        borderRadius: 0.75,
+        width: 24,
+        height: 24,
+        borderRadius: '4px',
         border: '2px solid',
-        borderColor: selected ? 'primary.main' : 'text.disabled',
+        borderColor: selected ? 'primary.main' : 'text.secondary',
         bgcolor: selected ? 'primary.main' : 'transparent',
         display: 'flex',
         alignItems: 'center',
@@ -38,7 +38,7 @@ function CheckboxIndicator({selected}: {selected: boolean}) {
         <Box
           component='svg'
           viewBox='0 0 16 16'
-          sx={{width: 16, height: 16, color: 'primary.contrastText'}}
+          sx={{width: 18, height: 18, color: 'primary.contrastText'}}
           aria-hidden>
           <path
             d='M3 8.5 L6.5 12 L13 4.5'

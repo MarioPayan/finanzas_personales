@@ -2,7 +2,7 @@ import {Fragment} from 'react'
 import {Box, Radio, Stack, Tooltip, Typography, useMediaQuery, useTheme} from '@mui/material'
 import type {GridCell, GridQuestion, GridRow} from '../../content/diagnosis'
 import type {MinimumWageEntry} from '../../content/minimumWages'
-import {formatMoney} from '../../utils/calculations'
+import {formatMoney, niceRoundList} from '../../utils/calculations'
 import ChipGroup from './ChipGroup'
 import NumberInput from './NumberInput'
 
@@ -276,9 +276,11 @@ const resolveSmmSuggestions = (
   minimumWage: MinimumWageEntry | null,
 ): readonly {value: number; label: string}[] | undefined => {
   if (!multipliers || multipliers.length === 0 || !minimumWage) return undefined
-  return multipliers.map(m => ({
-    value: Math.round(m * minimumWage.amount),
-    label: formatMoney(m * minimumWage.amount, minimumWage.currency),
+  const raw = multipliers.map(m => m * minimumWage.amount)
+  const rounded = niceRoundList(raw)
+  return rounded.map(v => ({
+    value: v,
+    label: formatMoney(v, minimumWage.currency),
   }))
 }
 

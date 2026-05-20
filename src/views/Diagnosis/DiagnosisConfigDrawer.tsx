@@ -16,6 +16,7 @@ import {
   formatMinimumWage,
   type MinimumWageEntry,
 } from '../../content/minimumWages'
+import {ResetConfirmDialog} from './ResetConfirmDialog'
 
 /**
  * Drawer right-anchored con la configuración global del diagnóstico.
@@ -58,6 +59,7 @@ export function DiagnosisConfigDrawer({
   const [amountDraft, setAmountDraft] = useState<string>(
     minimumWage ? String(minimumWage.amount) : '',
   )
+  const [resetDialogOpen, setResetDialogOpen] = useState(false)
 
   // Sincroniza el draft cuando el SMM cambia desde afuera (ej. cambio
   // de país por el select). Si el usuario está editando el input en
@@ -157,25 +159,32 @@ export function DiagnosisConfigDrawer({
 
         <Box>
           <Typography variant='overline' color='text.secondary' sx={{display: 'block', mb: 1}}>
-            Diagnóstico
+            Datos guardados
           </Typography>
           <Button
             variant='outlined'
-            color='warning'
+            color='error'
             fullWidth
-            onClick={() => {
-              onRestart()
-              onClose()
-            }}
+            onClick={() => setResetDialogOpen(true)}
             sx={{textTransform: 'none', borderRadius: 2}}>
-            Reiniciar diagnóstico
+            Borrar todos mis datos
           </Button>
           <Typography variant='caption' color='text.secondary' sx={{display: 'block', mt: 1}}>
-            Vuelve al primer paso y descarta las respuestas de la sesión actual.
+            Borra respuestas, progreso y nombre asignado del navegador. Vuelve a la
+            pantalla de bienvenida. No se puede deshacer.
           </Typography>
         </Box>
       </Stack>
       <Box sx={{height: theme.spacing(2), flexShrink: 0}} />
+      <ResetConfirmDialog
+        open={resetDialogOpen}
+        onCancel={() => setResetDialogOpen(false)}
+        onConfirm={() => {
+          setResetDialogOpen(false)
+          onRestart()
+          onClose()
+        }}
+      />
     </Drawer>
   )
 }

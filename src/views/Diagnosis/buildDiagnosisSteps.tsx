@@ -41,13 +41,9 @@ export function buildDiagnosisSteps(opts: {
   const {minimumWage, countryCode, onRestart} = opts
   const steps: Step<AnswerValue>[] = []
 
-  const questionsByCategory: Record<DiagnosisCategoryId, DiagnosisQuestion[]> = {
-    base: [],
-    debt: [],
-    stability: [],
-    protection: [],
-    investment: [],
-  }
+  const questionsByCategory = Object.fromEntries(
+    CATEGORY_ORDER.map(c => [c, [] as DiagnosisQuestion[]]),
+  ) as Record<DiagnosisCategoryId, DiagnosisQuestion[]>
   for (const q of DIAGNOSIS_QUESTIONS) {
     questionsByCategory[q.category].push(q)
   }

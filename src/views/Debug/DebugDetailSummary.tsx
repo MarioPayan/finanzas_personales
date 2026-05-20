@@ -136,13 +136,9 @@ function buildInsightInventory(): InsightInventory {
     info: 0,
     positive: 0,
   })
-  const out: InsightInventory = {
-    base: empty(),
-    debt: empty(),
-    stability: empty(),
-    protection: empty(),
-    investment: empty(),
-  }
+  const out = Object.fromEntries(
+    CATEGORY_ORDER.map(c => [c, empty()]),
+  ) as InsightInventory
   for (const q of DIAGNOSIS_QUESTIONS) {
     if (!q.insights) continue
     for (const ins of q.insights) {

@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState, type ReactNode} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from 'react'
 import {Box, IconButton, Tooltip} from '@mui/material'
 import {Question} from '@phosphor-icons/react'
 import {Stepper, type StepperState} from '../../components/Stepper'
@@ -6,6 +6,13 @@ import {DefaultHeader} from '../../components/Stepper/defaults/DefaultHeader'
 import type {AnswerValue} from '../../content/diagnosis'
 import {MINIMUM_WAGES, type MinimumWageEntry} from '../../content/minimumWages'
 import {detectCountryCode, detectMinimumWage} from '../../utils/detectCountry'
+import {
+  clearPersistedState,
+  loadPersistedState,
+  savePersistedState,
+  type PersistedState,
+} from '../../utils/persistence'
+import {Intro} from '../Intro/Intro'
 import {buildDiagnosisSteps} from './buildDiagnosisSteps'
 import {DiagnosisProgress} from './DiagnosisProgress'
 import {DiagnosisToolbar} from './DiagnosisToolbar'
@@ -14,23 +21,28 @@ import {DiagnosisHelpPopover, hasHelpContent} from './DiagnosisHelpPopover'
 /**
  * Vista raíz del diagnóstico.
  *
- * Detecta país / SMM al montar y construye los pasos con
- * `buildDiagnosisSteps`. El contexto auxiliar se reparte en tres
- * accesos:
+ * Detecta país / SMM al montar, restaura el estado persistido en
+ * `localStorage` (si lo hay) y construye los pasos con
+ * `buildDiagnosisSteps`. Si no hay usuario guardado, primero muestra
+ * la pantalla de `Intro` para asignarle un alias.
+ *
+ * Persistencia: tras cada cambio del Stepper (answers / step actual)
+ * se persiste el snapshot a `localStorage` con `savePersistedState`.
+ * Al recargar la pestaña, el flujo retoma exactamente donde quedó.
+ *
+ * El contexto auxiliar se reparte en tres accesos:
  *
  *  - **Engranaje (toolbar top-right)** — `DiagnosisToolbar` →
- *    configuración global: override de país, monto del SMM, reiniciar
- *    diagnóstico.
+ *    configuración global: override de país, monto del SMM, borrar
+ *    todos los datos guardados.
  *  - **Árbol (toolbar top-right)** — `DiagnosisToolbar` → drawer con
  *    el árbol del cuestionario.
  *  - **"?" inline en el header del paso** — `DiagnosisHelpPopover` →
- *    sugerencias y referencias contextuales (tips, escala del score
- *    crediticio). En desktop usa Popover; en mobile, bottom sheet.
- *    El ícono sólo aparece cuando el paso aporta contenido.
+ *    sugerencias y referencias contextuales.
  *
- * "Reiniciar" cambia `restartTick`, lo que recompone los steps y
- * fuerza remount del Stepper vía `key` — las respuestas en memoria se
- * pierden, que es exactamente lo que queremos.
+ * "Borrar todos los datos" limpia `localStorage`, resetea `userName`
+ * a `null` (vuelve a la Intro) e incrementa `restartTick` para forzar
+ * remount del Stepper.
  */
 export default function Diagnosis() {
   const [minimumWage, setMinimumWage] = useState<MinimumWageEntry | null>(null)
@@ -38,9 +50,62 @@ export default function Diagnosis() {
   const [restartTick, setRestartTick] = useState(0)
   const [helpAnchor, setHelpAnchor] = useState<HTMLElement | null>(null)
 
+  // Snapshot vivo en memoria de lo que persistimos. Se inicializa una
+  // sola vez al montar (`hydrated`) leyendo de localStorage, y a
+  // partir de ahí los callbacks del Stepper lo mantienen al día.
+  const [hydrated, setHydrated] = useState(false)
+  const [userName, setUserName] = useState<string | null>(null)
+  // Snapshot inicial pasado al Stepper. Sólo se lee al primer mount
+  // del Stepper de cada ciclo (restartTick); los cambios posteriores
+  // viven dentro del Stepper.
+  const initialSnapshotRef = useRef<PersistedState | null>(null)
+
   useEffect(() => {
     setMinimumWage(detectMinimumWage())
     setCountryCode(detectCountryCode())
+    const persisted = loadPersistedState()
+    if (persisted) {
+      initialSnapshotRef.current = persisted
+      setUserName(persisted.userName)
+    }
+    setHydrated(true)
+  }, [])
+
+  const persist = useCallback(
+    (next: Partial<PersistedState>) => {
+      if (!userName) return
+      const snapshot: PersistedState = {
+        schemaVersion: 1,
+        userName,
+        answers: next.answers ?? initialSnapshotRef.current?.answers ?? {},
+        currentStepId:
+          next.currentStepId !== undefined
+            ? next.currentStepId
+            : (initialSnapshotRef.current?.currentStepId ?? null),
+      }
+      initialSnapshotRef.current = snapshot
+      savePersistedState(snapshot)
+    },
+    [userName],
+  )
+
+  const handleStart = useCallback((chosenName: string) => {
+    setUserName(chosenName)
+    const snapshot: PersistedState = {
+      schemaVersion: 1,
+      userName: chosenName,
+      answers: {},
+      currentStepId: null,
+    }
+    initialSnapshotRef.current = snapshot
+    savePersistedState(snapshot)
+  }, [])
+
+  const handleFullReset = useCallback(() => {
+    clearPersistedState()
+    initialSnapshotRef.current = null
+    setUserName(null)
+    setRestartTick(t => t + 1)
   }, [])
 
   const handleSetCountry = (code: string) => {
@@ -58,9 +123,9 @@ export default function Diagnosis() {
       buildDiagnosisSteps({
         minimumWage,
         countryCode,
-        onRestart: () => setRestartTick(t => t + 1),
+        onRestart: handleFullReset,
       }),
-    [minimumWage, countryCode],
+    [minimumWage, countryCode, handleFullReset],
   )
 
   const renderHeader = (state: StepperState<AnswerValue>): ReactNode => {
@@ -91,14 +156,29 @@ export default function Diagnosis() {
     )
   }
 
+  // Antes de hidratar, no renderizamos nada: evita flash de Intro
+  // cuando el usuario ya tiene state persistido y un mount efímero
+  // del Stepper con state vacío.
+  if (!hydrated) return null
+
+  if (!userName) {
+    return <Intro onStart={handleStart} />
+  }
+
   return (
     <>
       <Stepper
         key={restartTick}
         steps={steps}
+        initialAnswers={initialSnapshotRef.current?.answers}
+        initialStepId={initialSnapshotRef.current?.currentStepId ?? undefined}
         renderHeader={renderHeader}
         renderProgress={state => <DiagnosisProgress state={state} />}
-        onStepChange={() => setHelpAnchor(null)}
+        onAnswersChange={answers => persist({answers})}
+        onStepChange={stepId => {
+          setHelpAnchor(null)
+          persist({currentStepId: stepId})
+        }}
         renderOverlay={state => {
           const currentKey =
             state.currentStep && state.currentStep.kind !== 'interstitial'
@@ -113,7 +193,7 @@ export default function Diagnosis() {
                 countryCode={countryCode}
                 onSetCountry={handleSetCountry}
                 onSetMinimumWageAmount={handleSetMinimumWageAmount}
-                onRestart={() => setRestartTick(t => t + 1)}
+                onRestart={handleFullReset}
               />
               <DiagnosisHelpPopover
                 open={Boolean(helpAnchor)}

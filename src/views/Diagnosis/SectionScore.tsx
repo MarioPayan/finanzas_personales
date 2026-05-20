@@ -56,9 +56,22 @@ export default function SectionScore({
 }: SectionScoreProps) {
   const theme = useTheme()
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+  const cat = CATEGORIES[category]
+
+  if (cat.interstitial === 'narrative') {
+    return (
+      <NarrativeInterstitial
+        category={category}
+        answers={answers}
+        isFinal={isFinal}
+        onContinue={onContinue}
+        reducedMotion={reducedMotion}
+      />
+    )
+  }
+
   const node = findSectionScoreNode(category)
   const {score} = computeSectionScore(category, answers, smm)
-  const cat = CATEGORIES[category]
   const band = (node && resolveToneBand(node.toneBands, score)) ?? FALLBACK_BAND
   const accent = theme.palette[band.color]?.main ?? theme.palette.info.main
   const profile = getProfileForSection(category, score)
@@ -212,6 +225,133 @@ export default function SectionScore({
       </Button>
     </Stack>
   )
+}
+
+/**
+ * Intersticial narrativo — usado por categorías cuyo `interstitial` es
+ * 'narrative' (hoy: `profile`). En vez de un score numérico, muestra un
+ * texto que enmarca lo que el usuario acaba de responder, generado a
+ * partir de las respuestas demográficas. Sirve para mantener el ritmo
+ * de cierre de sección sin inventar un puntaje artificial.
+ */
+function NarrativeInterstitial({
+  category,
+  answers,
+  isFinal,
+  onContinue,
+  reducedMotion,
+}: {
+  category: DiagnosisCategoryId
+  answers: Answers
+  isFinal: boolean
+  onContinue: () => void
+  reducedMotion: boolean
+}) {
+  const cat = CATEGORIES[category]
+  const lines = buildNarrativeLines(category, answers)
+  return (
+    <Stack
+      spacing={{xs: 3, md: 5}}
+      sx={{
+        alignItems: 'center',
+        textAlign: 'center',
+        maxWidth: 560,
+        mx: 'auto',
+        width: '100%',
+        py: {xs: 2, md: 4},
+      }}>
+      <motion.div
+        initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 12}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.3}}>
+        <Stack spacing={1} sx={{alignItems: 'center'}}>
+          <Chip
+            size='small'
+            label='Sección completada'
+            variant='outlined'
+            color={cat.color}
+            sx={{letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 700}}
+          />
+          <Typography variant='h4' component='h1' sx={{fontWeight: 700}}>
+            {cat.label}
+          </Typography>
+        </Stack>
+      </motion.div>
+
+      <motion.div
+        initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 8}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.35, delay: 0.1}}
+        style={{width: '100%'}}>
+        <Stack spacing={1.25} sx={{alignItems: 'center', textAlign: 'center'}}>
+          <Typography variant='h6' sx={{fontWeight: 700}}>
+            Empezamos a conocerte
+          </Typography>
+          {lines.map((line, i) => (
+            <Typography
+              key={i}
+              variant='body1'
+              color='text.secondary'
+              sx={{lineHeight: 1.55, maxWidth: 480}}>
+              {line}
+            </Typography>
+          ))}
+        </Stack>
+      </motion.div>
+
+      <Button
+        variant='contained'
+        size='large'
+        onClick={onContinue}
+        sx={{
+          minWidth: {xs: '100%', sm: 200},
+          minHeight: 48,
+          mt: 2,
+          fontWeight: 700,
+        }}>
+        {isFinal ? 'Ver mi diagnóstico →' : 'Continuar →'}
+      </Button>
+    </Stack>
+  )
+}
+
+const EMPLOYMENT_LABEL: Record<string, string> = {
+  formal: 'empleado formal',
+  mixed: 'empleo mixto',
+  independent: 'independiente',
+  unemployed: 'sin ingreso formal por ahora',
+}
+
+const buildNarrativeLines = (
+  category: DiagnosisCategoryId,
+  answers: Answers,
+): readonly string[] => {
+  if (category !== 'profile') return []
+  const age = typeof answers.age === 'number' ? answers.age : null
+  const dependents = typeof answers.hasDependents === 'number' ? answers.hasDependents : null
+  const employment =
+    typeof answers.formalEmployment === 'string'
+      ? EMPLOYMENT_LABEL[answers.formalEmployment]
+      : null
+
+  const parts: string[] = []
+  if (age !== null) parts.push(`${age} años`)
+  if (dependents !== null) {
+    parts.push(
+      dependents === 0
+        ? 'sin personas a cargo'
+        : `${dependents} persona${dependents === 1 ? '' : 's'} a cargo`,
+    )
+  }
+  if (employment) parts.push(employment)
+
+  if (parts.length === 0) {
+    return ['Lo que sigue va a aterrizar tus números: ingresos, gastos y hábitos.']
+  }
+  return [
+    `Tenemos tu foto inicial: ${parts.join(', ')}.`,
+    'Lo que sigue va a aterrizar tus números: ingresos, gastos y hábitos.',
+  ]
 }
 
 /** Hook simple para animar un contador 0 → target en `ms` milliseconds. */

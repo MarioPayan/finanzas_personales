@@ -87,11 +87,14 @@ type FlatLink = {
 }
 
 const CATEGORY_COLOR: Record<DiagnosisCategoryId, string> = {
-  base: '#1976d2',
-  debt: '#ed6c02',
-  stability: '#0288d1',
+  profile: '#1976d2',
+  income: '#2e7d32',
+  expenses: '#ed6c02',
+  habits: '#0288d1',
+  debt: '#d84315',
+  stability: '#0277bd',
   protection: '#9c27b0',
-  investment: '#2e7d32',
+  investment: '#388e3c',
 }
 
 /**

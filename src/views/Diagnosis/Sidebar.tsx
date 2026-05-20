@@ -22,13 +22,9 @@ const buildChildrenIndex = (): Record<string, DiagnosisQuestion[]> => {
 
 const CHILDREN_INDEX = buildChildrenIndex()
 
-const QUESTIONS_BY_CATEGORY: Record<DiagnosisCategoryId, DiagnosisQuestion[]> = {
-  base: [],
-  debt: [],
-  stability: [],
-  protection: [],
-  investment: [],
-}
+const QUESTIONS_BY_CATEGORY = Object.fromEntries(
+  CATEGORY_ORDER.map(c => [c, [] as DiagnosisQuestion[]]),
+) as Record<DiagnosisCategoryId, DiagnosisQuestion[]>
 for (const q of DIAGNOSIS_QUESTIONS) {
   if (!q.dependsOn) QUESTIONS_BY_CATEGORY[q.category].push(q)
 }

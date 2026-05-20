@@ -5,11 +5,12 @@ import {
   CATEGORIES,
   CATEGORY_ORDER,
   DIAGNOSIS_QUESTIONS,
-  isAnswerComplete,
   isQuestionApplicable,
+  isQuestionSkipped,
   type AnswerValue,
   type Answers,
   type DiagnosisCategoryId,
+  type DiagnosisQuestion,
 } from '../../content/diagnosis'
 import type {StepperState} from '../../components/Stepper'
 
@@ -31,19 +32,63 @@ type SectionProgress = {
   isActive: boolean
 }
 
+/**
+ * Versión "estricta" de complitud para la barra: a diferencia de
+ * `isAnswerComplete`, NO cuenta como respondida una pregunta tipo
+ * slider/number que sólo tiene su `defaultValue` (sin que el usuario
+ * la haya tocado). El defaultValue se persiste en `answers` cuando el
+ * usuario LLEGA al paso (via `DefaultValuePersist`), así que basta con
+ * mirar la presencia de la clave en `answers`.
+ *
+ * Esto evita inflar la barra al primer render con preguntas que el
+ * usuario todavía no vio.
+ */
+const isAnswerTouched = (q: DiagnosisQuestion, answers: Answers): boolean => {
+  const value = answers[q.storageKey]
+  if (value === undefined) return false
+  if (q.type === 'multiChips') return Array.isArray(value) && value.length > 0
+  if (q.type === 'grid') {
+    if (!Array.isArray(value)) return false
+    return value.some(v => v !== null && v !== undefined)
+  }
+  return true
+}
+
+/**
+ * Cuenta el progreso de una sección con denominador fijo (total real de
+ * preguntas de la categoría). Una pregunta cuenta como "resuelta" si:
+ *   - el usuario la respondió (presente en `answers` con valor útil), o
+ *   - quedó saltada porque una rama anterior la bloqueó
+ *     (`isQuestionSkipped`).
+ *
+ * Una pregunta pendiente cuya cláusula padre todavía no fue respondida
+ * no cuenta como resuelta ni como saltada — sigue contando en el
+ * denominador hasta que se resuelva.
+ *
+ * Esto evita dos bugs:
+ *   - secciones con todas sus preguntas saltadas mostraban 0% en lugar
+ *     de 100%.
+ *   - al primer render, preguntas slider/number con `defaultValue` se
+ *     contaban como respondidas y la barra arrancaba con progreso > 0.
+ */
 const computeSectionStats = (
   category: DiagnosisCategoryId,
   answers: Answers,
-): {applicable: number; resolved: number} => {
-  let applicable = 0
+): {total: number; resolved: number} => {
+  let total = 0
   let resolved = 0
   for (const q of DIAGNOSIS_QUESTIONS) {
     if (q.category !== category) continue
-    if (!isQuestionApplicable(q, answers)) continue
-    applicable++
-    if (isAnswerComplete(q, answers)) resolved++
+    total++
+    if (isQuestionSkipped(q, answers)) {
+      resolved++
+      continue
+    }
+    if (isQuestionApplicable(q, answers) && isAnswerTouched(q, answers)) {
+      resolved++
+    }
   }
-  return {applicable, resolved}
+  return {total, resolved}
 }
 
 export function DiagnosisProgress({state}: {state: StepperState<AnswerValue>}) {
@@ -60,11 +105,52 @@ export function DiagnosisProgress({state}: {state: StepperState<AnswerValue>}) {
     return q?.category ?? null
   }, [state.currentStep])
 
+  /**
+   * Conjunto de categorías ya "alcanzadas" por el usuario. Una sección
+   * está alcanzada si:
+   *   - es la categoría activa (`currentStep` o `__sectionScore__<cat>`),
+   *   - tiene al menos una pregunta tocada en `answers` (el usuario
+   *     pasó por una de sus preguntas raíz),
+   *   - el flujo ya terminó (`state.done`).
+   *
+   * Las categorías NO alcanzadas se muestran en 0% aunque alguna de sus
+   * preguntas haya quedado `skipped` por respuestas en secciones
+   * anteriores. Sin esto, contestar p.ej. `formalEmployment` en base
+   * bloquea `hasARL` en protección y el segmento de protección se mueve
+   * solo aunque el usuario aún esté respondiendo base.
+   *
+   * Asume el invariante de que toda categoría tiene al menos una
+   * pregunta sin `dependsOn` (raíz): así, llegar a una sección implica
+   * tocar al menos una de sus respuestas, y queda marcada como
+   * alcanzada de forma natural.
+   */
+  const reachedCategories = useMemo(() => {
+    const reached = new Set<DiagnosisCategoryId>()
+    if (state.done) {
+      for (const c of CATEGORY_ORDER) reached.add(c)
+      return reached
+    }
+    if (activeCategory) reached.add(activeCategory)
+    for (const q of DIAGNOSIS_QUESTIONS) {
+      if (q.storageKey in answers) reached.add(q.category)
+    }
+    return reached
+  }, [state.done, activeCategory, answers])
+
   const sections: SectionProgress[] = useMemo(
     () =>
       CATEGORY_ORDER.map(cat => {
-        const {applicable, resolved} = computeSectionStats(cat, answers)
-        const pct = applicable === 0 ? 0 : Math.round((resolved / applicable) * 100)
+        if (!reachedCategories.has(cat)) {
+          return {
+            id: cat,
+            label: CATEGORIES[cat].shortLabel,
+            color: CATEGORIES[cat].color,
+            pct: 0,
+            isActive: cat === activeCategory,
+          }
+        }
+        const {total, resolved} = computeSectionStats(cat, answers)
+        const pct = total === 0 ? 0 : Math.round((resolved / total) * 100)
         return {
           id: cat,
           label: CATEGORIES[cat].shortLabel,
@@ -73,7 +159,7 @@ export function DiagnosisProgress({state}: {state: StepperState<AnswerValue>}) {
           isActive: cat === activeCategory,
         }
       }),
-    [answers, activeCategory],
+    [answers, activeCategory, reachedCategories],
   )
 
   return (

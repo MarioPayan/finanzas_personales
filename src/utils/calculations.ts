@@ -24,6 +24,49 @@ export const formatMoney = (amount: number, currency: string): string =>
   }).format(amount)
 
 /**
+ * Familias de "pasos lindos" ordenadas de más redonda a menos. Cada
+ * número de la lista de entrada se aproxima a `step × 10^k` para algún
+ * `step` de la familia y algún entero `k`. Si la familia más redonda
+ * deja colisiones (dos entradas redondeadas al mismo valor), pasamos a
+ * la siguiente, que admite más resoluciones intermedias.
+ */
+const NICE_STEP_TIERS: readonly (readonly number[])[] = [
+  [1, 2, 5],
+  [1, 2, 2.5, 5],
+  [1, 1.5, 2, 2.5, 3, 5, 7],
+  [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8],
+]
+
+const roundToNiceStep = (n: number, steps: readonly number[]): number => {
+  if (n === 0) return 0
+  const sign = Math.sign(n)
+  const absN = Math.abs(n)
+  const magnitude = Math.pow(10, Math.floor(Math.log10(absN)))
+  const normalized = absN / magnitude
+  let best = steps[0]
+  for (const s of steps) {
+    if (Math.abs(normalized - s) < Math.abs(normalized - best)) best = s
+  }
+  return sign * best * magnitude
+}
+
+/**
+ * Redondea una lista de números a valores "lindos" (1, 2, 5 × 10^k de
+ * preferencia, escalando a familias más detalladas si dos valores
+ * colapsan). Sirve para sugerencias derivadas como `multiplier × SMM`:
+ * 711.750 → 500.000, 1.423.500 → 1.000.000, 2.847.000 → 2.000.000,
+ * 7.117.500 → 5.000.000, 14.235.000 → 10.000.000.
+ */
+export const niceRoundList = (numbers: readonly number[]): number[] => {
+  if (numbers.length === 0) return []
+  for (const steps of NICE_STEP_TIERS) {
+    const rounded = numbers.map(n => roundToNiceStep(n, steps))
+    if (new Set(rounded).size === rounded.length) return rounded
+  }
+  return numbers.map(n => Math.round(n))
+}
+
+/**
  * Multiplicador representativo del ingreso mensual a partir de la banda
  * elegida. Se calcula desde los `bracket` de las opciones de la pregunta de
  * ingreso para no duplicar conocimiento.

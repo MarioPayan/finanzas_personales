@@ -24,7 +24,11 @@ import {
 } from '../../content/diagnosis'
 import {collectInsights, type CollectedInsight} from '../../utils/insights'
 import {computeSectionScore} from '../../utils/scoring'
-import {getOverallProfile, getProfileForSection} from '../../content/profiles'
+import {
+  getFoundationProfile,
+  getOverallProfile,
+  getProfileForSection,
+} from '../../content/profiles'
 import {getMonthlyIncome} from '../../utils/calculations'
 import {type MinimumWageEntry} from '../../content/minimumWages'
 
@@ -187,7 +191,10 @@ const CLOSING_QUOTES: readonly ClosingQuote[] = [
 const pickClosingQuote = (categoryHint: DiagnosisCategoryId | null): ClosingQuote => {
   if (!categoryHint) return CLOSING_QUOTES[0]
   switch (categoryHint) {
-    case 'base':
+    case 'profile':
+    case 'income':
+    case 'expenses':
+    case 'habits':
       return CLOSING_QUOTES[0]
     case 'debt':
       return CLOSING_QUOTES[1]
@@ -201,13 +208,9 @@ const pickClosingQuote = (categoryHint: DiagnosisCategoryId | null): ClosingQuot
 function groupByCategory(
   items: readonly CollectedInsight[],
 ): Record<DiagnosisCategoryId, CollectedInsight[]> {
-  const out: Record<DiagnosisCategoryId, CollectedInsight[]> = {
-    base: [],
-    debt: [],
-    stability: [],
-    protection: [],
-    investment: [],
-  }
+  const out = Object.fromEntries(
+    CATEGORY_ORDER.map(c => [c, [] as CollectedInsight[]]),
+  ) as Record<DiagnosisCategoryId, CollectedInsight[]>
   for (const item of items) out[item.category].push(item)
   return out
 }
@@ -226,13 +229,9 @@ export default function Summary({
   const grouped = groupByCategory(insights)
 
   const sectionScores = useMemo(() => {
-    const out: Record<DiagnosisCategoryId, number> = {
-      base: 0,
-      debt: 0,
-      stability: 0,
-      protection: 0,
-      investment: 0,
-    }
+    const out = Object.fromEntries(
+      CATEGORY_ORDER.map(c => [c, 0]),
+    ) as Record<DiagnosisCategoryId, number>
     for (const cat of CATEGORY_ORDER) {
       out[cat] = computeSectionScore(cat, answers, smm).score
     }
@@ -240,6 +239,11 @@ export default function Summary({
   }, [answers, smm])
 
   const overall = useMemo(() => getOverallProfile(sectionScores), [sectionScores])
+  const foundation = useMemo(() => getFoundationProfile(sectionScores), [sectionScores])
+  const scoredCategories = useMemo(
+    () => CATEGORY_ORDER.filter(c => CATEGORIES[c].interstitial === 'score'),
+    [],
+  )
   const nextStep = useMemo(() => findNextStep(insights), [insights])
   const closingQuote = useMemo(() => pickClosingQuote(overall.bottleneck ?? null), [overall])
 
@@ -297,14 +301,53 @@ export default function Summary({
           </Card>
         </motion.div>
 
-        {/* Grid de scores por sección — 2x2 en mobile, 1x4 en sm+ */}
+        {/* Tu base — agregado narrativo de profile + income + expenses + habits */}
+        {foundation && (
+          <motion.div
+            initial={reducedMotion ? {opacity: 1, y: 0} : {opacity: 0, y: 12}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.4, delay: reducedMotion ? 0 : 0.1}}>
+            <Card elevation={0} sx={{border: 1, borderColor: 'divider'}}>
+              <CardContent sx={{p: {xs: 2.5, md: 4}}}>
+                <Stack spacing={1.25}>
+                  <Stack direction='row' spacing={1} sx={{alignItems: 'center'}}>
+                    <Typography variant='overline' color='text.secondary'>
+                      Tu base
+                    </Typography>
+                    <Chip
+                      size='small'
+                      label={`${foundation.score}/100`}
+                      variant='outlined'
+                      sx={{fontVariantNumeric: 'tabular-nums', fontWeight: 700}}
+                    />
+                  </Stack>
+                  <Typography variant='h5' sx={{fontWeight: 700}}>
+                    {foundation.profile.label}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary' sx={{lineHeight: 1.55}}>
+                    {foundation.profile.description}
+                  </Typography>
+                  <Typography variant='caption' color='text.disabled'>
+                    Combina perfil, ingresos, egresos y hábitos.
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Grid de scores por sección con scoring (excluye 'profile' que es narrativo) */}
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: {xs: '1fr 1fr', sm: 'repeat(5, 1fr)'},
+            gridTemplateColumns: {
+              xs: 'repeat(2, 1fr)',
+              sm: 'repeat(4, 1fr)',
+              md: `repeat(${scoredCategories.length}, 1fr)`,
+            },
             gap: {xs: 1.5, sm: 2},
           }}>
-          {CATEGORY_ORDER.map((catId, i) => {
+          {scoredCategories.map((catId, i) => {
             const score = sectionScores[catId]
             const cat = CATEGORIES[catId]
             const profile = getProfileForSection(catId, score)
